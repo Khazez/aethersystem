@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.vercel
+
+# Скриншоты проверок — 80 МБ, пересоздаются скриптами из scripts/.
+# В репозитории им не место: они не исходный код, а результат прогона.
+/screenshots

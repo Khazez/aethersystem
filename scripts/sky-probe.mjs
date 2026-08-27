@@ -1,0 +1,11 @@
+import { chromium } from "playwright";
+const b = await chromium.launch({ args:["--use-gl=angle","--use-angle=swiftshader","--enable-webgl"] });
+const p = await b.newPage({ viewport:{width:1600,height:900} });
+const reqs = [];
+p.on("response", r => { if (r.url().includes("sky.hdr")) reqs.push(`${r.status()} ${r.url().split("/").pop()}`); });
+p.on("console", m => { if (m.type()==="error") console.log("КОНСОЛЬ:", m.text().slice(0,120)); });
+p.on("pageerror", e => console.log("ОШИБКА СТРАНИЦЫ:", String(e).slice(0,160)));
+await p.goto("http://localhost:3210/ru", { waitUntil:"networkidle" });
+await p.waitForTimeout(6000);
+console.log("запросы sky.hdr:", reqs.length ? reqs.join(", ") : "НЕ ЗАПРАШИВАЛСЯ");
+await b.close();

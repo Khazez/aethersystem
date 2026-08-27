@@ -1,0 +1,15 @@
+import { chromium } from "playwright";
+const b = await chromium.launch({ args:["--use-gl=angle","--use-angle=swiftshader","--enable-webgl"] });
+const p = await b.newPage({ viewport:{width:1600,height:950} });
+const errs=[]; p.on("pageerror",e=>errs.push(String(e)));
+await p.goto("http://localhost:3200/prototype",{waitUntil:"networkidle"});
+await p.waitForTimeout(4000);
+await p.screenshot({path:"screenshots/proto/H1-hero.png"});
+console.log("H1");
+const m = await b.newPage({ viewport:{width:390,height:844} });
+await m.goto("http://localhost:3200/prototype",{waitUntil:"networkidle"});
+await m.waitForTimeout(4000);
+await m.screenshot({path:"screenshots/proto/H2-hero-mobile.png"});
+console.log("H2");
+console.log(errs.length?"ОШИБКИ: "+errs.join("|"):"ошибок нет");
+await b.close();
