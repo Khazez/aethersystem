@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { SITE_URL } from "@/lib/seo";
+import { defaultLocale } from "@/i18n/config";
 
 /**
  * Шрифты подключаются через next/font — Next скачивает их при сборке
@@ -60,8 +61,18 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
+    /* ⚠️ Язык здесь один на весь сайт, а не по странице.
+       Корневой макет лежит выше сегмента [locale] и языка страницы не
+       знает — параметры адреса до него не доходят. Поэтому все 24
+       страницы отдают один и тот же lang. Раньше это был жёстко
+       вписанный "ru"; с 29.08.2026 берётся язык по умолчанию, чтобы
+       значение шло за настройкой, а не расходилось с ней.
+
+       Остаётся неточность: на /ru и /en в разметке всё равно стоит kk.
+       Чинится только переносом <html> внутрь [locale] — это
+       перестройка структуры папок, отложено до решения заказчика. */
     <html
-      lang="ru"
+      lang={defaultLocale}
       className={`${inter.variable} ${plexMono.variable} h-full`}
       suppressHydrationWarning
     >

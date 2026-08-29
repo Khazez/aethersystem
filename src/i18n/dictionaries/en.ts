@@ -797,7 +797,7 @@ const en: Dictionary = {
     addressLabel: "Address",
     pending: "To be published",
     address:
-      "38 Ulytau Street, Koktal residential area,\nSaryarka District, Astana, Kazakhstan",
+      "8a Sanzhar Asfendiyarov Street,\nOmega Business Centre,\nNura District, Astana, Kazakhstan",
     formsTitle: "Or write to us",
     formsText:
       "Choose the form that matches your enquiry — this speeds up processing.",
