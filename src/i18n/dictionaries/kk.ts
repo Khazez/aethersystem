@@ -23,6 +23,10 @@ const kk: Dictionary = {
     contacts: "Байланыс",
     partnership: "Ынтымақтастық",
     feedback: "Кері байланыс",
+    platform: "Платформаны ашу",
+    /* Для скринридера: он объявит, что ссылка откроется в новой
+       вкладке. Зрячий видит это по значку со стрелкой. */
+    platformHint: "жаңа қойындыда ашылады",
     menu: "Мәзір",
     close: "Жабу",
     language: "Тіл",
@@ -49,7 +53,7 @@ const kk: Dictionary = {
       subtitle:
         "Біз ұшқышсыз аппарат, оператор, әуе кеңістігі, рұқсат, норматив және коммерциялық операция бір контурда байланысатын біртұтас цифрлық орта құрамыз.",
       tagline: "Technology for the Next Airspace",
-      primaryCta: "Aether Nexus платформасы туралы",
+      primaryCta: "Платформа мүмкіндіктері",
       secondaryCta: "Ынтымақтастық",
       hudMission: "МИССИЯ",
       hudAirspace: "ӘУЕ КЕҢІСТІГІ",

@@ -22,6 +22,10 @@ const en: Dictionary = {
     contacts: "Contacts",
     partnership: "Partnership",
     feedback: "Feedback",
+    platform: "Open the platform",
+    /* Для скринридера: он объявит, что ссылка откроется в новой
+       вкладке. Зрячий видит это по значку со стрелкой. */
+    platformHint: "opens in a new tab",
     menu: "Menu",
     close: "Close",
     language: "Language",
@@ -48,7 +52,7 @@ const en: Dictionary = {
       subtitle:
         "We build a single digital environment where the aircraft, the operator, the airspace, the authorisation, the regulation and the commercial operation are connected in one contour.",
       tagline: "Technology for the Next Airspace",
-      primaryCta: "Explore Aether Nexus",
+      primaryCta: "Platform capabilities",
       secondaryCta: "Partnership",
       hudMission: "MISSION",
       hudAirspace: "AIRSPACE",

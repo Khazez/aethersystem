@@ -5,9 +5,10 @@ import Link from "next/link";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { ArrowRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
 import { href } from "@/lib/nav";
+import { PLATFORM_URL } from "@/lib/company";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n";
 
@@ -180,13 +181,28 @@ export default function FlightStops({
 
           {/* --- Постоянная нижняя строка --- */}
           <div className="container-page absolute inset-x-0 bottom-6 flex items-end justify-between gap-8 sm:bottom-10">
+            <div className="flex flex-wrap items-center gap-3">
             <Link
               href={href(locale, "/product")}
-              className="group inline-flex min-h-11 items-center gap-2.5 border border-accent bg-accent/12 px-6 py-3.5 text-sm tracking-wide text-accent transition-colors hover:bg-accent/20"
+              className="inline-flex min-h-11 items-center border border-accent bg-accent/12 px-6 py-3.5 text-sm tracking-wide text-accent transition-colors hover:bg-accent/20"
             >
               {hero.primaryCta}
-              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
+            {/* Вход в сам продукт. Стиль вторичный: рядом стоит призыв
+                читать про возможности, и два одинаковых по весу призыва
+                гасили бы друг друга. Стрелка ↗ означает уход с сайта —
+                у внутренней кнопки стрелки нет, там она была украшением. */}
+            <a
+              href={PLATFORM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-11 items-center gap-2.5 border border-line-strong px-6 py-3.5 text-sm tracking-wide text-ink-muted transition-colors hover:border-accent/60 hover:text-accent"
+            >
+              {t.nav.platform}
+              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+              <span className="sr-only"> ({t.nav.platformHint})</span>
+            </a>
+            </div>
             <p className="hud-label hidden xl:block">{formula.title}</p>
           </div>
         </div>
@@ -209,13 +225,28 @@ export default function FlightStops({
             {hero.tagline}
           </p>
 
-          <Link
-            href={href(locale, "/product")}
-            className="mt-10 inline-flex min-h-11 items-center gap-2.5 border border-accent bg-accent/12 px-6 py-3.5 text-sm tracking-wide text-accent"
-          >
-            {hero.primaryCta}
-            <ArrowRight className="h-4 w-4" />
-          </Link>
+          <div className="mt-10 flex flex-wrap items-center gap-3">
+            <Link
+              href={href(locale, "/product")}
+              className="inline-flex min-h-11 items-center border border-accent bg-accent/12 px-6 py-3.5 text-sm tracking-wide text-accent"
+            >
+              {hero.primaryCta}
+            </Link>
+            {/* Вход в сам продукт. Стиль вторичный: рядом стоит призыв
+                читать про возможности, и два одинаковых по весу призыва
+                гасили бы друг друга. Стрелка ↗ означает уход с сайта —
+                у внутренней кнопки стрелки нет, там она была украшением. */}
+            <a
+              href={PLATFORM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-11 items-center gap-2.5 border border-line-strong px-6 py-3.5 text-sm tracking-wide text-ink-muted transition-colors hover:border-accent/60 hover:text-accent"
+            >
+              {t.nav.platform}
+              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+              <span className="sr-only"> ({t.nav.platformHint})</span>
+            </a>
+          </div>
 
           <ol className="mt-16 grid gap-px border border-line bg-line sm:grid-cols-2">
             {stops.map((item, i) => (

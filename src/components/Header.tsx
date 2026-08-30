@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Menu, X, Check } from "lucide-react";
+import { Menu, X, Check, ArrowUpRight } from "lucide-react";
 
 import { Logo } from "./Logo";
 import { href, mainNav } from "@/lib/nav";
+import { PLATFORM_URL } from "@/lib/company";
 import { locales, localeNames, type Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n";
 
@@ -159,6 +160,28 @@ export default function Header({
               )}
             </div>
 
+            {/* --- Вход в сам продукт. ---
+
+                Стоит отдельно от разделов меню намеренно: разделы
+                рассказывают о компании, эта ссылка уводит в рабочую
+                систему на другом сервере. Стиль вторичный — главным
+                призывом сайта остаётся связаться с компанией.
+
+                target="_blank" — новая вкладка: посетитель уходит в
+                другую систему, и сайт компании при этом не закрывается.
+                rel="noopener noreferrer" — открытая страница не получает
+                доступа к нашей и не узнаёт, откуда пришёл посетитель. */}
+            <a
+              href={PLATFORM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden items-center gap-1.5 border border-line-strong px-4 py-2 text-[0.8125rem] tracking-wide text-ink-muted transition-colors hover:border-accent/60 hover:text-accent sm:inline-flex"
+            >
+              {t.nav.platform}
+              <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+              <span className="sr-only"> ({t.nav.platformHint})</span>
+            </a>
+
             {/* --- Кнопка связи. Форм на сайте нет: ведём на контакты. --- */}
             <Link
               href={href(locale, "/contacts")}
@@ -207,6 +230,20 @@ export default function Header({
             </ul>
 
             <div className="mt-8 flex flex-col gap-3">
+              {/* Платформа первой: на телефоне до низа меню долистывают
+                  не все, а это единственный вход в сам продукт. */}
+              <a
+                href={PLATFORM_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={closeMenus}
+                className="flex items-center justify-center gap-2 border border-line-strong px-5 py-3.5 text-center text-ink"
+              >
+                {t.nav.platform}
+                <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+                <span className="sr-only"> ({t.nav.platformHint})</span>
+              </a>
+
               <Link
                 href={href(locale, "/contacts")}
                 onClick={closeMenus}
