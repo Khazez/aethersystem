@@ -54,6 +54,8 @@ export default async function TeamPage({ params }: Params) {
         eyebrow={t.team.hero.eyebrow}
         title={t.team.hero.title}
         lead={t.team.hero.subtitle}
+        /* тот же спокойный мотив, что и «О компании» */
+        scene="terrain"
       />
 
       <Section className="bg-abyss">

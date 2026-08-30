@@ -1,4 +1,4 @@
-import AirspaceNetwork from "./AirspaceNetwork";
+import DepthBackdrop, { type BackdropScene } from "./DepthBackdrop";
 import Reveal from "./Reveal";
 
 /**
@@ -11,20 +11,29 @@ export default function PageHero({
   title,
   subtitle,
   lead,
+  scene = "nodes",
 }: {
   eyebrow: string;
   title: string;
   subtitle?: string;
   lead?: string;
+  /** Мотив подложки. У каждого раздела свой — см. DepthBackdrop. */
+  scene?: BackdropScene;
 }) {
   return (
     <section className="relative isolate overflow-hidden pt-18">
       <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 opacity-40">
-          <AirspaceNetwork density={0.55} />
+        {/* ⚠️ Непрозрачность и градиент подобраны так, чтобы сцену
+            было видно. Прежние `opacity-40` и градиент до сплошного
+            `void` гасили её почти целиком — отсюда и было замечание
+            «фон скучный». Затемнение теперь рисует сама сцена, по
+            своей глубине; здесь остаётся только полоса под шапкой
+            и мягкий переход к содержанию. */}
+        <div className="absolute inset-0 opacity-80">
+          <DepthBackdrop scene={scene} />
         </div>
-        <div className="bg-grid bg-grid-fade absolute inset-0" />
-        <div className="absolute inset-0 bg-gradient-to-b from-void/55 via-void/80 to-void" />
+        <div className="bg-grid bg-grid-fade absolute inset-0 opacity-60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-void/70 via-transparent to-void" />
       </div>
 
       <div className="container-page py-20 lg:py-28">

@@ -90,6 +90,8 @@ export default async function ProductPage({ params }: Params) {
         title={p.hero.title}
         subtitle={p.hero.subtitle}
         lead={p.hero.lead}
+        /* Aether Grid — это сам продукт */
+        scene="grid"
       />
 
       {/* --- Aether Core: архитектурные слои --- */}

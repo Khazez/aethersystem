@@ -40,6 +40,8 @@ export default async function SolutionsPage({ params }: Params) {
         eyebrow={s.hero.eyebrow}
         title={s.hero.title}
         lead={s.hero.subtitle}
+        /* узлы и связи — отрасли применения */
+        scene="nodes"
       />
 
       {/* --- Категории пользователей --- */}

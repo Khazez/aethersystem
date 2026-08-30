@@ -47,6 +47,8 @@ export default async function AboutPage({ params }: Params) {
         eyebrow={a.hero.eyebrow}
         title={a.hero.title}
         subtitle={a.hero.subtitle}
+        /* спокойный мотив для страницы о компании */
+        scene="terrain"
       />
 
       {/* --- Кто мы --- */}

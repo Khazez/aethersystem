@@ -79,6 +79,8 @@ export default async function ContactsPage({ params }: Params) {
         eyebrow={c.hero.eyebrow}
         title={c.hero.title}
         lead={c.hero.subtitle}
+        /* узлы и связи — раздел про связь */
+        scene="nodes"
       />
 
       {/* --- Каналы связи --- */}
