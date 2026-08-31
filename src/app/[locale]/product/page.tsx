@@ -27,6 +27,7 @@ import PageHero from "@/components/PageHero";
 import CallToAction from "@/components/CallToAction";
 import Reveal from "@/components/Reveal";
 import { Section, SectionHeading } from "@/components/Section";
+import { ProductJsonLd } from "@/components/StructuredData";
 import { alternates } from "@/lib/seo";
 import { getDictionary } from "@/i18n";
 import { isLocale, locales } from "@/i18n/config";
@@ -85,6 +86,10 @@ export default async function ProductPage({ params }: Params) {
 
   return (
     <>
+      {/* Карточка продукта для поиска: запрос «Aether Nexus» должен
+          приводить сюда. Ставится только здесь, не на каждой странице. */}
+      <ProductJsonLd name={p.hero.title} description={p.hero.subtitle ?? p.hero.lead ?? ""} />
+
       <PageHero
         eyebrow={p.hero.eyebrow}
         title={p.hero.title}

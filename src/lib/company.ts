@@ -25,6 +25,22 @@ export const EMAIL = "info@aethersystem.kz";
  */
 export const PLATFORM_URL = "https://platform.aethersystem.kz";
 
+/**
+ * Адрес по частям — для структурированных данных (schema.org).
+ * Там нужен не связный текст, а поля: улица, город, страна.
+ *
+ * Латиницей намеренно: поисковые системы принимают одну запись на все
+ * языки, а три перевода в разметке расходились бы при первой правке.
+ * Человеку адрес показывается из словарей, на его языке.
+ */
+export const ADDRESS = {
+  street: "8a Sanzhar Asfendiyarov Street, Omega Business Centre",
+  district: "Nura District",
+  city: "Astana",
+  /** Код страны по ISO 3166-1. */
+  country: "KZ",
+};
+
 /** Телефон: как показывать людям и как отдавать в ссылку для звонка. */
 export const PHONE = {
   /** Для чтения глазами — с пробелами по разрядам. */

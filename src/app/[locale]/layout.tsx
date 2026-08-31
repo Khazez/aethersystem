@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 
 import "@/app/globals.css";
 import { fontVariables } from "@/app/fonts";
-import { SITE_URL } from "@/lib/seo";
+import { SITE_URL, OG_IMAGE } from "@/lib/seo";
+import { OrganizationJsonLd } from "@/components/StructuredData";
 
 import Header from "@/components/Header";
 import SmoothScroll from "@/components/SmoothScroll";
@@ -89,6 +90,27 @@ export async function generateMetadata({
       siteName: t.meta.siteName,
       locale: localeHtmlLang[locale],
       type: "website",
+      /* Картинка карточки, которая показывается при отправке ссылки
+         в мессенджер, соцсеть или письмо. Без неё карточка выходит
+         без изображения — для сайта, который рассылают ведомствам
+         и партнёрам, это заметно. */
+      images: [
+        {
+          url: OG_IMAGE,
+          width: 1200,
+          height: 630,
+          alt: t.meta.siteName,
+        },
+      ],
+    },
+    twitter: {
+      /* summary_large_image — карточка с широкой картинкой. По умолчанию
+         Next ставит summary, где изображение показывается мелким
+         квадратом сбоку. */
+      card: "summary_large_image",
+      title: t.meta.defaultTitle,
+      description: t.meta.defaultDescription,
+      images: [OG_IMAGE],
     },
   };
 }
@@ -119,6 +141,10 @@ export default async function LocaleLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full bg-void text-ink">
+        {/* Машиночитаемая карточка организации: по ней поисковик
+            связывает название «Aether System» с этим доменом. */}
+        <OrganizationJsonLd locale={locale} />
+
         <div className="flex min-h-screen flex-col">
           {/* Плавная прокрутка + связка с анимациями. Ничего не рисует. */}
           <SmoothScroll />

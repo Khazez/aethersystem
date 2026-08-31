@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 
-import { locales, localeHtmlLang, type Locale } from "@/i18n/config";
+import {
+  locales,
+  localeHtmlLang,
+  defaultLocale,
+  type Locale,
+} from "@/i18n/config";
 
 /**
  * Адреса страниц для поисковых систем.
@@ -34,6 +39,16 @@ import { locales, localeHtmlLang, type Locale } from "@/i18n/config";
 export const SITE_URL = "https://aethersystem.kz";
 
 /**
+ * Картинка для превью ссылки (1200×630). Показывается, когда адрес
+ * сайта вставляют в мессенджер, соцсеть или письмо.
+ *
+ * Файл рисуется скриптом `scripts/make-og.mjs`, а не на лету: генерация
+ * на сервере потребовала бы отдельно подгружать шрифт с кириллицей —
+ * лишняя точка отказа ради картинки, которая меняется раз в год.
+ */
+export const OG_IMAGE = `${SITE_URL}/og.png`;
+
+/**
  * Собирает ссылки на языковые версии одной и той же страницы.
  *
  * @param locale текущий язык
@@ -48,8 +63,14 @@ export function alternates(locale: Locale, path = ""): Metadata["alternates"] {
     /* hreflang сообщает поисковику, что это одна страница на разных
        языках, а не три разных. Без него версии считаются дублями и
        конкурируют друг с другом. */
-    languages: Object.fromEntries(
-      locales.map((code) => [localeHtmlLang[code], `/${code}${tail}`]),
-    ),
+    languages: {
+      ...Object.fromEntries(
+        locales.map((code) => [localeHtmlLang[code], `/${code}${tail}`]),
+      ),
+      /* x-default — куда вести посетителя, чей язык не совпал ни с одним
+         из трёх. Без него поисковик выбирает версию сам и может показать
+         казахстанцу английскую страницу. Ведём на язык по умолчанию. */
+      "x-default": `/${defaultLocale}${tail}`,
+    },
   };
 }
