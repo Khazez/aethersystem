@@ -594,8 +594,9 @@ export default function FlightBackdrop() {
       roofLevel: ROOF_LEVEL,
       quality:q.level==='full'?'high':'medium',
       layout:'landmark-route',
-      // Locally use the reconstructed Nurzhol assets; preserve a procedural comparison.
-      landmarkAssets:['localhost','127.0.0.1'].includes(window.location.hostname)&&new URLSearchParams(window.location.search).get('landmarks')!=='procedural',
+      // Load the same reconstructed landmarks on preview and public hosts.
+      // Keep the explicit procedural query option for side-by-side comparison.
+      landmarkAssets:new URLSearchParams(window.location.search).get('landmarks')!=='procedural',
     });
     scene.add(city.group);
     mount.dataset.terrain='cloud-stage';
@@ -636,8 +637,7 @@ export default function FlightBackdrop() {
     /** Independent carriers let models exit without moving the camera anchor. */
     const fleet=flightFleetOrder.map(kind=>{
       const aircraft=createFleetModel(kind);
-      const taxiAsset=kind==='taxi'&&['localhost','127.0.0.1'].includes(window.location.hostname)
-        ?attachTaxiAsset(aircraft.group):null;
+      const taxiAsset=kind==='taxi'?attachTaxiAsset(aircraft.group):null;
       const bounds=new THREE.Box3().setFromObject(aircraft.group),size=bounds.getSize(new THREE.Vector3());
       const scale=17/Math.max(size.x,size.z),center=bounds.getCenter(new THREE.Vector3());
       aircraft.group.scale.setScalar(scale);
