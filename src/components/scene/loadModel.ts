@@ -32,6 +32,8 @@ export type ModelFit = {
   targetSize: number;
   /** Доворот вокруг вертикали, если нос модели смотрит не туда. */
   yaw?: number;
+  /** Local study: preserve painted maps, reduce harsh metallic and normal response. */
+  refined?: boolean;
 };
 
 /**
@@ -135,6 +137,17 @@ export async function loadAircraftModel(
       const mat = obj.material as THREE.MeshStandardMaterial;
       // Отражения окружения сцены применяются и к загруженной модели.
       if (mat && "envMapIntensity" in mat) mat.envMapIntensity = 1.15;
+      if (fit.refined && mat?.isMeshStandardMaterial) {
+        mat.metalness = 0.38;
+        mat.roughness = 0.85;
+        mat.envMapIntensity = 1.35;
+        mat.normalScale.set(.55, .55);
+        for (const texture of [mat.map,mat.normalMap,mat.roughnessMap,mat.metalnessMap]) {
+          if (texture) texture.anisotropy = 8;
+        }
+      }
+      obj.castShadow = true;
+      obj.receiveShadow = true;
     }
   });
 
@@ -151,10 +164,16 @@ export async function loadAircraftModel(
       for (const r of rotors) r.rotation.y += 1.2;
     },
     dispose: () => {
+      const released = new Set<THREE.Texture>();
       model.traverse((obj) => {
         if (obj instanceof THREE.Mesh) {
           obj.geometry?.dispose();
           const m = obj.material;
+          for (const material of Array.isArray(m) ? m : [m]) {
+            for (const value of Object.values(material)) {
+              if (value instanceof THREE.Texture && !released.has(value)) { value.dispose(); released.add(value); }
+            }
+          }
           if (Array.isArray(m)) m.forEach((x) => x.dispose());
           else m?.dispose();
         }

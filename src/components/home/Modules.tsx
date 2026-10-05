@@ -72,13 +72,13 @@ export default function Modules({
           </Reveal>
         </div>
 
-        <ul className="mt-16 grid gap-px border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-16 grid border-t border-line sm:grid-cols-2 lg:grid-cols-3">
           {s.items.map((item, i) => {
             const Icon = icons[item.key as keyof typeof icons];
 
             return (
               <Reveal key={item.key} as="li" delay={(i % 3) * 60} className="h-full">
-                <div className="group flex h-full flex-col bg-surface p-7 transition-colors duration-300 hover:bg-surface-2">
+                <div className="group flex h-full flex-col border-b border-line bg-void/20 p-7 transition-colors duration-300 hover:bg-void/40">
                   <div className="flex items-start justify-between gap-4">
                     <Icon
                       className="h-6 w-6 shrink-0 text-accent/70 transition-colors duration-300 group-hover:text-accent"

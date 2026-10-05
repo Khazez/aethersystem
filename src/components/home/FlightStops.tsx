@@ -145,7 +145,7 @@ export default function FlightStops({
               читается текст — обычная схема мобильного первого экрана. */}
           <div
             data-hero-block
-            className="container-page absolute inset-x-0 bottom-24 lg:top-1/2 lg:bottom-auto lg:-translate-y-1/2"
+            className="container-page absolute inset-x-0 bottom-44 lg:top-1/2 lg:bottom-auto lg:-translate-y-1/2"
           >
             <p className="hud-label">{hero.eyebrow}</p>
             <h1 className="mt-6 max-w-4xl text-balance text-[2rem] leading-[1.08] font-medium tracking-tight text-ink sm:text-5xl sm:leading-[1.05] xl:text-7xl">
@@ -164,7 +164,7 @@ export default function FlightStops({
             <div
               key={item.key}
               data-stop
-              className="container-page absolute inset-x-0 bottom-24 lg:top-1/2 lg:bottom-auto lg:-translate-y-1/2"
+              className="container-page absolute inset-x-0 bottom-44 lg:top-1/2 lg:bottom-auto lg:-translate-y-1/2"
               style={{ visibility: "hidden" }}
             >
               <p className="font-mono text-[0.6875rem] tracking-[0.28em] text-accent">
@@ -248,9 +248,9 @@ export default function FlightStops({
             </a>
           </div>
 
-          <ol className="mt-16 grid gap-px border border-line bg-line sm:grid-cols-2">
+          <ol className="mt-16 grid border-y border-line sm:grid-cols-2">
             {stops.map((item, i) => (
-              <li key={item.key} className="bg-surface p-6">
+              <li key={item.key} className="border-b border-line bg-void/20 p-6">
                 <p className="font-mono text-[0.6875rem] tracking-[0.28em] text-accent">
                   {String(i + 1).padStart(2, "0")} — {item.key}
                 </p>

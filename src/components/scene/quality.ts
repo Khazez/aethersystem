@@ -34,6 +34,7 @@ export type QualityProfile = {
   cloudCount: number;
   /** Свечение ярких мест. Самый дорогой из эффектов. */
   bloom: boolean;
+  shadowMapSize: 0 | 1024 | 2048;
 };
 
 /** Есть ли рабочий WebGL — технология, которой рисуется трёхмерная графика. */
@@ -47,7 +48,7 @@ export function hasWebGL(): boolean {
 }
 
 /**
- * Экономный режим или заведомо медленная связь.
+ * Явно включённая пользователем экономия трафика.
  *
  * Читается из `navigator.connection` — поле есть не во всех браузерах,
  * поэтому обращение осторожное.
@@ -59,13 +60,10 @@ export function hasWebGL(): boolean {
  * (8 МБ материалов всё равно качаются) смысла не имеет.
  */
 function isSavingData(): boolean {
-  const nav = navigator as Navigator & {
-    connection?: { saveData?: boolean; effectiveType?: string };
-  };
-  const c = nav.connection;
-  if (!c) return false;
-  if (c.saveData) return true;
-  return c.effectiveType === "slow-2g" || c.effectiveType === "2g";
+  const nav = navigator as Navigator & {connection?: {saveData?: boolean}};
+  // effectiveType is an estimate, not a preference. Slow dev compilation can
+  // change it to 2g even for a cached localhost scene; never blank the site for it.
+  return nav.connection?.saveData===true;
 }
 
 /** Слабое устройство: мало памяти или мало вычислительных ядер. */
@@ -83,20 +81,28 @@ function isWeakDevice(): boolean {
  * вызывает тошноту. Для госзаказа доступность обязательна, поэтому эта
  * настройка перевешивает любые пожелания к красоте.
  */
-export function isSceneEnabled(): boolean {
+export function sceneDisabledReason(): 'reduced-motion'|'saving-data'|'webgl-unavailable'|null {
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    return false;
+    return 'reduced-motion';
   }
   /* Экономия трафика — тоже осознанный выбор человека, и весит сцена
      около 8 МБ материалов. Уважаем так же, как «уменьшить движение». */
-  if (isSavingData()) return false;
-  return hasWebGL();
+  if (isSavingData()) return 'saving-data';
+  return hasWebGL()?null:'webgl-unavailable';
 }
+
+export function isSceneEnabled():boolean{return sceneDisabledReason()===null;}
 
 /** Подбирает настройки под устройство. */
 export function readQuality(): QualityProfile {
   const narrow = window.matchMedia("(max-width: 1023px)").matches;
-  const lite = narrow || isWeakDevice();
+  const coarse = window.matchMedia("(pointer: coarse)").matches;
+  return qualityForDevice(narrow,coarse,isWeakDevice());
+}
+
+/** A narrow desktop preview is not a low-powered mobile GPU. */
+export function qualityForDevice(narrow:boolean,coarse:boolean,weak:boolean):QualityProfile {
+  const lite = (narrow && coarse) || weak;
 
   if (!lite) {
     return {
@@ -105,6 +111,7 @@ export function readQuality(): QualityProfile {
       antialias: true,
       cloudCount: 340,
       bloom: true,
+      shadowMapSize:2048,
     };
   }
 
@@ -121,5 +128,6 @@ export function readQuality(): QualityProfile {
     /* Свечение — отдельные проходы отрисовки в уменьшенные буферы.
        На телефоне отнимает больше, чем добавляет. */
     bloom: false,
+    shadowMapSize:weak?0:1024,
   };
 }

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import '@/components/home/flight-reading.css';
 
 import FlightBackdropLazy from "@/components/home/FlightBackdropLazy";
 import FlightStops from "@/components/home/FlightStops";
@@ -49,14 +50,14 @@ export default async function HomePage({
       <FlightBackdropLazy />
 
       {/* Содержание лежит поверх сцены. */}
-      <div className="relative z-10">
+      <div className="home-flight-content relative z-10">
         <FlightStops locale={locale} t={t} />
 
         {/* Ниже идёт содержание. Одна общая полупрозрачная подложка:
             полёт просвечивает, но текст читается. Раньше секции имели
             собственные подложки разной плотности — на дневной сцене
             это давало резкие горизонтальные полосы. */}
-        <div className="relative bg-void/58">
+        <div className="home-flight-reading relative">
           <Problem t={t} />
         <Concept t={t} />
         <LifecycleScene
@@ -65,7 +66,7 @@ export default async function HomePage({
           counterLabel={t.home.concept.lifecycleStep}
         />
         <Modules locale={locale} t={t} />
-        <GridSection t={t} />
+        <GridSection t={t} locale={locale} />
         <Industries t={t} index="06" />
         <Roadmap t={t} />
           <CallToAction

@@ -1,4 +1,5 @@
-@import "tailwindcss";
+/* Scan application code, not the imported map coordinates or offline 3D artifacts. */
+@import "tailwindcss" source("../");
 
 /* ============================================================================
    AETHER SYSTEM & CO. — ДИЗАЙН-СИСТЕМА

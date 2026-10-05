@@ -69,10 +69,10 @@ export default function Problem({ t }: { t: Dictionary }) {
             уже имеет заданную высоту, и каждый абзац растягивался на
             всю колонку — три абзаца давали тройную высоту и наезжали
             на этот блок. */}
-        <dl className="mt-20 grid gap-px border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
+        <dl className="mt-20 grid border-y border-line sm:grid-cols-2 lg:grid-cols-4">
           {s.stats.map((stat, i) => (
             <Reveal key={stat.label} delay={i * 70} className="h-full">
-              <div className="bg-surface px-7 py-9">
+              <div className="bg-void/20 px-7 py-9">
                 <dt className="sr-only">{stat.label}</dt>
                 <dd>
                   <span className="block text-4xl font-medium tracking-tight text-accent tabular-nums lg:text-5xl">

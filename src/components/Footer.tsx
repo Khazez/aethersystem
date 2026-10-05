@@ -95,6 +95,11 @@ export default function Footer({
         </div>
 
         {/* --- Нижняя строка --- */}
+        <p className="mt-10 text-xs text-ink-muted">
+          <a href="/terrain/SOURCES.txt" className="underline underline-offset-4 hover:text-accent">
+            {locale === 'ru' ? 'Данные рельефа: USGS / Mapzen' : locale === 'en' ? 'Terrain data: USGS / Mapzen' : 'Жер бедері деректері: USGS / Mapzen'}
+          </a>
+        </p>
         <div className="mt-14 flex flex-col gap-4 border-t border-line pt-8 sm:flex-row sm:items-center sm:justify-between">
           <p className="font-mono text-[0.6875rem] tracking-[0.14em] text-ink-faint">
             © {year} {t.meta.siteName}. {t.footer.rights}

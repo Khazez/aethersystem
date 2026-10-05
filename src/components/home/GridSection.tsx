@@ -1,12 +1,12 @@
 import { Section, SectionHeading } from "@/components/Section";
 import Reveal from "@/components/Reveal";
 import GridVisual from "@/components/GridVisual";
-import type { Dictionary } from "@/i18n";
+import type { Dictionary,Locale } from "@/i18n";
 
 /**
  * Секция Aether Grid — воздушное пространство как цифровая сетка.
  */
-export default function GridSection({ t }: { t: Dictionary }) {
+export default function GridSection({ t,locale }: { t: Dictionary;locale:Locale }) {
   const s = t.home.grid;
 
   return (
@@ -46,6 +46,7 @@ export default function GridSection({ t }: { t: Dictionary }) {
           {/* --- Визуализация сетки --- */}
           <Reveal delay={120}>
             <GridVisual
+              locale={locale}
               legendFree={s.legendFree}
               legendLoaded={s.legendLoaded}
               legendRestricted={s.legendRestricted}

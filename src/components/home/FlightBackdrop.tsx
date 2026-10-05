@@ -2,17 +2,22 @@
 
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
-import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
+import { HDRLoader } from "three/examples/jsm/loaders/HDRLoader.js";
+import { GTAOPass } from "three/examples/jsm/postprocessing/GTAOPass.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 
-import { createQuadDrone, createVertiport } from "@/components/scene/drones";
+import {createTransportTerminal,TERMINAL_DECK_HEIGHT} from '@/components/scene/transportTerminal';
+import { createFleetModel } from "@/components/scene/fleet";
+import { attachTaxiAsset } from "@/components/scene/taxiAsset";
+import {flightFleetOrder,fleetFlightPose,landingMotion,landingCameraPose} from "@/components/scene/fleetMotion";
 import { createCityscape } from "@/components/scene/city";
-import { loadAircraftModel } from "@/components/scene/loadModel";
-import { isSceneEnabled, readQuality } from "@/components/scene/quality";
+import {presentationFlight} from '@/components/scene/presentationFlight';
+import {cityRoutePose} from '@/components/scene/astana/routeLayout';
+import { sceneDisabledReason, readQuality } from "@/components/scene/quality";
 
 /**
  * Фон всей главной страницы: аппарат летит сквозь облака.
@@ -45,7 +50,7 @@ const CORRIDOR = 2600;
    экрана до последнего, картинка не меняется и кажется, что аппарат
    висит на месте. */
 const CLOUDS_TO = -1500;
-const CITY_FROM = -1150;
+const CITY_FROM = -220;
 const CITY_TO = -2750;
 /** Уровень крыш: город проходит заметно ниже маршрута. */
 const ROOF_LEVEL = -62;
@@ -242,6 +247,7 @@ function fitFov(fov: number, aspect: number): number {
  * снимок, а не как кадр из полёта).
  */
 function frameScale(aspect: number): number {
+  if(aspect<.8)return 0;
   if (aspect >= SHOT_ASPECT) return 1;
   return Math.max(0.15, aspect / SHOT_ASPECT);
 }
@@ -279,20 +285,21 @@ function portraitLift(
 const SHOTS: Shot[] = [
   // 1. Общий сзади-сбоку. Слева заголовок — аппарат уводим вправо.
   { name: "обзорный", offset: [-16, 6, 44], look: [0, 0, -8], fov: 50, frame: 0.3 },
-  // 2. Верхний: аппарат идёт над облачным слоем.
-  { name: "верхний", offset: [-10, 34, 30], look: [0, -6, -8], fov: 52, frame: 0.26 },
+  // 2. The axis opens behind the aircraft; retain room for its full rotor span.
+  { name: "Нуржол — установочный", offset: [-58, 28, 124], look: [0, -8, -70], fov: 50, frame: 0.025 },
   // 3. Крупный: видно подвес камеры, винты, опоры.
-  { name: "крупный", offset: [-12, 4, 26], look: [0, 0, -2], fov: 40, frame: 0.34 },
-  // 4. Встречный: камера впереди, аппарат идёт на зрителя.
-  { name: "встречный", offset: [6, 3, -40], look: [0, 0, 16], fov: 46, frame: -0.16 },
+  { name: "крупный", offset: [-14, 6, 34], look: [0, 0, -2], fov: 44, frame: 0.20 },
+  // Stay on the same side of the aircraft: interpolation to a head-on camera
+  // crossed through its hull and filled the entire city shot with the cargo box.
+  { name: "городской общий", offset: [-42, 25, 74], look: [0, -20, -80], fov: 50, frame: .08 },
   // 5. Профиль: аппарат пересекает кадр сбоку.
-  { name: "профиль", offset: [40, 3, 4], look: [0, 0, 0], fov: 42, frame: 0.1 },
+  { name: "такси — облачная презентация", offset: [-26, 10, 62], look: [0, 1, -3], fov: 48, frame: 0.20 },
 
   /* Последние два плана — снижение. Оба сзади и сверху: камера впереди
      аппарата здесь недопустима, там стоит посадочная площадка, и камера
      оказывалась бы внутри неё. */
   { name: "заход", offset: [-34, 26, 60], look: [0, -12, -10], fov: 50, frame: 0.22 },
-  { name: "посадочный", offset: [-40, 22, 74], look: [0, -10, -8], fov: 46, frame: 0.2 },
+  { name: "посадочный", offset: [-28, 16, 48], look: [0, -4, 0], fov: 44, frame: 0.1 },
 ];
 
 /** Плавная ступенька: разгон и торможение без рывков на краях. */
@@ -315,7 +322,8 @@ const FinishShader = {
     tDiffuse: { value: null as THREE.Texture | null },
     uTime: { value: 0 },
     uVignette: { value: 1.05 },
-    uGrain: { value: 0.032 },
+    uGrain: { value: 0.006 },
+    uCloudCover: { value: 0 },
   },
   vertexShader: `
     varying vec2 vUv;
@@ -329,6 +337,7 @@ const FinishShader = {
     uniform float uTime;
     uniform float uVignette;
     uniform float uGrain;
+    uniform float uCloudCover;
     varying vec2 vUv;
 
     void main() {
@@ -336,12 +345,16 @@ const FinishShader = {
 
       // Виньетка: расстояние от центра кадра.
       vec2 d = vUv - 0.5;
-      float vig = smoothstep(0.85, 0.28, length(d) * uVignette);
+      float vig = 1.0 - smoothstep(0.28, 0.85, length(d) * uVignette);
       color.rgb *= mix(0.72, 1.0, vig);
 
       // Зерно: псевдослучайный шум, меняющийся во времени.
       float n = fract(sin(dot(vUv * uTime, vec2(12.9898, 78.233))) * 43758.5453);
       color.rgb += (n - 0.5) * uGrain;
+      // Cover the geographical cut before the city is removed. HTML stays readable.
+      float billow = sin(vUv.x * 9.0 + vUv.y * 4.0) * .025
+        + sin(vUv.y * 13.0 - vUv.x * 5.0) * .018;
+      color.rgb = mix(color.rgb, vec3(.63, .70, .75) + billow, uCloudCover);
 
       gl_FragColor = color;
     }
@@ -359,7 +372,8 @@ export default function FlightBackdrop() {
        нет. Ширина экрана больше ни на что не влияет: на телефоне сцена
        работает, просто в облегчённом виде. Содержание страницы от фона
        не зависит в любом случае — оно самостоятельное. */
-    if (!isSceneEnabled()) return;
+    const disabledReason=sceneDisabledReason();
+    if (disabledReason) {mount.dataset.sceneState=disabledReason;return;}
 
     /** Настройки под устройство: телефон получает облегчённый набор. */
     const q = readQuality();
@@ -369,9 +383,10 @@ export default function FlightBackdrop() {
       renderer = new THREE.WebGLRenderer({
         antialias: q.antialias,
         alpha: true,
-        powerPreference: "low-power",
+        powerPreference: "high-performance",
       });
     } catch {
+      mount.dataset.sceneState='webgl-unavailable';
       return;
     }
 
@@ -380,13 +395,13 @@ export default function FlightBackdrop() {
     // а не обрываются стеной.
     // Дневная дымка: светлая, а не чёрная.
     // Дымка лёгкая: плотная съедала и облака, и детали города.
-    scene.fog = new THREE.FogExp2(0x8ea7ba, 0.00034);
+    scene.fog = new THREE.FogExp2(0xa5bac8, 0.00024);
 
     const camera = new THREE.PerspectiveCamera(
       58,
       window.innerWidth / window.innerHeight,
-      0.1,
-      3000,
+      2,
+      50000,
     );
 
     /* Предел плотности точек. У телефона она доходит до 3 — без
@@ -400,8 +415,14 @@ export default function FlightBackdrop() {
        стандарт кинопроизводства, он сжимает света мягко. */
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 0.92;
+    renderer.shadowMap.enabled=q.shadowMapSize>0;
+    renderer.shadowMap.type=THREE.PCFShadowMap;
+    renderer.shadowMap.autoUpdate=false;
+    renderer.info.autoReset=false;
+    scene.environmentIntensity=.4;
 
     mount.appendChild(renderer.domElement);
+    mount.dataset.sceneState='rendering';
 
     /* --- Небо ---------------------------------------------------------
        Настоящий снимок неба (HDR-панорама) вместо нарисованного
@@ -432,9 +453,11 @@ export default function FlightBackdrop() {
     let realSky: THREE.Texture | null = null;
     let realEnv: THREE.WebGLRenderTarget | null = null;
 
-    new RGBELoader().load(
+    let disposed=false;
+    new HDRLoader().load(
       "/textures/sky/sky.hdr",
       (hdr) => {
+        if(disposed){hdr.dispose();return;}
         hdr.mapping = THREE.EquirectangularReflectionMapping;
         realSky = hdr;
         realEnv = pmrem.fromEquirectangular(hdr);
@@ -466,13 +489,12 @@ export default function FlightBackdrop() {
        края ярких мест, а картинка остаётся стерильной. */
     const composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
+    if(q.level==='full')for(const target of [composer.renderTarget1,composer.renderTarget2]){
+      target.depthTexture=new THREE.DepthTexture(target.width,target.height,THREE.UnsignedIntType);
+    }
 
-    /* Затенение в углублениях (GTAO) пробовали и убрали.
-       Замер: 1,8 кадр/с без него против 0,7 с ним — эффект утраивает
-       стоимость кадра. Картинку он улучшает заметно, но фоновая сцена
-       не может стоить столько: сайт должен открываться и на слабом
-       офисном ноутбуке. Если понадобится — включать только на мощных
-       машинах, по отдельной проверке производительности. */
+    const ao=q.level==='full'?new GTAOPass(scene,camera,640,360):null;
+    if(ao){ao.blendIntensity=.55;ao.updateGtaoMaterial({radius:1.8,thickness:1,distanceExponent:1.5});composer.addPass(ao);}
 
 
     /* Свечение только на действительно ярких местах: ходовые огни и
@@ -495,22 +517,24 @@ export default function FlightBackdrop() {
 
     // Переводит результат в пространство экрана с учётом тональной
     // компрессии. Без него цвета уедут.
-    composer.addPass(new OutputPass());
+    const outputPass=new OutputPass();composer.addPass(outputPass);
+    ao?.setSize(Math.floor(window.innerWidth*.5),Math.floor(window.innerHeight*.5));
 
     /* Дневная схема света: яркое солнце сверху-слева, холодный
        заполняющий от неба, слабый контровой. */
-    scene.add(new THREE.AmbientLight(0x8fa8bd, 1.5));
+    scene.add(new THREE.HemisphereLight(0xd6e5ed,0x55574c,.24));
 
-    const keyLight = new THREE.DirectionalLight(0xfff4e2, 2.6);
+    const keyLight = new THREE.DirectionalLight(0xffedd3, 3.1);
+    keyLight.castShadow=q.shadowMapSize>0;
+    keyLight.shadow.mapSize.set(q.shadowMapSize||1024,q.shadowMapSize||1024);
+    Object.assign(keyLight.shadow.camera,{left:-280,right:280,top:280,bottom:-280,near:20,far:1400});
+    keyLight.shadow.camera.updateProjectionMatrix();keyLight.shadow.normalBias=.07;keyLight.shadow.bias=-.00006;
+    scene.add(keyLight.target);
     keyLight.position.set(-40, 55, 25);
     scene.add(keyLight);
 
-    // Отражённый свет неба снизу.
-    const fillLight = new THREE.DirectionalLight(0xa8c4da, 1.1);
-    fillLight.position.set(25, -35, 10);
-    scene.add(fillLight);
-
-    const rimLight = new THREE.DirectionalLight(0xffffff, 0.9);
+    // Ground bounce comes from the hemisphere; no lamp below every building.
+    const rimLight = new THREE.DirectionalLight(0xdce7ec, .08);
     rimLight.position.set(20, 12, -55);
     scene.add(rimLight);
 
@@ -518,6 +542,7 @@ export default function FlightBackdrop() {
     const cloudTexture = makeCloudTexture();
     const clouds: THREE.Sprite[] = [];
     const cloudSpin: number[] = [];
+    const cloudOpacity: number[] = [];
 
     for (let i = 0; i < q.cloudCount; i++) {
       const material = new THREE.SpriteMaterial({
@@ -554,6 +579,7 @@ export default function FlightBackdrop() {
       );
       // К дальнему краю облачность редеет, а не обрывается стеной.
       material.opacity *= 1 - t * 0.45;
+      cloudOpacity.push(material.opacity);
 
       cloudSpin.push((Math.random() - 0.5) * 0.12);
       scene.add(sprite);
@@ -566,77 +592,69 @@ export default function FlightBackdrop() {
       zFrom: CITY_FROM,
       zTo: CITY_TO,
       roofLevel: ROOF_LEVEL,
+      quality:q.level==='full'?'high':'medium',
+      layout:'landmark-route',
+      // Locally use the reconstructed Nurzhol assets; preserve a procedural comparison.
+      landmarkAssets:['localhost','127.0.0.1'].includes(window.location.hostname)&&new URLSearchParams(window.location.search).get('landmarks')!=='procedural',
     });
     scene.add(city.group);
+    mount.dataset.terrain='cloud-stage';
 
     /* --- Посадочная площадка -------------------------------------------
        Стоит в конце коридора: полёт должен чем-то заканчиваться.
        Аппарат садится на неё на последних процентах прокрутки. */
     /* Площадка поднята над крышами: аппарат садится не в чистом поле,
        а на вертипорт над городом. */
-    const PAD_Y = -34;
-    const PAD_Z = CITY_TO + 260;
+    const PAD_Z = CITY_TO - 80;
+    const terminal=createTransportTerminal(ROOF_LEVEL-190,PAD_Z);scene.add(terminal.group);
+    const PAD_Y=terminal.touchdown.y;
+    terminal.group.visible=false;
+    // A standalone destination needs its own ground, not the removed Almaty district.
+    const arrivalGroundGeometry=new THREE.PlaneGeometry(3000,3000);
+    const arrivalGroundMaterial=new THREE.MeshStandardMaterial({color:0x7d8889,roughness:1});
+    const arrivalGround=new THREE.Mesh(arrivalGroundGeometry,arrivalGroundMaterial);
+    arrivalGround.rotation.x=-Math.PI/2;arrivalGround.position.set(0,ROOF_LEVEL-190+.2,PAD_Z);
+    arrivalGround.receiveShadow=true;arrivalGround.visible=false;scene.add(arrivalGround);
+    const terminalMaterials=new Map<THREE.Material,{opacity:number;transparent:boolean;depthWrite:boolean}>();
+    terminal.group.traverse(o=>{const mesh=o as THREE.Mesh;if(mesh.isMesh)for(const m of Array.isArray(mesh.material)?mesh.material:[mesh.material])terminalMaterials.set(m,{opacity:m.opacity,transparent:m.transparent,depthWrite:m.depthWrite});});
+    terminalMaterials.set(arrivalGroundMaterial,{opacity:1,transparent:false,depthWrite:true});
+    const arrivalClouds=Array.from({length:q.level==='full'?36:18},(_,i)=>{
+      const angle=i*2.399963,ring=160+(i%5)*52;
+      const material=new THREE.SpriteMaterial({map:cloudTexture,color:0xc5d1d7,transparent:true,depthWrite:false,opacity:0,fog:false});
+      const sprite=new THREE.Sprite(material);sprite.scale.set(220+(i%4)*45,110+(i%3)*35,1);
+      sprite.visible=false;scene.add(sprite);
+      return {sprite,x:Math.cos(angle)*ring,z:Math.sin(angle)*ring,y:PAD_Y-38+(i%4)*13};
+    });
 
-    const vertiport = createVertiport();
-    vertiport.group.position.set(0, PAD_Y, PAD_Z);
-    scene.add(vertiport.group);
-
-    /* --- Аппарат -------------------------------------------------------
-       В кадре должна быть только настоящая модель заказчика
-       (`public/models/drone.glb`). Пока она грузится, аппарата в небе
-       нет вовсе.
-
-       Раньше на это время подставлялся квадрокоптер, построенный кодом.
-       От этого отказались: он заметно грубее настоящего, и первые
-       секунды посетитель видел именно его. Небо, облака и город
-       выглядят хорошо и сами по себе — пустое небо лучше плохого
-       аппарата.
-
-       Модель из кода осталась **аварийным** вариантом: если файл не
-       отдался (нет на сервере, оборвалась связь), лучше показать
-       упрощённый аппарат, чем пустой полёт без главного героя. */
+    /* Existing three-model fleet. Preserve fallback geometry and rotor nodes.
+       The separate sceneEngine viewer still loads the preserved drone GLBs. */
     const droneHolder = new THREE.Group();
     scene.add(droneHolder);
 
     const drone = droneHolder;
 
-    /** Что сейчас в кадре. Пока файл не пришёл — ничего. */
-    let aircraft: ReturnType<typeof createQuadDrone> | null = null;
-    let disposed = false;
-
-    /** Аварийная подстановка: аппарат из кода вместо ненайденного файла. */
-    const fallbackToBuiltIn = () => {
-      if (disposed || aircraft) return;
-      aircraft = createQuadDrone();
-      aircraft.group.scale.setScalar(5);
-      droneHolder.add(aircraft.group);
-    };
-
-    loadAircraftModel("/models/drone.glb", { targetSize: 17 })
-      .then((loaded) => {
-        if (!loaded) {
-          fallbackToBuiltIn();
-          return;
-        }
-        /* Страницу могли закрыть, пока файл грузился. Тогда сцена уже
-           разобрана, и добавлять в неё модель нельзя — она осталась бы
-           висеть в памяти вместе со всеми своими текстурами. */
-        if (disposed) {
-          loaded.dispose();
-          return;
-        }
-        aircraft = loaded;
-        droneHolder.add(loaded.group);
-      })
-      .catch(() => {
-        fallbackToBuiltIn();
-      });
+    /** Independent carriers let models exit without moving the camera anchor. */
+    const fleet=flightFleetOrder.map(kind=>{
+      const aircraft=createFleetModel(kind);
+      const taxiAsset=kind==='taxi'&&['localhost','127.0.0.1'].includes(window.location.hostname)
+        ?attachTaxiAsset(aircraft.group):null;
+      const bounds=new THREE.Box3().setFromObject(aircraft.group),size=bounds.getSize(new THREE.Vector3());
+      const scale=17/Math.max(size.x,size.z),center=bounds.getCenter(new THREE.Vector3());
+      aircraft.group.scale.setScalar(scale);
+      aircraft.group.position.set(-center.x*scale,-bounds.min.y*scale,-center.z*scale);
+      const carrier=new THREE.Group();carrier.add(aircraft.group);scene.add(carrier);
+      return {aircraft,carrier,taxiAsset};
+    });
+    const anchorPosition=new THREE.Vector3();
+    const terminalCamera=new THREE.Vector3(),cameraTarget=new THREE.Vector3();
+    const terminalLook=terminal.touchdown.clone().add(new THREE.Vector3(0,4,-5));
+    let lastFrameTime=0,lastShadowTime=-10,lastShadowZ=Infinity;
 
     /* --- Кадровый цикл -------------------------------------------------- */
     /** Пустая секция внизу страницы, над которой происходит посадка. */
     const stageEl = document.querySelector<HTMLElement>("[data-landing-stage]");
 
-    const clock = new THREE.Clock();
+    const clockStart=performance.now();
     let frameId = 0;
     let running = true;
     let smooth = 0;
@@ -647,16 +665,31 @@ export default function FlightBackdrop() {
         document.documentElement.scrollHeight - window.innerHeight;
       return max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
     };
+    // Open at the actual scroll position, including browser history restore.
+    // Changing a shot never restarts an approach from the edge of the city.
+    smooth = readProgress();
+    let adaptiveStep=0,sampledFrames=0,sampledAt=0,slowWindows=0,fastWindows=0,renderTotal=0;
+    const applyAdaptiveQuality=()=>{
+      const ratio=Math.min(devicePixelRatio,adaptiveStep===2?1:adaptiveStep===1?1.25:q.maxPixelRatio);
+      renderer.setPixelRatio(ratio);composer.setPixelRatio(ratio);
+      if(ao)ao.setSize(Math.floor(innerWidth*(adaptiveStep===0?.5:.33)),Math.floor(innerHeight*(adaptiveStep===0?.5:.33)));
+      city.setQuality(adaptiveStep===0&&q.level==='full'?'high':'medium');
+      if(bloom)bloom.enabled=adaptiveStep===0;
+      mount.dataset.quality=['full','balanced','economy'][adaptiveStep];
+    };
 
     const draw = () => {
       if (!running) return;
-      const time = clock.getElapsedTime();
+      const time = (performance.now()-clockStart)/1000;
+      const dt=Math.min(1,Math.max(0,time-lastFrameTime));lastFrameTime=time;
 
       // Камера догоняет прокрутку плавно — иначе картинка дёргается
       // вслед за колесом мыши.
-      smooth += (readProgress() - smooth) * 0.055;
+      smooth += (readProgress() - smooth) * (1-Math.exp(-3.4*dt));
 
-      const z = 40 - smooth * CORRIDOR;
+      const route=cityRoutePose(Math.min(smooth,.565),CITY_FROM,CITY_TO);
+      const cityEntry=smoothstep((smooth-.09)/.06);
+      const z=(40-smooth*CORRIDOR)*(1-cityEntry)+route.z*cityEntry;
 
       /* --- Посадка ---
          Считается не от доли прокрутки, а от положения пустой секции
@@ -675,34 +708,33 @@ export default function FlightBackdrop() {
         landingRaw = (window.innerHeight - r.top) / window.innerHeight;
       }
       const landing = smoothstep(landingRaw);
+      const approach=landingMotion(landingRaw);
+      const presentation=presentationFlight(smooth,landingRaw);
 
       /* Покачивание затухает по мере снижения: у стоящего на площадке
          аппарата его быть не должно. */
-      const alive = 1 - landing;
+      const alive = 1 - approach.align;
 
-      const flyX = Math.sin(time * 0.42) * 5;
-      const flyY = -3 + Math.cos(time * 0.33) * 3;
+      const flyX = (Math.sin(time * 0.32)*1.4+route.x*cityEntry)*(1-presentation.hover);
+      const flyY = THREE.MathUtils.lerp(-3-smoothstep((smooth-.09)/.075)*122,PAD_Y+70,presentation.hover)+Math.cos(time*.28)*.25;
+      const flyZ = THREE.MathUtils.lerp(z-46,PAD_Z+60,presentation.hover);
 
       /* Продвижение вперёд тоже гасится посадкой: иначе аппарат
          «садится», но продолжает уезжать по коридору и проскакивает
          площадку. К концу посадки он стоит ровно на ней. */
       drone.position.set(
         flyX * alive,
-        flyY * alive + (PAD_Y + 1.4) * landing,
-        (z - 46) * alive + PAD_Z * landing,
+        flyY * alive + (PAD_Y + 28*(1-approach.descend)) * approach.align,
+        flyZ * alive + PAD_Z * approach.align,
       );
       drone.rotation.set(
-        (-0.1 + Math.sin(time * 0.4) * 0.05) * alive,
-        Math.sin(time * 0.22) * 0.14 * alive,
-        Math.sin(time * 0.5) * 0.14 * alive,
+        (-0.035 + Math.sin(time * 0.4) * 0.015) * alive,
+        Math.sin(time * 0.22) * 0.045 * alive,
+        Math.sin(time * 0.5) * 0.025 * alive,
       );
-
-      vertiport.update(time);
-      city.update(time);
 
       // Винты и огни — независимо от прокрутки.
       // Аппарата может ещё не быть: файл модели грузится.
-      aircraft?.update(time);
 
       /* --- Монтаж: какой сейчас план и переход к следующему ---
          Прокрутка делится на равные участки, по одному на план.
@@ -726,8 +758,14 @@ export default function FlightBackdrop() {
         drone.position.y + mix(from.offset[1], to.offset[1]),
         drone.position.z + mix(from.offset[2], to.offset[2]),
       );
+      // Establish the destination before descending, then settle on pad + lounge.
+      const terminalView=presentation.hover*smoothstep((landingRaw+.45)/.65);
+      const arrivalShot=landingCameraPose(landingRaw,{x:drone.position.x,y:drone.position.y-PAD_Y,z:drone.position.z-PAD_Z},camera.aspect);
+      terminalCamera.set(arrivalShot.x,PAD_Y+arrivalShot.y,PAD_Z+arrivalShot.z);
+      terminalLook.set(arrivalShot.lookX,terminal.touchdown.y-TERMINAL_DECK_HEIGHT+arrivalShot.lookY,PAD_Z+arrivalShot.lookZ);
+      camera.position.lerp(terminalCamera,terminalView);
 
-      const fov = fitFov(mix(from.fov, to.fov), camera.aspect);
+      const fov = fitFov(mix(from.fov, to.fov)*(1-terminalView)+arrivalShot.fov*terminalView, camera.aspect);
       if (Math.abs(camera.fov - fov) > 0.01) {
         camera.fov = fov;
         camera.updateProjectionMatrix();
@@ -741,23 +779,98 @@ export default function FlightBackdrop() {
         camera.position.distanceTo(drone.position),
       );
 
-      camera.lookAt(
+      cameraTarget.set(
         drone.position.x + mix(from.look[0], to.look[0]),
-        drone.position.y + mix(from.look[1], to.look[1]) - lift,
+        drone.position.y + mix(from.look[1], to.look[1]) - lift*(1-terminalView),
         drone.position.z + mix(from.look[2], to.look[2]),
       );
-      camera.rotateY(mix(from.frame, to.frame) * frameScale(camera.aspect));
+      cameraTarget.lerp(terminalLook,terminalView);
+      camera.lookAt(cameraTarget);
+      camera.rotateY(mix(from.frame, to.frame) * frameScale(camera.aspect)*(1-terminalView));
 
       // Лёгкое дыхание камеры: даже статичный план не мертвеет.
-      camera.position.x += Math.sin(time * 0.21) * 1.4;
-      camera.position.y += Math.cos(time * 0.17) * 1.0;
+      camera.position.x += Math.sin(time * 0.21) * .35*(1-landing);
+      camera.position.y += Math.cos(time * 0.17) * .25*(1-landing);
+      camera.updateMatrixWorld();
+      anchorPosition.copy(drone.position);
+      for(let i=0;i<fleet.length;i++){
+        const {aircraft,carrier,taxiAsset}=fleet[i],pose=fleetFlightPose(i,smooth);
+        // The taxi joins inside the opaque cloud cut, never over the city.
+        carrier.visible=pose.visible&&(i!==2||smooth>=.615);
+        carrier.position.copy(anchorPosition);carrier.position.x+=pose.x*60;carrier.position.y+=pose.up;carrier.position.z+=pose.forward;
+        carrier.rotation.copy(drone.rotation);carrier.rotation.z+=pose.bank;carrier.rotation.y+=pose.yaw;
+        aircraft.setSpinning(approach.rotorSpeed>0);aircraft.setRotorSpeed(approach.rotorSpeed);if(pose.visible)aircraft.update(time);
+        if(pose.visible)taxiAsset?.update(time,approach.rotorSpeed);
+      }
+      terminal.group.visible=presentation.terminalVisible;
+      arrivalGround.visible=presentation.terminalVisible;
+      city.group.visible=presentation.cityVisible;
+      (scene.fog as THREE.FogExp2).density=presentation.fogDensity;
+      if(presentation.cityVisible)city.update(time,camera);
+      finish.uniforms.uCloudCover.value=presentation.cover;
+      for(const [material,base] of terminalMaterials){
+        const transparent=base.transparent||presentation.reveal<1;
+        if(material.transparent!==transparent){material.transparent=transparent;material.needsUpdate=true;}
+        material.opacity=base.opacity*presentation.reveal;
+        material.depthWrite=base.depthWrite&&presentation.reveal>.98;
+      }
+      for(const cloud of arrivalClouds){
+        const spread=1+presentation.reveal*1.5;
+        cloud.sprite.position.set(cloud.x*spread,cloud.y-presentation.reveal*70,PAD_Z+cloud.z*spread);
+        cloud.sprite.material.opacity=presentation.cloudOpacity*.52;
+        cloud.sprite.visible=presentation.cloudOpacity>.001;
+      }
+      mount.dataset.city=presentation.hover<.5?'Астана':presentation.terminalVisible?'Воздушный терминал':'Облачная сцена';
+      mount.dataset.presentation=presentation.phase;
+      mount.dataset.progress=(smooth*100).toFixed(1);
+      mount.dataset.aircraft=flightFleetOrder.find((_,i)=>fleet[i].carrier.visible)??'transition';
+      mount.dataset.landing=String(landingRaw>=1);
+      mount.dataset.landingPhase=landingRaw<=0?'flight':landingRaw<.58?'approach':landingRaw<.6?'align':landingRaw<.9?'descent':landingRaw<.92?'touchdown':landingRaw<1?'rotor-stop':'parked';
+      // Near chunks continue loading after scroll stops. Refresh occasionally
+      // while stationary too, otherwise their newly visible facades lack shadows.
+      if(q.shadowMapSize>0&&time-lastShadowTime>.2&&(Math.abs(drone.position.z-lastShadowZ)>8||landing>.01||time-lastShadowTime>1.2)){
+        const shadowZ=Math.round(drone.position.z/(560/2048))*(560/2048);
+        keyLight.target.position.set(0,-140,shadowZ);
+        keyLight.position.set(-400,250,shadowZ+350);
+        renderer.shadowMap.needsUpdate=true;lastShadowTime=time;lastShadowZ=drone.position.z;
+      }
 
       for (let i = 0; i < clouds.length; i++) {
         clouds[i].material.rotation += cloudSpin[i] * 0.004;
+        // Preserve the original cloud opening; clear the layer during the first
+        // camera change, so the next shot is already over the city blocks.
+        const visibility=1-smoothstep((smooth-.09)/.07);
+        clouds[i].material.opacity=cloudOpacity[i]*visibility;
+        clouds[i].visible=visibility>0;
       }
 
       finish.uniforms.uTime.value = time;
-      composer.render();
+      if(ao){
+        ao.enabled=adaptiveStep<2&&smooth>.13;
+        // RenderPass writes into the current read buffer. Reconstruct normals
+        // from its depth instead of redrawing millions of facade triangles.
+        ao.setGBuffer(composer.readBuffer.depthTexture!);
+      }
+      mount.dataset.ao=String(!!ao?.enabled);
+      renderer.info.reset();
+      const renderStarted=performance.now();composer.render();renderTotal+=performance.now()-renderStarted;
+      sampledFrames++;
+      if(time-sampledAt>2){
+        const fps=sampledFrames/(time-sampledAt),renderMs=renderTotal/sampledFrames;mount.dataset.fps=fps.toFixed(0);
+        mount.dataset.renderMs=renderMs.toFixed(1);mount.dataset.drawCalls=String(renderer.info.render.calls);mount.dataset.triangles=String(renderer.info.render.triangles);
+        sampledAt=time;sampledFrames=0;renderTotal=0;
+        // A throttled background RAF is not evidence that GPU quality is too high.
+        // Ignore compilation/warm-up and background throttling. Quality can
+        // recover after sustained headroom instead of staying flat forever.
+        const active=time>12&&document.visibilityState==='visible'&&document.hasFocus()&&smooth>.16;
+        if(active&&fps<30&&renderMs>22)slowWindows++;else slowWindows=0;
+        if(active&&fps>50&&renderMs<12)fastWindows++;else fastWindows=0;
+        if(slowWindows>=3&&adaptiveStep<2){
+          adaptiveStep++;slowWindows=0;fastWindows=0;applyAdaptiveQuality();
+        }else if(fastWindows>=6&&adaptiveStep>0){
+          adaptiveStep--;fastWindows=0;slowWindows=0;applyAdaptiveQuality();
+        }
+      }
       frameId = requestAnimationFrame(draw);
     };
 
@@ -784,6 +897,7 @@ export default function FlightBackdrop() {
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
       composer.setSize(w, h);
+      ao?.setSize(Math.floor(w*(adaptiveStep===0?.5:.33)),Math.floor(h*(adaptiveStep===0?.5:.33)));
       bloom?.setSize(w, h);
     };
     window.addEventListener("resize", resize);
@@ -793,6 +907,7 @@ export default function FlightBackdrop() {
         running = false;
         cancelAnimationFrame(frameId);
       } else {
+        lastFrameTime=(performance.now()-clockStart)/1000;sampledAt=lastFrameTime;sampledFrames=0;renderTotal=0;
         running = true;
         frameId = requestAnimationFrame(draw);
       }
@@ -802,8 +917,8 @@ export default function FlightBackdrop() {
     frameId = requestAnimationFrame(draw);
 
     return () => {
+      disposed=true;
       running = false;
-      disposed = true;
       cancelAnimationFrame(frameId);
       window.removeEventListener("resize", resize);
       document.removeEventListener("visibilitychange", onVisibility);
@@ -813,13 +928,15 @@ export default function FlightBackdrop() {
         scene.remove(s);
       });
       cloudTexture.dispose();
-      aircraft?.dispose();
+      fleet.forEach(({aircraft,taxiAsset})=>{taxiAsset?.dispose();aircraft.dispose();});
+      keyLight.shadow.map?.dispose();
       /* Город и площадка освобождаются здесь, при уходе со страницы.
          Раньше эти два вызова стояли внутри загрузки модели аппарата —
          то есть город и вертипорт разбирались в тот момент, когда
          догружался дрон, прямо посреди работающей сцены. */
-      vertiport.dispose();
       city.dispose();
+      terminal.dispose();arrivalGroundGeometry.dispose();arrivalGroundMaterial.dispose();
+      arrivalClouds.forEach(({sprite})=>{sprite.material.dispose();scene.remove(sprite);});
       envSource.dispose();
       skySource.dispose();
       realSky?.dispose();
@@ -828,6 +945,7 @@ export default function FlightBackdrop() {
       pmrem.dispose();
 
       composer.dispose();
+      ao?.dispose();bloom?.dispose();finish.dispose();outputPass.dispose();
       renderer.dispose();
       if (renderer.domElement.parentNode === mount) {
         mount.removeChild(renderer.domElement);

@@ -1,0 +1,22 @@
+Alatau elevation data
+
+SRTM and GMTED2010 terrain data courtesy of the U.S. Geological Survey.
+Distributed through Mapzen Terrain Tiles / AWS Open Data.
+Accessed 2026-09-13. No endorsement of AetherSystem is implied.
+
+Dataset: https://registry.opendata.aws/terrain-tiles/
+Attribution: https://github.com/tilezen/joerd/blob/master/docs/attribution.md
+Format: https://github.com/tilezen/joerd/blob/master/docs/formats.md
+Source tiles:
+https://s3.amazonaws.com/elevation-tiles-prod/skadi/N43/N43E076.hgt.gz
+https://s3.amazonaws.com/elevation-tiles-prod/skadi/N43/N43E077.hgt.gz
+
+Modifications: crop to W76.68 E77.26 N43.215 S43.005; bilinear
+resampling to 321 x 193 signed little-endian 16-bit metre heights.
+Range 783..4545 metres above the reference geoid. Display subtracts an
+850 m city datum and blends the grid's perimeter into the scene.
+Vegetation, rock colours and snow cover are artistic, not satellite imagery.
+Not for navigation, aircraft planning or engineering use.
+
+alatau-dem.i16 SHA256:
+3a8e4d6cceccb75486801d9c1692f6defe98974b9e304aca6732b186fe6b2131

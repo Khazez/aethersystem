@@ -449,7 +449,7 @@ export function createAirTaxi(): Aircraft {
 
   /* --- Контур кабины --- */
   const outlineMat = new THREE.LineBasicMaterial({
-    color: 0x4bc8e0,
+    color: 0xcbd4c9,
     transparent: true,
     opacity: 0.3,
   });
@@ -580,11 +580,9 @@ export function createVertiport(): Aircraft {
   return {
     group,
     update: (time: number) => {
-      // Огни бегут по кругу — площадка «работает», а не нарисована.
+      // Steady perimeter lighting; no decorative chasing lights on the landing pad.
       for (let i = 0; i < lamps.length; i++) {
-        const phase = time * 1.6 - i * 0.32;
-        const v = 0.35 + 0.65 * Math.max(0, Math.sin(phase));
-        (lamps[i].material as THREE.MeshBasicMaterial).opacity = v;
+        (lamps[i].material as THREE.MeshBasicMaterial).opacity = .72;
       }
     },
     dispose: () => disposables.forEach((d) => d.dispose()),
