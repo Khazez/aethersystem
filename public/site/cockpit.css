@@ -4,7 +4,7 @@
    green normal / active, magenta route and targets, amber caution. */
 :root{--k-bg:#020406;--k-scr:#03070a;--k-white:#e8eef2;--k-cyan:#4bc8e0;--k-green:#3fd68a;--k-mag:#e05cd3;--k-amber:#e8b45a;--k-red:#e0554f;--k-dim:#5f7482;--k-line:rgba(120,170,190,.22)}
 body.cockpit{background:var(--k-bg)}
-body.cockpit .pfoot{background:var(--k-bg)}
+body.cockpit .pfoot{background:var(--k-bg);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 76px)}   /* нижняя строка кабины висит поверх страницы: без запаса она режет копирайт */
 /* instruments framing the screen */
 .hdg{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 62px);width:min(760px,70vw);height:40px;z-index:24;overflow:hidden;pointer-events:none;
   -webkit-mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent)}

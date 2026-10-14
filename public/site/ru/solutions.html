@@ -182,13 +182,13 @@
     var tl = el(ov, 'text', { x: 40, y: 455, class: 'tx s g' }), tr = el(ov, 'text', { x: 760, y: 455, 'text-anchor': 'end', class: 'tx s g' }), rec = el(ov, 'circle', { cx: 730, cy: 86, r: 6, class: 'fx', fill: '#e0554f' }); el(ov, 'text', { x: 744, y: 90, class: 'tx s', fill: '#e0554f' }, 'REC');
     function show(i){ cur = i; var d = INDS[i]; keys.forEach(function(k, j){ k.setAttribute('aria-pressed', j === i); });
       var mob = true;   // окно камеры маленькое: всегда берём лёгкую копию ролика (960 px)
-      media.innerHTML = d[3] ? '<video muted playsinline preload="metadata" poster="' + d[3] + '.jpg" src="' + d[3] + (mob ? '-m' : '') + '.mp4" aria-hidden="true"></video>' : '<div class="nosig"><div><svg viewBox="0 0 24 24" aria-hidden="true">' + ICON[d[0]] + '</svg>НЕТ СИГНАЛА · ВИДЕО ОТ ГЕНЕРАТОРОВ</div></div>';
+      media.innerHTML = d[3] ? '<video muted playsinline preload="metadata" poster="' + d[3] + '.jpg" src="' + d[3] + (mob ? '-m' : '') + '.mp4" aria-hidden="true"></video>' : '<div class="nosig"><div><svg viewBox="0 0 24 24" aria-hidden="true">' + ICON[d[0]] + '</svg></div></div>';
       var v = media.querySelector('video'); if (v && !paused){ var pr = v.play(); if (pr && pr.catch) pr.catch(function(){}); }
       // следующая отрасль включается, только когда ролик доиграл до конца
       shownAt = Date.now();
       if (v){ var next = function(){ if (!paused && sec.classList.contains('live')) show((cur + 1) % INDS.length); };
         v.addEventListener('ended', next); v.addEventListener('error', function(){ setTimeout(next, 1000); }); }
-      cap.innerHTML = d[3] ? '<b>ИЛЛЮСТРАЦИЯ</b> · ' + d[4] : '<b>ВИДЕО ОТ ГЕНЕРАТОРОВ</b> · 5 С, ПО ЗАДАНИЮ'; txt.innerHTML = '<span style="font-family:var(--f-mono);letter-spacing:.1em;color:var(--k-green)">' + FULL[i].toUpperCase() + '</span><br>' + d[2]; }
+      cap.innerHTML = d[3] ? '<b>ИЛЛЮСТРАЦИЯ</b> · ' + d[4] : ''; txt.innerHTML = '<span style="font-family:var(--f-mono);letter-spacing:.1em;color:var(--k-green)">' + FULL[i].toUpperCase() + '</span><br>' + d[2]; }
     keys.forEach(function(k){ k.addEventListener('click', function(){ show(+k.dataset.i); }); });
     // страховка: если ролик почему-то не играет, через 20 секунд всё равно идёт следующая отрасль
     setInterval(function(){ if (paused || !sec.classList.contains('live')) { shownAt = Date.now(); return; }

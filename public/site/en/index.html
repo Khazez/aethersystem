@@ -763,7 +763,7 @@ html.booting,html.booting body{overflow:hidden}
     var media = d[3] ? '<video muted playsinline' + (d[5] === 'once' ? '' : ' loop') + ' preload="none" poster="' + d[3] + '.jpg" src="' + d[3] + (innerWidth < 900 ? '-m' : '') + '.mp4" aria-hidden="true"></video>'
       + (d[5] === 'once' ? '<span class="insp' + (d[8] ? ' ok' : '') + '" data-box="' + d[6].join(',') + '" aria-hidden="true"><em></em><i></i><i></i><i></i><i></i><span>' + d[7] + '<small>ILLUSTRATION</small></span>' + (d[9] ? '<b class="hot" style="left:' + d[9][0] + '%;top:' + d[9][1] + '%"></b>' : '') + '</span>' : '')
       : '<span class="ph"><svg viewBox="0 0 24 24" aria-hidden="true">' + ICON[d[0]] + '</svg></span>';
-    var tag = d[3] ? '<span class="tag">' + d[4] + '</span>' : '<span class="tag">GENERATED VIDEO · 5 S</span>';
+    var tag = d[3] ? '<span class="tag">' + d[4] + '</span>' : '';
     return '<article class="strip" data-i="' + i + '">' + media + '<span class="dim"></span><span class="no">' + ('0' + (i + 1)).slice(-2) + '</span><span class="vt" aria-hidden="true">' + d[1] + '</span>'
       + '<div class="body"><h3>' + d[1] + '</h3><p>' + d[2] + '</p>' + tag + '</div><button class="pick" type="button" aria-label="Show industry: ' + d[1] + '"></button></article>'; }).join('');
   var stripEls = $$('#strips .strip'), curInd = -1, indVisible = false, stopped = reduce, pb = $('#pauseAll'), snapT = 0;
