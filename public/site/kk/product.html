@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aether Nexus — платформа</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/site/shared.css">
+<link rel="stylesheet" href="/site/cockpit.css">
+<style>
+/* Aether Nexus as cockpit hardware: a head-up display, a rotary selector of the layers, a flight management computer
+   (CDU) holding the capabilities, a panel of five display units, a compass rose of the ecosystem, EICAS memos. */
+.hud-glow{filter:drop-shadow(0 0 4px rgba(63,214,138,.65))}
+.knob-read{font:500 12px var(--f-mono);letter-spacing:.14em;color:var(--k-dim);margin-top:10px;text-align:center}
+.knob-read b{color:var(--k-cyan);font-weight:500;font-size:20px;letter-spacing:.06em;display:block;margin-top:4px}
+/* the capabilities computer: a list of sixteen lines on the left, the chosen one described on the right */
+.cdu{background:linear-gradient(180deg,#1b232a,#12181d);border:1px solid #2c363e;border-radius:16px;padding:16px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 30px 80px rgba(0,0,0,.6)}
+.cdu-scr{background:#020504;border:6px solid #0a0e10;border-radius:6px;padding:12px 14px;display:grid;grid-template-rows:auto 1fr auto;gap:8px;font:500 13px/1.3 var(--f-mono);letter-spacing:.04em;color:var(--k-white);box-shadow:inset 0 0 30px rgba(0,0,0,.9)}
+.cdu-h{display:flex;justify-content:space-between;color:var(--k-white);font-size:13.5px;padding-bottom:6px;border-bottom:1px solid #16201b}
+.cdu-h span:last-child{color:var(--k-dim);font-variant-numeric:tabular-nums}
+.cdu-g{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:18px;min-height:0}
+.cdu-l{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+.cdu-l button{width:100%;display:grid;grid-template-columns:26px minmax(0,1fr) 12px;align-items:center;gap:8px;padding:5px 8px;background:transparent;border:0;border-left:2px solid transparent;color:var(--k-cyan);font:400 14px/1.25 var(--f-sans);text-align:left;cursor:pointer;transition:background .2s,color .2s}
+.cdu-l button b{font:500 11px var(--f-mono);color:var(--k-dim);font-variant-numeric:tabular-nums}
+.cdu-l button i{font-style:normal;font:500 12px var(--f-mono);color:var(--k-dim);opacity:0}
+.cdu-l button:hover{background:rgba(75,200,224,.08)}
+.cdu-l button[aria-pressed="true"]{background:var(--k-cyan);color:#021014;border-left-color:#fff}
+.cdu-l button[aria-pressed="true"] b,.cdu-l button[aria-pressed="true"] i{color:#021014;opacity:1}
+.cdu-l button:focus-visible{outline:2px solid var(--k-white);outline-offset:-2px}
+.cdu-d{border-left:1px solid #16201b;padding-left:18px;min-width:0}
+.cdu-d h4{margin:0;font:400 21px/1.2 var(--f-sans);color:var(--k-white);letter-spacing:-.01em}
+.cdu-d .en{display:block;margin:6px 0 12px;font:500 10.5px var(--f-mono);letter-spacing:.14em;color:var(--k-dim);text-transform:uppercase}
+.cdu-d p{margin:0 0 12px;font:400 14px/1.5 var(--f-sans);color:#c9d6de}
+.cdu-d ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px}
+.cdu-d li{font:400 13px/1.45 var(--f-sans);color:var(--k-green);padding-left:16px;position:relative}
+.cdu-d li::before{content:">";position:absolute;left:0;font-family:var(--f-mono);color:var(--k-dim)}
+.cdu-d.swap{animation:cdusw .35s ease-out}
+@keyframes cdusw{from{opacity:0;transform:translateY(6px)}}
+.cdu-s{border-top:1px solid #16201b;padding-top:6px;color:var(--k-amber);font-size:11.5px;letter-spacing:.12em}
+@media (min-width:901px){#fmc .mfd-in{grid-template-columns:minmax(0,.55fr) minmax(0,1.45fr)}}
+@media (max-width:900px){.cdu-g{grid-template-columns:1fr}.cdu-d{border-left:0;padding:12px 4px 16px 12px;border-left:2px solid var(--k-cyan);margin:4px 0 6px}}
+/* five display units side by side */
+.dus{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;background:linear-gradient(180deg,#141b21,#0d1317);border:1px solid #2a343c;border-radius:12px;padding:18px}
+.dui{display:flex;flex-direction:column;gap:10px}
+.dui .scr{aspect-ratio:3/4;background:#020505;border:5px solid #0a0e10;border-radius:6px;box-shadow:inset 0 0 20px rgba(0,0,0,.9);opacity:.45;transition:opacity .5s,box-shadow .5s}
+.dui.on .scr{opacity:1;box-shadow:inset 0 0 20px rgba(0,0,0,.9),0 0 0 1px var(--k-cyan)}
+.dui svg{width:100%;height:100%;display:block}
+.dui b{font:500 10.5px var(--f-mono);letter-spacing:.12em;color:var(--k-cyan)}
+.dui span{font-size:13px;color:#a9bac5;line-height:1.35}
+.memo{font:500 13.5px var(--f-mono);letter-spacing:.04em}
+.memo .mh{color:var(--k-cyan);font-size:11.5px;letter-spacing:.14em;padding-bottom:8px;border-bottom:1px solid var(--k-line);margin-bottom:4px;display:flex;justify-content:space-between}
+.memo div.l{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px dashed rgba(120,170,190,.12);color:var(--k-dim);transition:color .3s}
+.memo div.l b{font-weight:500;color:var(--k-dim)}
+.memo div.l.on{color:var(--k-white)}.memo div.l.on b{color:var(--k-green)}
+.memo .cols{display:grid;grid-template-columns:1.3fr 1fr;gap:26px}
+@media (max-width:900px){.dus{grid-template-columns:repeat(2,minmax(0,1fr))}.memo .cols{grid-template-columns:1fr}}
+@media (min-width:901px){.mfd.wide .mfd-in{grid-template-columns:minmax(0,.7fr) minmax(0,1.3fr)}}
+.mfd.wide h2{font-size:clamp(28px,2.7vw,40px)}
+</style>
+</head>
+<body class="cockpit">
+<header class="head">
+  <a class="brand" href="/kk"><img src="/site/logo-mark.png" alt="" width="245" height="139"><span>AETHER<small>SYSTEM &amp; CO.</small></span><span class="sr">, басты бетке</span></a>
+  <nav class="nav" aria-label="Сайт бөлімдері"><a href="/kk/about">Компания туралы</a><a href="/kk/product" aria-current="page">Aether Nexus</a><a href="/kk/solutions">Шешімдер</a><a href="/kk/team">Команда</a></nav>
+  <div class="tools">
+    <div class="lang"><button type="button" id="langBtn" aria-expanded="false" aria-controls="langMenu" aria-label="Тіл: қазақша">ҚАЗ</button>
+      <div class="lang-menu" id="langMenu" hidden><span aria-current="true">ҚАЗ</span><a href="/ru/product">РУ</a><a href="/en/product">EN</a></div></div>
+    <a class="hbtn plat" href="https://platform.aethersystem.kz" target="_blank" rel="noopener noreferrer">Платформаны ашу <span aria-hidden="true">↗</span><span class="sr">, жаңа бетте ашылады</span></a>
+    <a class="hbtn primary" href="/kk/team#contacts">Байланыс</a>
+    <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="mnav"><span aria-hidden="true"></span>Мәзір</button>
+  </div>
+</header>
+<div class="mnav" id="mnav" hidden>
+  <a href="/kk">Басты бет</a><a href="/kk/about">Компания туралы</a><a href="/kk/product" aria-current="page">Aether Nexus</a><a href="/kk/solutions">Шешімдер</a><a href="/kk/team">Команда</a><a href="/kk/team#contacts">Байланыс</a>
+  <div class="mnav-row"><span aria-current="true">ҚАЗ</span><a href="/ru/product">РУ</a><a href="/en/product">EN</a></div>
+  <a class="hbtn primary" href="https://platform.aethersystem.kz" target="_blank" rel="noopener noreferrer">Платформаны ашу <span aria-hidden="true">↗</span></a>
+</div>
+<main>
+
+<section class="mfd" data-hdg="0" data-name="Aether Nexus" aria-labelledby="t1">
+  <div class="mfd-in">
+    <div class="txt">
+      <p class="pg">HUD <i>· бет 1 / 6</i></p>
+      <h1 id="t1">Aether Nexus</h1>
+      <p class="pg" style="color:var(--k-white)">DIGITAL INFRASTRUCTURE FOR AUTONOMOUS AVIATION</p>
+      <p>Ұшқышсыз әуе жүйесінің бүкіл өмірлік циклі бойында ұшқышсыз авиацияны кешенді басқаруға арналған цифрлық платформа.</p>
+      <a class="nextkey" href="https://platform.aethersystem.kz" target="_blank" rel="noopener noreferrer">ПЛАТФОРМАНЫ АШУ ↗</a>
+    </div>
+    <div class="du" style="background:#010304"><span class="tag">HUD</span><div id="hud"></div><div class="keys"><span class="on">HUD</span><span>SEL</span><span>FMC</span><span>DU</span><span>RMI</span><span>EICAS</span></div></div>
+  </div>
+</section>
+
+<section class="mfd" data-hdg="45" data-name="Aether Core" aria-labelledby="t2">
+  <div class="mfd-in">
+    <div class="txt">
+      <p class="pg">SEL <i>· бет 2 / 6</i></p>
+      <h2 id="t2">Aether Core</h2>
+      <p>Архитектураның орталық элементі. Жекелеген модульдер тәуелсіз өнім ретінде емес, біртұтас жүйенің бөліктері ретінде жұмыс істейді.</p>
+      <p style="color:var(--k-dim);font-size:14px">Ауыстырғышты бұраңыз: қабатты басыңыз немесе көрсеткілерді қолданыңыз.</p>
+    </div>
+    <div class="du"><span class="tag">LAYER SELECT</span><div id="knob"></div><p class="knob-read">БЕЛСЕНДІ ҚАБАТ<b id="knobRead">IDENTITY</b></p><div class="keys"><span>HUD</span><span class="on">SEL</span><span>FMC</span><span>DU</span><span>RMI</span><span>EICAS</span></div></div>
+  </div>
+</section>
+
+<section class="mfd wide" id="fmc" data-hdg="135" data-name="Возможности" aria-labelledby="t3">
+  <div class="mfd-in">
+    <div class="txt">
+      <p class="pg">FMC <i>· бет 3 / 6</i></p>
+      <h2 id="t3">Платформа мүмкіндіктері</h2>
+      <p>Он алты мүмкіндік — борттық компьютер экранында. Жолды таңдаңыз, сипаттамасы ашылады.</p>
+    </div>
+    <div class="cdu">
+      <div class="cdu-scr">
+        <div class="cdu-h"><span>МҮМКІНДІКТЕР</span><span id="cduP"></span></div>
+        <div class="cdu-g"><ul class="cdu-l" id="cduL" aria-label="Платформа мүмкіндіктері"></ul><div class="cdu-d" id="cduD" aria-live="polite"></div></div>
+        <div class="cdu-s" id="cduS">ЖОЛДЫ ТАҢДАҢЫЗ · ЖОҒАРЫ ЖӘНЕ ТӨМЕН КӨРСЕТКІЛЕР</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="mfd wide" data-hdg="180" data-name="Интерфейсы" aria-labelledby="t4">
+  <div class="mfd-in">
+    <div class="txt">
+      <p class="pg">DU <i>· бет 4 / 6</i></p>
+      <h2 id="t4">Платформаның пайдаланушылық бөлігі</h2>
+      <p>Бес интерфейс — аспаптар панеліндегі бес дисплей сияқты: әр қатысушының өз экраны бар.</p>
+    </div>
+    <div class="dus" id="dus"></div>
+  </div>
+</section>
+
+<section class="mfd" id="ecosystem" data-hdg="270" data-name="Экожүйелера" aria-labelledby="t5">
+  <div class="mfd-in">
+    <div class="txt">
+      <p class="pg">RMI <i>· бет 5 / 6</i></p>
+      <h2 id="t5">Aether — бір қосымша емес, технологиялық экожүйе</h2>
+      <p id="ecoInfo" style="min-height:3.3em;color:var(--k-white)"></p>
+    </div>
+    <div class="du"><span class="tag">ECOSYSTEM · ROSE</span><div id="rose"></div><div class="keys"><span>HUD</span><span>SEL</span><span>FMC</span><span>DU</span><span class="on">RMI</span><span>EICAS</span></div></div>
+  </div>
+</section>
+
+<section class="mfd" data-hdg="330" data-name="Безопасность" aria-labelledby="t6">
+  <div class="mfd-in">
+    <div class="txt">
+      <p class="pg">EICAS <i>· бет 6 / 6</i></p>
+      <h2 id="t6">Cybersecurity</h2>
+      <p>Мұндай деңгейдегі инфрақұрылым үшін ақпараттық қауіпсіздік — архитектураның іргелі элементі.</p>
+      <a class="nextkey" href="/kk/solutions">NEXT ▸ ШЕШІМДЕР</a>
+    </div>
+    <div class="du"><span class="tag">EICAS · MEMO</span>
+      <div class="memo" id="memo" style="margin-top:22px"><div class="cols">
+        <div><div class="mh"><span>ҚОРҒАУ</span><span>9</span></div></div>
+        <div><div class="mh"><span>ҚОЛЖЕТІМДІЛІКТІ БӨЛУ</span><span>5</span></div></div>
+      </div></div>
+      <div class="keys"><span>HUD</span><span>SEL</span><span>FMC</span><span>DU</span><span>RMI</span><span class="on">EICAS</span></div></div>
+  </div>
+</section>
+
+</main>
+<footer class="pfoot">
+  <div><a class="brand" href="/kk"><img src="/site/logo-mark.png" alt="" width="245" height="139"><span>AETHER<small>SYSTEM &amp; CO.</small></span></a>
+    <p style="margin-top:16px">Ұшқышсыз және автономды авиацияның қауіпсіз, ашық әрі масштабталатын дамуына арналған цифрлық инфрақұрылым.</p></div>
+  <div><h3>Навигация</h3><ul><li><a href="/kk">Басты бет</a></li><li><a href="/kk/about">Компания туралы</a></li><li><a href="/kk/product">Aether Nexus</a></li><li><a href="/kk/solutions">Шешімдер</a></li><li><a href="/kk/team">Команда</a></li><li><a href="/kk/team#contacts">Байланыс</a></li></ul></div>
+  <div><h3>Платформа</h3><ul><li><a href="/kk/product">Aether Nexus</a></li><li><a href="/kk/product#ecosystem">Aether Core</a></li><li><a href="/kk/product#ecosystem">Aether UTM</a></li><li><a href="/kk/product#ecosystem">Aether Grid</a></li><li><a href="https://platform.aethersystem.kz" target="_blank" rel="noopener noreferrer">Платформаны ашу ↗</a></li></ul></div>
+  <div><h3>Байланыс</h3><ul><li><a href="mailto:info@aethersystem.kz">info@aethersystem.kz</a></li><li><a href="tel:+77008323273">+7 700 832 32 73</a></li><li style="color:#a6b5c1;font-size:14.5px">Астана, Нұра ауданы, Санжар Асфендияров көшесі, 8а, Omega бизнес-орталығы</li></ul></div>
+  <div class="copy"><span>© 2026 AETHER SYSTEM &amp; CO. БАРЛЫҚ ҚҰҚЫҚТАР ҚОРҒАЛҒАН.</span><span>TECHNOLOGY FOR THE NEXT AIRSPACE</span></div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js"></script>
+<script src="/site/shared.js"></script>
+<script src="/site/cockpit.js"></script>
+<script>
+(function(){
+  var $ = AE.$, $$ = AE.$$, el = C.el, reduce = AE.reduce;
+  var LAYERS = ['Identity', 'Registry', 'Compliance', 'UTM', 'Airspace Intelligence', 'Operations', 'Lifecycle', 'Marketplace', 'FinTech', 'Government', 'Analytics', 'AI'];
+
+  /* HUD: green symbology on the combiner glass — horizon with heading marks, pitch ladder, the flight path marker follows the mouse */
+  (function(){ var s = C.svg($('#hud'), 640, 480, 'Әйнектегі индикатор: горизонт, тангаж сатысы, траектория белгісі'), g = el(s, 'g', { class: 'hud-glow' });
+    var defs = el(s, 'defs', {}), gr = el(defs, 'linearGradient', { id: 'hsky', x1: 0, y1: 0, x2: 0, y2: 1 }); el(gr, 'stop', { offset: 0, 'stop-color': '#020609' }); el(gr, 'stop', { offset: 0.62, 'stop-color': '#0b1d2b' }); el(gr, 'stop', { offset: 1, 'stop-color': '#04080b' });
+    var hc = el(defs, 'clipPath', { id: 'comb' }); el(hc, 'path', { d: 'M60 30 H580 L620 450 H20 Z' });
+    el(s, 'path', { d: 'M60 30 H580 L620 450 H20 Z', fill: 'url(#hsky)', stroke: 'rgba(120,170,190,.25)' }); s.appendChild(g); g.setAttribute('clip-path', 'url(#comb)');
+    var world = el(g, 'g', {}); el(world, 'line', { x1: -200, y1: 270, x2: 840, y2: 270, class: 'sy g' });
+    for (var d = -60; d <= 700; d += 20) el(world, 'line', { x1: d, y1: 270, x2: d, y2: d % 100 === 0 ? 260 : 265, class: 'sy g th' });
+    [-10, -5, 5, 10].forEach(function(p){ var y = 270 - p * 14; el(world, 'path', { d: 'M230 ' + (y + (p > 0 ? 8 : -8)) + ' V' + y + ' H290 M350 ' + y + ' H410 V' + (y + (p > 0 ? 8 : -8)), class: 'sy g' + (p < 0 ? ' dash' : '') }); el(world, 'text', { x: 420, y: y + 4, class: 'tx s g' }, Math.abs(p)); });
+    var fpm = el(g, 'g', {}); el(fpm, 'circle', { cx: 0, cy: 0, r: 9, class: 'sy g' }); el(fpm, 'path', { d: 'M-24 0 H-9 M9 0 H24 M0 -9 V-18', class: 'sy g' });
+    el(g, 'path', { d: 'M296 210 L320 222 L344 210', class: 'sy g' });
+    el(g, 'rect', { x: 70, y: 252, width: 64, height: 32, class: 'sy g' }); el(g, 'rect', { x: 506, y: 252, width: 74, height: 32, class: 'sy g' });
+    var sR = el(g, 'text', { x: 102, y: 274, 'text-anchor': 'middle', class: 'tx l g' }), aR = el(g, 'text', { x: 543, y: 274, 'text-anchor': 'middle', class: 'tx l g' });
+    for (var k = 0; k < 9; k++){ el(g, 'line', { x1: 140, y1: 150 + k * 30, x2: 150, y2: 150 + k * 30, class: 'sy g th' }); el(g, 'line', { x1: 490, y1: 150 + k * 30, x2: 500, y2: 150 + k * 30, class: 'sy g th' }); }
+    el(g, 'text', { x: 320, y: 70, 'text-anchor': 'middle', class: 'tx g' }, 'AETHER NEXUS'); el(g, 'text', { x: 320, y: 420, 'text-anchor': 'middle', class: 'tx s g' }, 'БІРТҰТАС ЦИФРЛЫҚ КОНТУР');
+    var mx = 0, my = 0, fx = 320, fy = 270, roll = 0; addEventListener('pointermove', function(e){ mx = e.clientX / innerWidth - 0.5; my = e.clientY / innerHeight - 0.5; });
+    AE.onFrame(function(t){ var w = reduce ? 0 : Math.sin(t * 0.0005); fx += ((320 + mx * 160 + w * 10) - fx) * 0.05; fy += ((262 + my * 90) - fy) * 0.05; roll += ((-mx * 10 + w * 2) - roll) * 0.05;
+      fpm.setAttribute('transform', 'translate(' + fx.toFixed(1) + ' ' + fy.toFixed(1) + ')'); world.setAttribute('transform', 'rotate(' + roll.toFixed(2) + ' 320 270) translate(' + (-(t * 0.01) % 100).toFixed(1) + ' 0)');
+      sR.textContent = Math.round(142 + w * 4); aR.textContent = Math.round(1500 + my * 300); });
+  })();
+
+  /* SEL: a rotary selector with twelve detents — one per layer; it steps on by itself and answers clicks and arrow keys */
+  (function(){ var s = C.svg($('#knob'), 560, 430, 'Платформа қабаттарының бұрылмалы ауыстырғышы'), cx = 280, cy = 220, R = 160, read = $('#knobRead'), cur = 0, labels = [];
+    C.draw(el(s, 'circle', { cx: cx, cy: cy, r: R - 30, class: 'sy d th' }), 0.1);
+    LAYERS.forEach(function(l, i){ var a = (-135 + i * 270 / 11) * Math.PI / 180 - Math.PI / 2, x1 = cx + Math.cos(a) * (R - 22), y1 = cy + Math.sin(a) * (R - 22), x2 = cx + Math.cos(a) * (R - 8), y2 = cy + Math.sin(a) * (R - 8);
+      el(s, 'line', { x1: x1, y1: y1, x2: x2, y2: y2, class: 'sy' }); var tx = cx + Math.cos(a) * (R + 12), ty = cy + Math.sin(a) * (R + 12) + 4, right = Math.cos(a) > 0.15, left = Math.cos(a) < -0.15;
+      var t = el(s, 'text', { x: tx, y: ty, 'text-anchor': right ? 'start' : left ? 'end' : 'middle', class: 'tx s', tabindex: 0, role: 'button', style: 'cursor:pointer' }, l.toUpperCase()); t.addEventListener('click', function(){ set(i); }); labels.push(t); });
+    var knob = el(s, 'g', {}); el(knob, 'circle', { cx: cx, cy: cy, r: 92, fill: '#141b21', stroke: '#3a454e', 'stroke-width': 2 }); el(knob, 'circle', { cx: cx, cy: cy, r: 74, fill: '#0e1418', stroke: '#2a343c' });
+    for (var g = 0; g < 36; g++){ var ga = g / 36 * Math.PI * 2; el(knob, 'line', { x1: cx + Math.cos(ga) * 84, y1: cy + Math.sin(ga) * 84, x2: cx + Math.cos(ga) * 91, y2: cy + Math.sin(ga) * 91, stroke: '#3a454e' }); }
+    el(knob, 'path', { d: 'M' + cx + ' ' + (cy - 70) + ' L' + (cx - 7) + ' ' + (cy - 46) + ' H' + (cx + 7) + ' Z', class: 'fx c' });
+    el(s, 'text', { x: cx, y: cy + 4, 'text-anchor': 'middle', class: 'tx s c' }, 'AETHER CORE');
+    var ang = -135, target = -135;
+    function set(i){ cur = (i + LAYERS.length) % LAYERS.length; target = -135 + cur * 270 / 11; labels.forEach(function(t, k){ t.setAttribute('class', k === cur ? 'tx c' : 'tx s'); }); read.textContent = LAYERS[cur].toUpperCase(); }
+    $('#knob').addEventListener('keydown', function(e){ if (e.key === 'ArrowRight' || e.key === 'ArrowUp'){ e.preventDefault(); e.stopPropagation(); set(cur + 1); } if (e.key === 'ArrowLeft' || e.key === 'ArrowDown'){ e.preventDefault(); e.stopPropagation(); set(cur - 1); } });
+    var sec = s.closest('.mfd'); setInterval(function(){ if (sec.classList.contains('live') && !reduce) set(cur + 1); }, 1700);
+    AE.onFrame(function(){ ang += (target - ang) * 0.16; knob.setAttribute('transform', 'rotate(' + ang.toFixed(2) + ' ' + cx + ' ' + cy + ')'); }); set(0);
+  })();
+
+  /* FMC: sixteen capabilities; the line under the pointer or the keyboard is described next to the list */
+  var CAPS = [
+    ['DIGITAL IDENTITY', 'Әрбір ұшқышсыз авиациялық жүйенің бірегей цифрлық профилі болуы мүмкін — осылайша нақты әуе аппаратының цифрлық тарихы қалыптасады.', ['ҰӘК сәйкестендіргіші, өндіруші, үлгі, сериялық нөмір', 'Техникалық сипаттамалар мен санат', 'Иесі, оператор, тіркеу мәліметтері', 'Құжаттар, рұқсаттар, сақтандыру мәліметтері', 'Пайдалану, қызмет көрсету және оқыс оқиғалар тарихы', 'Беру тарихы мен пайдалану мәртебесі']],
+    ['LIFECYCLE MGMT', 'Aether Nexus жекелеген ұшқышсыз аппаратты физикалық нысаннан басқарылатын цифрлық активке айналдырады.', ['Өндіріс — аппараттың цифрлық жазбасын құру', 'Жеткізу және импорт — шығу тегін тіркеу', 'Тіркеу — ресми цифрлық жазба', 'Пайдалануға жіберу — талаптарды бақылау', 'Пайдалану — операцияларды басқару', 'Қызмет көрсету, беру, пайдаланудан шығару']],
+    ['UTM', 'Орталық функционалдық қабаттардың бірі: ұшқышсыз әуе кемелерінің операцияларын цифрлық ұйымдастыру.', ['Ұшу миссиясын құру және маршрутты жоспарлау', 'Әуе кеңістігі мен шектеулерді тексеру', 'Операцияны цифрлық келісу', 'Мониторинг және сәйкестікті бақылау', 'Оқиғаларды басқару және операцияны аяқтау']],
+    ['FLIGHT MGMT', 'Оператор цифрлық миссия құрады — жүйе оның цифрлық моделін қалыптастырып, операция параметрлерін дәйекті түрде тексереді.', ['Ұшу нүктесі, баратын жері, маршрут', 'Биіктік, уақыт, операция параметрлері', 'ҰӘК түрі және оператор', 'Ұшу мақсаты және қосымша талаптар']],
+    ['AIRSPACE INTEL', 'Оператор мен уәкілетті пайдаланушыларға арналған әуе кеңістігінің біртұтас цифрлық көрінісі.', ['Әуе кеңістігінің құрылымы', 'Географиялық және уақыттық шектеулер', 'Ерекше режим аймақтары мен белсенді операциялар', 'ҰӘК жекелеген түрлеріне арналған шектеулер', 'Метеорологиялық деректер', 'Маршруттардың ықтимал қиылысулары']],
+    ['COMPLIANCE', 'Нормативтік сәйкестіктің цифрлық модулі қолданыстағы ережелер мен талаптарды құрылымдалған тексерулерге айналдырады.', ['Салыстыру: оператор · ҰӘК · миссия · маршрут', 'Әуе кеңістігін, уақытты және құжаттарды есепке алу', '«Сәйкес келеді» деген тұжырым — операция шарттарға жауап береді', '«Шартты» деген тұжырым — қосымша шарттар қажет', '«Сәйкес келмейді» деген тұжырым — талаптар орындалмаған']],
+    ['AI-INSPECTOR', 'Үлкен көлемдегі ақпаратты алдын ала тексеруге арналған зияткерлік модуль. Мемлекеттік бақылауды алмастырмайды, деректерді өңдеуді жеделдетеді.', ['Құжаттарды талдау және деректер толықтығын тексеру', 'Сәйкессіздіктер мен күмәнді параметрлерді анықтау', 'Операция деректерін талаптармен салыстыру', 'Тексеру нәтижесінің түсіндірмесін қалыптастыру', 'Маман тексеретін жағдайларды басымдықпен бөлу']],
+    ['AUTHORISATION', 'Көптеген қолмен келісудің орнына операцияларға өтінімдерді өңдеудің цифрлық процесі.', ['Ұшуға өтінім → деректерді тексеру', 'Сәйкестікті тексеру → әуе кеңістігін тексеру', 'Тәуекелді бағалау → келісу тәртібі', 'Ұшуды іске қосу → мониторинг', 'Ұшуды аяқтау']],
+    ['MONITORING', 'Жүйе жоспарлы және нақты траекторияларды салыстырады. Ауытқу болғанда оқиға қалыптасады.', ['Координаттар, биіктік, жылдамдық, бағыт', 'Операция мәртебесі және маршрут', 'Әуе кемесінің телеметриясы', 'Жоспарлы маршрут пен нақты маршрут']],
+    ['CONFORMANCE', 'ҰӘК картада жай көрсетуден миссияның орындалуын цифрлық бақылауға көшу.', ['Келісілген маршруттан ауытқу', 'Белгіленген биіктіктен асып кету', 'Берілген геоаймақтан шығу', 'Уақыт терезесін бұзу', 'Операция параметрлерінің өзгеруі']],
+    ['CONFLICT DETECT', 'Операциялар саны артқанда ықтимал қиылысуларды автоматты түрде анықтау.', ['Ағымдағы траекторияларды салыстыру', 'Жоспарланған маршруттарды талдау', 'Биіктіктер мен уақыт аралықтарын есепке алу', 'Қақтығыс туралы ескерту қалыптастыру', 'Болашақта: балама маршрут ұсыну']],
+    ['GOVERNMENT', 'Мемлекеттік пайдаланушыларға арналған жеке цифрлық контур.', ['Әуе кеңістігі панелі — жалпы көрініс', 'ҰӘК цифрлық тізілімі', 'Операторлар туралы ақпарат', 'Белсенді операциялар', 'Оқиғалар мен инциденттер', 'Сәйкестік · аналитика · тергеу']],
+    ['CUSTOMS', 'Импорт, сәйкестендіру, тіркеу, пайдалану, қызмет көрсету, беру және пайдаланудан шығару арасындағы цифрлық байланыс.', ['Кедендік бақылау жүйелерімен интеграция', 'Аппараттың шығу тегін қадағалау', 'Дайын ҰӘК ғана емес, сәйкестендірілетін компоненттерді есепке алу', 'Мемлекеттік бағдарламалық интерфейстер болған жағдайда ақпарат алмасуды автоматтандыру']],
+    ['FLEET & MAINT', 'Флотты басқару және әрбір әуе жүйесінің біртұтас техникалық профилі.', ['Аппараттар саны, белсенді және қолжетімді ҰӘК', 'Ағымдағы миссиялар мен флот жағдайы', 'Жоспарлы қызмет көрсету, диагностика, жөндеу', 'Компоненттерді ауыстыру: аккумуляторлар, қозғалтқыштар, БҚ', 'Келесі техникалық қызмет көрсету күні']],
+    ['MARKET/FINTECH', 'Коммерциялық қабат тапсырыс берушілер мен ұшқышсыз авиация қызметтерін жеткізушілерді байланыстырады, ал қаржы операциясы расталған миссия нәтижесімен байланысады.', ['Миссияға өтінім → оператор, ҰӘК, мерзім мен құнды таңдау', 'Тапсырыс → миссия → тексеру → келісу → ұшу → нәтиже → төлем', 'Электрондық есеп айырысу, шартты депозит, клиринг', 'Сақтандыру өнімдеріне арналған құрылымдалған деректер']],
+    ['API GATEWAY', 'Aether Nexus қолданыстағы жүйелерді алмастыруға міндетті емес — ол олардың арасындағы цифрлық байланыстырушы қабат бола алады.', ['Авиациялық жүйелер және мемлекеттік тізілімдер', 'UTM/USS жеткізушілері', 'Картографиялық және метеорологиялық көздер', 'Кедендік ақпараттық жүйелер', 'Банктік және сақтандыру жүйелері', 'Өндірушілер мен корпоративтік жүйелер']]];
+  var NAMES = [['Цифрлық сәйкестендіру', 'Digital Identity'], ['Аппараттың өмірлік циклі', 'Digital Lifecycle Management'], ['ҰӘК қозғалысын басқару', 'UTM — Unmanned Traffic Management'],
+    ['Ұшуларды басқару', 'Flight Management'], ['Әуе кеңістігінің көрінісі', 'Airspace Intelligence'], ['Нормативтік сәйкестік', 'Regulatory Compliance Engine'],
+    ['Зияткерлік тексеру', 'AI-Inspector'], ['Ұшуларды цифрлық келісу', 'Digital Flight Authorisation'], ['Нақты уақыттағы мониторинг', 'Real-Time Monitoring'],
+    ['Миссияның орындалуын бақылау', 'Conformance Monitoring'], ['Қақтығыстарды анықтау', 'Conflict Detection'], ['Мемлекеттік контур', 'Government Platform'],
+    ['Кедендік интеграция', 'Customs Integration'], ['Флот және қызмет көрсету', 'Fleet & Maintenance Management'], ['Маркетплейс және қаржы', 'Marketplace · FinTech · InsurTech'],
+    ['Интеграция шлюзі', 'API & Integration Gateway']];
+  (function(){ var list = $('#cduL'), det = $('#cduD'), P = $('#cduP'), sec = $('#fmc'), narrow = matchMedia('(max-width:900px)'), sel = -1, auto = null, touched = false;
+    list.innerHTML = NAMES.map(function(n, i){ return '<li><button type="button" aria-pressed="false" data-i="' + i + '"><b>' + ('0' + (i + 1)).slice(-2) + '</b><span>' + n[0] + '</span><i>&gt;</i></button></li>'; }).join('');
+    var btns = $$('button', list);
+    function pick(i, focus){ i = (i + NAMES.length) % NAMES.length; if (i === sel && !focus) return; sel = i;
+      btns.forEach(function(b, j){ b.setAttribute('aria-pressed', j === i ? 'true' : 'false'); });
+      var c = CAPS[i]; det.innerHTML = '<h4>' + NAMES[i][0] + '</h4><span class="en">' + NAMES[i][1] + '</span><p>' + c[1] + '</p><ul>' + c[2].map(function(x){ return '<li>' + x + '</li>'; }).join('') + '</ul>';
+      det.classList.remove('swap'); void det.offsetWidth; if (!reduce) det.classList.add('swap');
+      if (narrow.matches) btns[i].parentNode.appendChild(det); else if (det.parentNode !== list.parentNode) list.after(det);   // on a phone the description opens right under its line
+      P.textContent = ('0' + (i + 1)).slice(-2) + ' / 16'; if (focus) btns[i].focus(); }
+    function stop(){ touched = true; clearInterval(auto); auto = null; }
+    btns.forEach(function(b){ var i = +b.dataset.i;
+      b.addEventListener('click', function(){ stop(); pick(i); });
+      b.addEventListener('mouseenter', function(){ if (matchMedia('(pointer:fine)').matches){ stop(); pick(i); } });
+      b.addEventListener('keydown', function(e){ var d = { ArrowDown: 1, ArrowUp: -1 }[e.key]; if (e.key === 'Home') d = -sel; if (e.key === 'End') d = NAMES.length - 1 - sel;
+        if (d == null) return; e.preventDefault(); e.stopPropagation(); stop(); pick(sel + d, true); }); });   // arrows walk the list instead of turning the page
+    narrow.addEventListener('change', function(){ var s = sel; sel = -1; pick(s); });
+    pick(0);
+    // until someone touches it, the computer steps through the lines by itself
+    sec.addEventListener('mfd:live', function(){ if (touched || reduce || narrow.matches || auto) return; auto = setInterval(function(){ pick(sel + 1); }, 4200); });
+    sec.addEventListener('mfd:off', function(){ clearInterval(auto); auto = null; });
+  })();
+
+  /* DU: five display units, each with its own symbology; the lit one walks along the panel */
+  (function(){ var IF = [['AETHER OPERATOR', 'Оператордың мобильді қосымшасы'], ['AETHER CONTROL', 'Басқарудың веб-интерфейсі'], ['AETHER GOVERNMENT', 'Мемлекеттік интерфейс'], ['AETHER BUSINESS', 'Корпоративтік кабинет'], ['AETHER MARKET', 'Коммерциялық marketplace']];
+    var host = $('#dus'); host.innerHTML = IF.map(function(f){ return '<div class="dui"><div class="scr"></div><b>' + f[0] + '</b><span>' + f[1] + '</span></div>'; }).join('');
+    var items = $$('.dui', host);
+    items.forEach(function(it, i){ var s = C.svg($('.scr', it), 120, 160, f = IF[i][0]), f;
+      if (i === 0){ el(s, 'path', { d: 'M20 130 L45 90 L70 104 L100 40', class: 'sy m' }); [[20, 130], [45, 90], [70, 104], [100, 40]].forEach(function(p){ el(s, 'circle', { cx: p[0], cy: p[1], r: 3, class: 'fx' }); }); el(s, 'path', { d: 'M60 146 l-6 10 h12 Z', class: 'fx c' }); }
+      if (i === 1){ for (var g = 0; g < 6; g++){ el(s, 'line', { x1: 10, y1: 20 + g * 22, x2: 110, y2: 20 + g * 22, class: 'sy d th' }); el(s, 'line', { x1: 10 + g * 20, y1: 20, x2: 10 + g * 20, y2: 130, class: 'sy d th' }); } el(s, 'circle', { cx: 60, cy: 74, r: 26, class: 'sy a' }); el(s, 'path', { d: 'M30 120 Q 60 50 100 36', class: 'sy c' }); }
+      if (i === 2){ [44, 70, 30, 96, 60].forEach(function(h, k){ el(s, 'rect', { x: 14 + k * 20, y: 140 - h, width: 12, height: h, class: 'fx g', opacity: 0.8 }); }); el(s, 'line', { x1: 10, y1: 140, x2: 112, y2: 140, class: 'sy' }); }
+      if (i === 3){ for (var r = 0; r < 6; r++){ el(s, 'rect', { x: 12, y: 18 + r * 22, width: 96, height: 14, class: 'sy th' }); el(s, 'rect', { x: 14, y: 20 + r * 22, width: 30 + (r * 13) % 60, height: 10, class: 'fx c', opacity: 0.5 }); } }
+      if (i === 4){ for (var c = 0; c < 6; c++){ el(s, 'rect', { x: 14 + (c % 2) * 50, y: 16 + Math.floor(c / 2) * 46, width: 42, height: 38, class: 'sy' }); el(s, 'circle', { cx: 35 + (c % 2) * 50, cy: 35 + Math.floor(c / 2) * 46, r: 7, class: 'sy g' }); } } });
+    var k = 0, sec = host.closest('.mfd'); function lit(){ items.forEach(function(it, i){ it.classList.toggle('on', i === k); }); } lit();
+    setInterval(function(){ if (sec.classList.contains('live') && !reduce){ k = (k + 1) % items.length; lit(); } }, 1400);
+  })();
+
+  /* RMI: a compass rose, Aether Core in the middle, eight parts as stations round it; the needle points to each in turn */
+  (function(){ var ECO = [['UTM', 'Aether UTM', 'ҰӘК операцияларын басқару'], ['GRD', 'Aether Grid', 'Әуе кеңістігінің цифрлық көрінісі'], ['AI', 'Aether AI', 'Зияткерлік аналитика'], ['REG', 'Aether Registry', 'Цифрлық сәйкестендіру және тізілім'], ['LCM', 'Aether Lifecycle', 'Өмірлік циклді басқару'], ['MKT', 'Aether Market', 'Коммерциялық marketplace'], ['FIN', 'Aether Finance', 'Қаржы қабаты'], ['CON', 'Aether Connect', 'Интерфейстер және қатысушыларды қосу']];
+    var s = C.svg($('#rose'), 560, 520, 'Экожүйенің компас розасы: ортасында Aether Core, айналасында сегіз бөлік'), cx = 280, cy = 260, info = $('#ecoInfo');
+    C.draw(el(s, 'circle', { cx: cx, cy: cy, r: 200, class: 'sy' }), 0.05); el(s, 'circle', { cx: cx, cy: cy, r: 236, class: 'sy d th dash' });
+    for (var d = 0; d < 360; d += 5){ var a = (d - 90) * Math.PI / 180, big = d % 30 === 0; el(s, 'line', { x1: cx + Math.cos(a) * 200, y1: cy + Math.sin(a) * 200, x2: cx + Math.cos(a) * (big ? 184 : 192), y2: cy + Math.sin(a) * (big ? 184 : 192), class: 'sy th' });
+      if (big){ var lab = { 0: 'N', 90: 'E', 180: 'S', 270: 'W' }[d]; el(s, 'text', { x: cx + Math.cos(a) * 170, y: cy + Math.sin(a) * 170 + 4, 'text-anchor': 'middle', class: 'tx s' + (lab ? ' c' : '') }, lab || ('0' + d / 10).slice(-2)); } }
+    var st = ECO.map(function(e, i){ var a = (i * 45 - 90) * Math.PI / 180, x = cx + Math.cos(a) * 236, y = cy + Math.sin(a) * 236, g = el(s, 'g', {});
+      el(g, 'path', { d: 'M' + (x - 9) + ' ' + y + ' L' + (x - 4.5) + ' ' + (y - 8) + ' H' + (x + 4.5) + ' L' + (x + 9) + ' ' + y + ' L' + (x + 4.5) + ' ' + (y + 8) + ' H' + (x - 4.5) + ' Z', class: 'sy c' });
+      var right = Math.cos(a) > 0.2, left = Math.cos(a) < -0.2; el(g, 'text', { x: x + (right ? 16 : left ? -16 : 0), y: y + (Math.sin(a) < -0.6 ? -14 : Math.sin(a) > 0.6 ? 24 : 4), 'text-anchor': right ? 'start' : left ? 'end' : 'middle', class: 'tx c' }, e[0]); return g; });
+    el(s, 'path', { d: 'M' + cx + ' ' + (cy - 14) + ' l-11 24 l11 -6 l11 6 Z', class: 'sy' }); el(s, 'text', { x: cx, y: cy + 34, 'text-anchor': 'middle', class: 'tx s' }, 'AETHER CORE');
+    var needle = el(s, 'g', {}); el(needle, 'path', { d: 'M' + cx + ' ' + (cy - 150) + ' l-9 18 h18 Z M' + cx + ' ' + (cy - 132) + ' V' + (cy - 40) + ' M' + cx + ' ' + (cy + 40) + ' V' + (cy + 150), class: 'sy m', style: 'stroke-width:3' });
+    var k = 0, ang = 0, target = 0, sec = s.closest('.mfd');
+    function set(i){ k = i; target = i * 45; var e = ECO[i]; info.innerHTML = '<span style="color:var(--k-cyan);font-family:var(--f-mono);letter-spacing:.1em">' + e[0] + ' · ' + e[1].toUpperCase() + '</span><br>' + e[2]; st.forEach(function(g, j){ g.querySelectorAll('*').forEach(function(n){ n.setAttribute('class', (n.tagName === 'text' ? 'tx ' : 'sy ') + (j === i ? 'm' : 'c')); }); }); }
+    setInterval(function(){ if (sec.classList.contains('live') && !reduce) set((k + 1) % ECO.length); }, 1800); set(0);
+    AE.onFrame(function(){ var dd = ((target - ang + 540) % 360) - 180; ang += dd * 0.1; needle.setAttribute('transform', 'rotate(' + ang.toFixed(2) + ' ' + cx + ' ' + cy + ')'); });
+  })();
+
+  /* EICAS: the nine measures and the five separated kinds of access come up as memo lines */
+  (function(){ var A = ['АУТЕНТИФИКАЦИЯ ЖӘНЕ АВТОРИЗАЦИЯ', 'РӨЛДЕР БОЙЫНША ҚОЛЖЕТІМДІЛІКТІ БӨЛУ', 'ӘРЕКЕТТЕРДІ ЖУРНАЛДАУ', 'API ҚОРҒАУЫ', 'ДЕРЕКТЕРДІ ШИФРЛАУ', 'ДЕРЕКТЕР ТҰТАСТЫҒЫН БАҚЫЛАУ', 'АУДИТ ЖӘНЕ РЕЗЕРВТЕУ', 'ҚАУІПСІЗДІК ОҚИҒАЛАРЫН МОНИТОРИНГТЕУ', 'ЦИФРЛЫҚ СӘЙКЕСТЕНДІРГІШТЕРДІ БАСҚАРУ'], B = ['ОПЕРАТОР', 'КОММЕРЦИЯЛЫҚ ПАЙДАЛАНУШЫ', 'МЕМЛЕКЕТТІК ПАЙДАЛАНУШЫ', 'ӘКІМШІ', 'ИНТЕГРАЦИЯЛЫҚ СЕРВИС'];
+    var cols = $$('#memo .cols > div'); A.forEach(function(x){ cols[0].insertAdjacentHTML('beforeend', '<div class="l"><span>' + x + '</span><b>ON</b></div>'); }); B.forEach(function(x){ cols[1].insertAdjacentHTML('beforeend', '<div class="l"><span>' + x + '</span><b>БӨЛЕК</b></div>'); });
+    var lines = $$('#memo div.l'), sec = $('#memo').closest('.mfd'), was = false, timers = [];
+    sec.addEventListener('mfd:live', function(){ timers.forEach(clearTimeout); lines.forEach(function(l, i){ timers.push(setTimeout(function(){ l.classList.add('on'); }, reduce ? 0 : 300 + i * 120)); }); });
+    sec.addEventListener('mfd:off', function(){ timers.forEach(clearTimeout); lines.forEach(function(l){ l.classList.remove('on'); }); });
+  })();
+
+  C.start('AETHER NEXUS', 'wipe'); AE.start();
+})();
+</script>
+</body>
+</html>

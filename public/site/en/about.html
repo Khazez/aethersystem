@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Company — Aether</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/site/shared.css">
+<link rel="stylesheet" href="/site/cockpit.css">
+<style>
+/* About as cockpit display pages: an attitude indicator, a systems synoptic, a navigation display with one closed route,
+   a traffic display that fills up, an electronic checklist. */
+@media (min-width:901px){.mfd.hero .mfd-in{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)}}
+.tagline{font:500 13px var(--f-mono);letter-spacing:.2em;color:var(--k-cyan)}
+</style>
+</head>
+<body class="cockpit">
+<header class="head">
+  <a class="brand" href="/en"><img src="/site/logo-mark.png" alt="" width="245" height="139"><span>AETHER<small>SYSTEM &amp; CO.</small></span><span class="sr">, to the home page</span></a>
+  <nav class="nav" aria-label="Site sections"><a href="/en/about" aria-current="page">Company</a><a href="/en/product">Aether Nexus</a><a href="/en/solutions">Solutions</a><a href="/en/team">Team</a></nav>
+  <div class="tools">
+    <div class="lang"><button type="button" id="langBtn" aria-expanded="false" aria-controls="langMenu" aria-label="Language: English">EN</button>
+      <div class="lang-menu" id="langMenu" hidden><a href="/kk/about">ҚАЗ</a><a href="/ru/about">РУ</a><span aria-current="true">EN</span></div></div>
+    <a class="hbtn plat" href="https://platform.aethersystem.kz" target="_blank" rel="noopener noreferrer">Open the platform <span aria-hidden="true">↗</span><span class="sr">, opens in a new tab</span></a>
+    <a class="hbtn primary" href="/en/team#contacts">Contacts</a>
+    <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="mnav"><span aria-hidden="true"></span>Menu</button>
+  </div>
+</header>
+<div class="mnav" id="mnav" hidden>
+  <a href="/en">Home</a><a href="/en/about" aria-current="page">Company</a><a href="/en/product">Aether Nexus</a><a href="/en/solutions">Solutions</a><a href="/en/team">Team</a><a href="/en/team#contacts">Contacts</a>
+  <div class="mnav-row"><a href="/kk/about">ҚАЗ</a><a href="/ru/about">РУ</a><span aria-current="true">EN</span></div>
+  <a class="hbtn primary" href="https://platform.aethersystem.kz" target="_blank" rel="noopener noreferrer">Open the platform <span aria-hidden="true">↗</span></a>
+</div>
+<main>
+
+<section class="mfd hero" data-hdg="0" data-name="Company" aria-labelledby="t1">
+  <div class="mfd-in">
+    <div class="txt">
+      <p class="pg">PFD <i>· page 1 / 5</i></p>
+      <h1 id="t1">Aether System &amp; Co.</h1>
+      <p class="tagline">TECHNOLOGY FOR THE NEXT AIRSPACE</p>
+      <p>A technology company building digital infrastructure for uncrewed aviation, autonomous air operations and a new generation of airspace management.</p>
+    </div>
+    <div class="du"><span class="tag">PFD</span><div id="pfd"></div><div class="keys"><span class="on">PFD</span><span>OVHD</span><span>ND</span><span>TCAS</span><span>ECL</span></div></div>
+  </div>
+</section>
+
+<section class="mfd" data-hdg="60" data-name="Что мы разрабатываем" aria-labelledby="t2">
+  <div class="mfd-in">
+    <div class="txt">
+      <p class="pg">OVHD <i>· page 2 / 5</i></p>
+      <h2 id="t2">End-to-end technology solutions</h2>
+      <p>The company builds solutions that bring together software platforms, uncrewed aircraft management systems, digital identity, air traffic management, regulatory control, operations monitoring, the lifecycle of air systems and integration with government and commercial information systems.</p>
+      <p>The company's flagship product is <a href="/en/product" style="color:var(--k-cyan)">Aether Nexus</a>.</p>
+    </div>
+    <div class="du ovh"><span class="tag">OVERHEAD · SYSTEMS</span>
+      <div class="pnl" data-t="AETHER" id="ovh">
+        <span class="screw" style="left:6px;top:6px"></span><span class="screw" style="right:6px;top:6px"></span><span class="screw" style="left:6px;bottom:6px"></span><span class="screw" style="right:6px;bottom:6px"></span>
+        <div class="pnl-row" style="margin-bottom:16px"><div class="sw master"><span class="lg">Single<br>loop</span><span class="lamp">ON</span></div><p class="pnl-note">One master switch turns on every direction — the platform works the same way: one system instead of many</p></div>
+        <div class="sws">
+          <div class="sw"><span class="lg">Software<br>of the platform</span><span class="lamp">ON</span></div>
+          <div class="sw"><span class="lg">Management<br>UAV</span><span class="lamp">ON</span></div>
+          <div class="sw"><span class="lg">Digital<br>identity</span><span class="lamp">ON</span></div>
+          <div class="sw"><span class="lg">Management<br>air traffic</span><span class="lamp">ON</span></div>
+          <div class="sw"><span class="lg">Regulatory<br>control</span><span class="lamp">ON</span></div>
+          <div class="sw"><span class="lg">Monitoring<br>operations</span><span class="lamp">ON</span></div>
+          <div class="sw"><span class="lg">Lifecycle<br>systems lifecycle</span><span class="lamp">ON</span></div>
+          <div class="sw"><span class="lg">Integration<br>systems</span><span class="lamp">ON</span></div>
+        </div>
+      </div>
+      <div class="keys"><span>PFD</span><span class="on">OVHD</span><span>ND</span><span>TCAS</span><span>ECL</span></div></div>
+  </div>
+</section>
+
+<section class="mfd" data-hdg="120" data-name="Home идея" aria-labelledby="t3">
+  <div class="mfd-in">
+    <div class="txt">
+      <p class="pg">ND <i>· page 3 / 5</i></p>
+      <h2 id="t3">From fragmented systems to unified infrastructure</h2>
+      <p>The core idea of Aether System &amp; Co. is the move from scattered systems to a single digital infrastructure, where the aircraft, the operator, the airspace, the route, the permission, the regulatory requirements, the technical condition, government services and the commercial operation are connected in one digital loop.</p>
+    </div>
+    <div class="du"><span class="tag">ND · ROUTE</span><div id="nd"></div><div class="keys"><span>PFD</span><span>OVHD</span><span class="on">ND</span><span>TCAS</span><span>ECL</span></div></div>
+  </div>
+</section>
+
+<section class="mfd" data-hdg="210" data-name="Цель и видение" aria-labelledby="t4">
+  <div class="mfd-in">
+    <div class="txt">
+      <p class="pg">TCAS <i>· page 4 / 5</i></p>
+      <h2 id="t4">A foundation for autonomous aviation</h2>
+      <p>The company's strategic objective is to form the technological foundation for the transition from isolated unmanned operations to a scalable digital ecosystem of autonomous aviation.</p>
+      <p>The number of uncrewed aircraft will keep growing. Such a world needs infrastructure that understands not just a single flight but the whole system of interactions.</p>
+    </div>
+    <div class="du"><span class="tag" id="tcasTag">TRAFFIC</span><div id="tcas"></div><div class="keys"><span>PFD</span><span>OVHD</span><span>ND</span><span class="on">TCAS</span><span>ECL</span></div></div>
+  </div>
+</section>
+
+<section class="mfd" data-hdg="300" data-name="Принципы" aria-labelledby="t5">
+  <div class="mfd-in">
+    <div class="txt">
+      <p class="pg">ECL <i>· page 5 / 5</i></p>
+      <h2 id="t5">Principles the platform is built on</h2>
+      <a class="nextkey" href="/en/product">NEXT ▸ AETHER NEXUS</a>
+    </div>
+    <div class="du">
+      <div class="ecl" id="ecl">
+        <div class="ecl-h"><span>PLATFORM PRINCIPLES</span><span>ECL</span></div>
+        <div class="ecl-i"><div class="row"><span class="box">✓</span><span>COMPLEMENT, NOT REPLACE</span><span class="st">—</span></div><p>Aether Nexus is designed to complement existing aviation infrastructure rather than replace the traditional air traffic management system.</p></div>
+        <div class="ecl-i"><div class="row"><span class="box">✓</span><span>DATA CONNECTIVITY</span><span class="st">—</span></div><p>The core value lies not in a single map interface or UTM module, but in the connectivity of data and processes across all participants.</p></div>
+        <div class="ecl-i"><div class="row"><span class="box">✓</span><span>THE DECISION STAYS WITH THE STATE</span><span class="st">—</span></div><p>Automation accelerates data processing, but the final legal decision remains with the competent state authority.</p></div>
+        <div class="ecl-i"><div class="row"><span class="box">✓</span><span>SECURITY AS THE FOUNDATION</span><span class="st">—</span></div><p>Authentication, access control, logging, API protection, encryption and audit are built into the architecture from the start.</p></div>
+        <div class="ecl-f" id="eclF">CHECKLIST INCOMPLETE</div>
+      </div>
+      <div class="keys"><span>PFD</span><span>OVHD</span><span>ND</span><span>TCAS</span><span class="on">ECL</span></div>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer class="pfoot">
+  <div><a class="brand" href="/en"><img src="/site/logo-mark.png" alt="" width="245" height="139"><span>AETHER<small>SYSTEM &amp; CO.</small></span></a>
+    <p style="margin-top:16px">Digital infrastructure for the safe, transparent and scalable development of unmanned and autonomous aviation.</p></div>
+  <div><h3>Navigation</h3><ul><li><a href="/en">Home</a></li><li><a href="/en/about">Company</a></li><li><a href="/en/product">Aether Nexus</a></li><li><a href="/en/solutions">Solutions</a></li><li><a href="/en/team">Team</a></li><li><a href="/en/team#contacts">Contacts</a></li></ul></div>
+  <div><h3>Platform</h3><ul><li><a href="/en/product">Aether Nexus</a></li><li><a href="/en/product#ecosystem">Aether Core</a></li><li><a href="/en/product#ecosystem">Aether UTM</a></li><li><a href="/en/product#ecosystem">Aether Grid</a></li><li><a href="https://platform.aethersystem.kz" target="_blank" rel="noopener noreferrer">Open the platform ↗</a></li></ul></div>
+  <div><h3>Contact</h3><ul><li><a href="mailto:info@aethersystem.kz">info@aethersystem.kz</a></li><li><a href="tel:+77008323273">+7 700 832 32 73</a></li><li style="color:#a6b5c1;font-size:14.5px">Astana, Nura district, 8a Sanzhar Asfendiyarov street, Omega business centre</li></ul></div>
+  <div class="copy"><span>© 2026 AETHER SYSTEM &amp; CO. ALL RIGHTS RESERVED.</span><span>TECHNOLOGY FOR THE NEXT AIRSPACE</span></div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js"></script>
+<script src="/site/shared.js"></script>
+<script src="/site/cockpit.js"></script>
+<script>
+(function(){
+  var $ = AE.$, $$ = AE.$$, el = C.el, reduce = AE.reduce;
+
+  /* PFD: an attitude indicator that banks after the mouse and pitches with the scroll, speed and altitude tapes, heading arc */
+  (function(){ var s = C.svg($('#pfd'), 600, 560, 'Primary flight display: artificial horizon, speed and altitude tapes');
+    var defs = el(s, 'defs', {}), cp = el(defs, 'clipPath', { id: 'adi' }); el(cp, 'rect', { x: 120, y: 40, width: 360, height: 380, rx: 18 });
+    var sky = el(defs, 'linearGradient', { id: 'sky', x1: 0, y1: 0, x2: 0, y2: 1 }); el(sky, 'stop', { offset: 0, 'stop-color': '#0a2a48' }); el(sky, 'stop', { offset: 1, 'stop-color': '#1b5a8a' });
+    var gnd = el(defs, 'linearGradient', { id: 'gnd', x1: 0, y1: 0, x2: 0, y2: 1 }); el(gnd, 'stop', { offset: 0, 'stop-color': '#5a3b22' }); el(gnd, 'stop', { offset: 1, 'stop-color': '#2a1b10' });
+    var clip = el(s, 'g', { 'clip-path': 'url(#adi)' }), att = el(clip, 'g', {});
+    el(att, 'rect', { x: -400, y: -800, width: 1400, height: 1030, fill: 'url(#sky)' }); el(att, 'rect', { x: -400, y: 230, width: 1400, height: 1030, fill: 'url(#gnd)' });
+    el(att, 'line', { x1: -400, y1: 230, x2: 1000, y2: 230, class: 'sy' });
+    [-20, -15, -10, -5, 5, 10, 15, 20].forEach(function(p){ var y = 230 - p * 8, w = p % 10 === 0 ? 46 : 22; el(att, 'line', { x1: 300 - w, y1: y, x2: 300 + w, y2: y, class: 'sy' });
+      if (p % 10 === 0){ el(att, 'text', { x: 300 - w - 10, y: y + 4, 'text-anchor': 'end', class: 'tx s' }, Math.abs(p)); el(att, 'text', { x: 300 + w + 10, y: y + 4, class: 'tx s' }, Math.abs(p)); } });
+    // bank scale and the pointer that rides with the horizon
+    var arc = el(s, 'g', {}); [-60, -45, -30, -20, -10, 0, 10, 20, 30, 45, 60].forEach(function(a){ var r1 = 168, r2 = a % 30 === 0 ? 184 : 176, rad = (a - 90) * Math.PI / 180;
+      el(arc, 'line', { x1: 300 + Math.cos(rad) * r1, y1: 230 + Math.sin(rad) * r1, x2: 300 + Math.cos(rad) * r2, y2: 230 + Math.sin(rad) * r2, class: 'sy' }); });
+    el(arc, 'path', { d: 'M300 62 l-8 -14 h16 Z', class: 'sy a', fill: 'none' });
+    var ptr = el(s, 'path', { d: 'M300 66 l-8 14 h16 Z', class: 'fx' });
+    // the aircraft symbol, fixed
+    el(s, 'path', { d: 'M200 230 H272 V242 M400 230 H328 V242', class: 'sy a', style: 'stroke-width:4' }); el(s, 'rect', { x: 295, y: 225, width: 10, height: 10, class: 'fx a' });
+    // speed and altitude tapes
+    el(s, 'rect', { x: 30, y: 40, width: 74, height: 380, rx: 6, class: 'sy d', fill: 'rgba(0,0,0,.45)' }); el(s, 'rect', { x: 496, y: 40, width: 84, height: 380, rx: 6, class: 'sy d', fill: 'rgba(0,0,0,.45)' });
+    var spd = el(s, 'g', {}), alt = el(s, 'g', {}), sClip = el(defs, 'clipPath', { id: 'spd' }); el(sClip, 'rect', { x: 30, y: 40, width: 74, height: 380 }); var aClip = el(defs, 'clipPath', { id: 'alt' }); el(aClip, 'rect', { x: 496, y: 40, width: 84, height: 380 });
+    spd.setAttribute('clip-path', 'url(#spd)'); alt.setAttribute('clip-path', 'url(#alt)');
+    var spdIn = el(spd, 'g', {}), altIn = el(alt, 'g', {});
+    for (var v = 0; v <= 300; v += 10){ var y = -v * 4; el(spdIn, 'line', { x1: 92, y1: y, x2: 104, y2: y, class: 'sy' }); if (v % 20 === 0) el(spdIn, 'text', { x: 86, y: y + 4, 'text-anchor': 'end', class: 'tx s' }, v); }
+    for (var h = 0; h <= 6000; h += 100){ var yy = -h * 0.4; el(altIn, 'line', { x1: 496, y1: yy, x2: 508, y2: yy, class: 'sy' }); if (h % 200 === 0) el(altIn, 'text', { x: 514, y: yy + 4, class: 'tx s' }, h); }
+    var sRead = el(s, 'text', { x: 67, y: 236, 'text-anchor': 'middle', class: 'tx l' }), aRead = el(s, 'text', { x: 538, y: 236, 'text-anchor': 'middle', class: 'tx l' });
+    el(s, 'rect', { x: 34, y: 214, width: 66, height: 32, class: 'sy', fill: '#000' }); el(s, 'rect', { x: 500, y: 214, width: 76, height: 32, class: 'sy', fill: '#000' }); s.appendChild(sRead); s.appendChild(aRead);
+    el(s, 'text', { x: 67, y: 36, 'text-anchor': 'middle', class: 'tx s c' }, 'SPD'); el(s, 'text', { x: 538, y: 36, 'text-anchor': 'middle', class: 'tx s c' }, 'ALT');
+    // heading arc under the attitude
+    var hd = el(s, 'g', {}); for (var d = -60; d <= 60; d += 5){ var rr = (d - 90) * Math.PI / 180, big = d % 30 === 0; el(hd, 'line', { x1: 300 + Math.cos(rr) * 110, y1: 560 + Math.sin(rr) * 110, x2: 300 + Math.cos(rr) * (big ? 96 : 103), y2: 560 + Math.sin(rr) * (big ? 96 : 103), class: 'sy th' }); }
+    el(s, 'path', { d: 'M300 446 l-7 -12 h14 Z', class: 'fx m' }); var hdRead = el(s, 'text', { x: 300, y: 478, 'text-anchor': 'middle', class: 'tx m' });
+    var mx = 0, bank = 0, pitch = 0, sp = 140, al = 1500;
+    addEventListener('pointermove', function(e){ mx = (e.clientX / innerWidth - 0.5) * 2; });
+    AE.onFrame(function(t){ var p = scrollY / Math.max(1, document.documentElement.scrollHeight - innerHeight), tb = reduce ? 0 : Math.sin(t * 0.0006) * 3, tp = reduce ? 0 : Math.sin(t * 0.0004) * 1.5;
+      bank += ((mx * -14 + tb) - bank) * 0.06; pitch += ((tp + 3 - p * 6) - pitch) * 0.06; sp += ((140 + p * 40) - sp) * 0.05; al += ((1500 + p * 2400) - al) * 0.05;
+      att.setAttribute('transform', 'rotate(' + bank.toFixed(2) + ' 300 230) translate(0 ' + (pitch * 8).toFixed(1) + ')'); ptr.setAttribute('transform', 'rotate(' + bank.toFixed(2) + ' 300 230)');
+      spdIn.setAttribute('transform', 'translate(0 ' + (230 + sp * 4).toFixed(1) + ')'); altIn.setAttribute('transform', 'translate(0 ' + (230 + al * 0.4).toFixed(1) + ')');
+      sRead.textContent = Math.round(sp); aRead.textContent = Math.round(al / 10) * 10; var hh = parseInt(($('.hdg-read') || { textContent: 'HDG 000' }).textContent.replace(/\D/g, ''), 10) || 0;
+      hd.setAttribute('transform', 'rotate(' + (-(hh % 30)) + ' 300 560)'); hdRead.textContent = ('00' + hh).slice(-3); });
+  })();
+
+  /* OVHD: the master switch comes on, then the eight directions one after another; each lamp also answers a click */
+  (function(){ var sws = $$('#ovh .sw'), sec = $('#ovh').closest('.mfd'), timers = [];
+    function off(){ timers.forEach(clearTimeout); timers = []; sws.forEach(function(w){ w.classList.remove('on'); }); }
+    function on(){ off(); sws.forEach(function(w, i){ timers.push(setTimeout(function(){ w.classList.add('on'); }, reduce ? 0 : (i === 0 ? 350 : 750 + i * 170))); }); }
+    sec.addEventListener('mfd:live', on); sec.addEventListener('mfd:off', off);
+    sws.forEach(function(w){ w.addEventListener('click', function(){ w.classList.toggle('on'); }); });
+  })();
+
+  /* ND: arc-mode navigation display — own aircraft, range arcs, and one closed route through the nine parts */
+  (function(){ var s = C.svg($('#nd'), 640, 540, 'Navigation display: a closed route through nine parts — one digital loop'), ox = 320, oy = 500;
+    [150, 300, 450].forEach(function(r, i){ var a0 = -150 * Math.PI / 180, a1 = -30 * Math.PI / 180; C.draw(el(s, 'path', { d: 'M' + (ox + Math.cos(a0) * r) + ' ' + (oy + Math.sin(a0) * r) + ' A' + r + ' ' + r + ' 0 0 1 ' + (ox + Math.cos(a1) * r) + ' ' + (oy + Math.sin(a1) * r), class: 'sy th' + (i < 2 ? ' dash' : '') }), 0.05 + i * 0.08); });
+    for (var d = -60; d <= 60; d += 10){ var rr = (d - 90) * Math.PI / 180; el(s, 'line', { x1: ox + Math.cos(rr) * 450, y1: oy + Math.sin(rr) * 450, x2: ox + Math.cos(rr) * (d % 30 === 0 ? 432 : 440), y2: oy + Math.sin(rr) * (d % 30 === 0 ? 432 : 440), class: 'sy th' }); }
+    el(s, 'path', { d: 'M' + ox + ' ' + (oy - 16) + ' l-12 26 l12 -6 l12 6 Z', class: 'sy', fill: 'none' });
+    var N = ['UAV', 'OPERATOR', 'AIRSPACE', 'ROUTE', 'PERMISSION', 'REGULATIONS', 'TECH. STATUS', 'GOV SERVICES', 'COMM. OPERATION'], cx = 320, cy = 240, rx = 220, ry = 140, P = [];
+    N.forEach(function(n, i){ var a = -Math.PI / 2 + i / N.length * Math.PI * 2; P.push([cx + Math.cos(a) * rx, cy + Math.sin(a) * ry, a]); });
+    C.draw(el(s, 'path', { d: 'M' + P.map(function(p){ return p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' L') + ' Z', class: 'sy m', style: 'stroke-width:2.2' }), 0.35);
+    C.draw(el(s, 'line', { x1: ox, y1: oy - 18, x2: P[4][0], y2: P[4][1], class: 'sy m dash' }), 0.25);
+    var stars = P.map(function(p, i){ var g = el(s, 'g', {}); el(g, 'path', { d: 'M' + p[0] + ' ' + (p[1] - 9) + ' L' + (p[0] + 3) + ' ' + (p[1] - 3) + ' L' + (p[0] + 9) + ' ' + p[1] + ' L' + (p[0] + 3) + ' ' + (p[1] + 3) + ' L' + p[0] + ' ' + (p[1] + 9) + ' L' + (p[0] - 3) + ' ' + (p[1] + 3) + ' L' + (p[0] - 9) + ' ' + p[1] + ' L' + (p[0] - 3) + ' ' + (p[1] - 3) + ' Z', class: 'fx' });
+      var right = Math.cos(p[2]) > 0.2, left = Math.cos(p[2]) < -0.2; el(g, 'text', { x: p[0] + (right ? 14 : left ? -14 : 0), y: p[1] + (Math.sin(p[2]) < -0.6 ? -14 : Math.sin(p[2]) > 0.6 ? 26 : 4), 'text-anchor': right ? 'start' : left ? 'end' : 'middle', class: 'tx s' }, N[i]); return g; });
+    el(s, 'text', { x: 20, y: 30, class: 'tx s g' }, 'ROUTE · ONE DIGITAL LOOP'); el(s, 'text', { x: 620, y: 30, 'text-anchor': 'end', class: 'tx s c' }, 'ACT');
+    var k = 0; setInterval(function(){ stars.forEach(function(g, i){ var on = i === k; g.querySelector('path').setAttribute('class', on ? 'fx m' : 'fx'); g.querySelector('text').setAttribute('class', on ? 'tx s m' : 'tx s'); }); k = (k + 1) % stars.length; }, reduce ? 99999 : 1200);
+  })();
+
+  /* TCAS: own aircraft in the middle, traffic appears and multiplies; symbols and relative-altitude tags as on board */
+  (function(){ var s = C.svg($('#tcas'), 540, 540, 'Traffic display: the number of aircraft around keeps growing'), cx = 270, cy = 290, rnd = AE.mulberry(6), tag = $('#tcasTag');
+    C.draw(el(s, 'circle', { cx: cx, cy: cy, r: 110, class: 'sy th dash' }), 0.1); C.draw(el(s, 'circle', { cx: cx, cy: cy, r: 220, class: 'sy th dash' }), 0.2);
+    for (var a = 0; a < 12; a++){ var rad = a / 12 * Math.PI * 2; el(s, 'line', { x1: cx + Math.cos(rad) * 104, y1: cy + Math.sin(rad) * 104, x2: cx + Math.cos(rad) * 116, y2: cy + Math.sin(rad) * 116, class: 'sy th' }); }
+    el(s, 'path', { d: 'M' + cx + ' ' + (cy - 14) + ' l-11 24 l11 -6 l11 6 Z', class: 'sy c' });
+    var T = []; for (var i = 0; i < 34; i++){ var ang = rnd() * Math.PI * 2, r = 50 + rnd() * 170; T.push({ x: cx + Math.cos(ang) * r, y: cy + Math.sin(ang) * r, vx: (rnd() - 0.5) * 0.12, vy: (rnd() - 0.5) * 0.12, alt: Math.round((rnd() - 0.5) * 18), prox: rnd() < 0.25, g: null }); }
+    T.forEach(function(t){ t.g = el(s, 'g', { opacity: 0 }); el(t.g, 'path', { d: 'M0 -7 L7 0 L0 7 L-7 0 Z', class: t.prox ? 'fx c' : 'sy c' }); el(t.g, 'text', { x: 0, y: t.alt >= 0 ? -12 : 20, 'text-anchor': 'middle', class: 'tx s c' }, (t.alt >= 0 ? '+' : '−') + ('0' + Math.abs(t.alt)).slice(-2) + (t.alt > 2 ? '↓' : t.alt < -2 ? '↑' : '')); });
+    var sec = s.closest('.mfd'), t0 = 0;
+    AE.onFrame(function(now){ if (!sec.classList.contains('live')){ t0 = 0; return; } if (!t0) t0 = now; var n = reduce ? T.length : Math.min(T.length, 3 + Math.floor((now - t0) / 450));
+      T.forEach(function(t, i){ if (i < n){ t.x += t.vx; t.y += t.vy; if (Math.hypot(t.x - cx, t.y - cy) > 225){ t.vx *= -1; t.vy *= -1; } t.g.setAttribute('transform', 'translate(' + t.x.toFixed(1) + ' ' + t.y.toFixed(1) + ')'); t.g.setAttribute('opacity', 1); } else t.g.setAttribute('opacity', 0); });
+      tag.textContent = 'TRAFFIC · ' + ('0' + n).slice(-2); });
+  })();
+
+  /* ECL: the principles are checked one after another once the page is live */
+  (function(){ var items = $$('#ecl .ecl-i'), foot = $('#eclF'), sec = $('#ecl').closest('.mfd'), done = false;
+    sec.addEventListener('mfd:live', function(){ if (done) return; done = true; items.forEach(function(it, i){ setTimeout(function(){ it.classList.add('ok'); it.querySelector('.st').textContent = 'DONE'; if (i === items.length - 1){ foot.textContent = 'CHECKLIST COMPLETE'; foot.classList.add('ok'); } }, reduce ? 0 : 500 + i * 650); }); });
+  })();
+
+  C.start('COMPANY', 'scan'); AE.start();
+})();
+</script>
+</body>
+</html>

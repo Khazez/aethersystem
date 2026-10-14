@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Решения — Aether</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/site/shared.css">
+<link rel="stylesheet" href="/site/cockpit.css">
+<style>
+/* Solutions in the cockpit: an air traffic control radar with the nine kinds of users, a drone camera feed with its
+   telemetry and bezel keys for the industries, a vertical profile of autonomy, flight progress strips for the chain. */
+.cam-wrap{display:grid;grid-template-columns:62px minmax(0,1fr) 62px;gap:10px;background:linear-gradient(180deg,#141b21,#0d1317);border:1px solid #2a343c;border-radius:14px;padding:16px 12px}
+.bz{display:flex;flex-direction:column;justify-content:space-around;gap:8px}
+.bz button{font:500 9.5px/1.2 var(--f-mono);letter-spacing:.06em;color:#9fb0bc;background:linear-gradient(180deg,#232c33,#171e23);border:1px solid #344049;border-radius:4px;padding:10px 4px;cursor:pointer;box-shadow:0 2px 0 #0a0e11;text-transform:uppercase}
+.bz button[aria-pressed="true"]{color:var(--k-green);border-color:#1e6b43;box-shadow:0 0 10px rgba(63,214,138,.3),0 2px 0 #0a0e11}
+.bz button:focus-visible{outline:2px solid var(--k-cyan);outline-offset:2px}
+.cam{position:relative;aspect-ratio:16/10;background:#020505;border:5px solid #0a0e10;border-radius:6px;overflow:hidden}
+.cam video,.cam .nosig{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cam video{filter:contrast(1.08) saturate(.85)}
+.nosig{display:grid;place-items:center;background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 2px,transparent 2px 4px),radial-gradient(70% 70% at 50% 50%,#0d1a22,#030607)}
+.nosig div{text-align:center;font:500 12px var(--f-mono);letter-spacing:.16em;color:var(--k-amber)}
+.nosig svg{width:56px;height:56px;stroke:var(--k-dim);fill:none;stroke-width:1.2;display:block;margin:0 auto 12px}
+.cam .ov{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.cam-cap{display:flex;justify-content:space-between;gap:12px;margin-top:10px;font:500 10.5px var(--f-mono);letter-spacing:.12em;color:var(--k-dim);text-transform:uppercase}
+.cam-cap b{color:var(--k-amber);font-weight:500}
+.vctl{font:500 10.5px var(--f-mono);letter-spacing:.12em;color:var(--k-white);background:transparent;border:1px solid var(--k-line);padding:6px 10px;cursor:pointer}
+.ind-txt{min-height:3.2em}
+/* flight progress strips */
+.bay{display:flex;flex-direction:column;gap:5px}
+.bay-h{display:flex;justify-content:space-between;font:500 11px var(--f-mono);letter-spacing:.14em;color:var(--k-cyan);padding-bottom:8px;border-bottom:1px solid var(--k-line);margin-bottom:6px}
+.strip{display:grid;grid-template-columns:62px minmax(0,1fr) 92px;align-items:center;height:28px;background:linear-gradient(90deg,#0f171d,#0b1115);border:1px solid #1f2a32;border-left:4px solid #2c3a44;font:500 12px var(--f-mono);letter-spacing:.04em;color:var(--k-dim);transition:transform .45s cubic-bezier(.2,.7,.2,1),border-color .4s,color .4s,background .4s}
+.strip span{padding:0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.strip span:last-child{text-align:right;font-size:10.5px;letter-spacing:.12em}
+.strip.act{transform:translateX(14px);border-color:var(--k-cyan);border-left-color:var(--k-cyan);color:var(--k-white);background:linear-gradient(90deg,rgba(75,200,224,.16),#0b1115)}
+.strip.act span:last-child{color:var(--k-cyan)}
+.strip.done{border-left-color:var(--k-green);color:#c9d4db}
+.strip.done span:last-child{color:var(--k-green)}
+@media (max-width:900px){.cam-wrap{grid-template-columns:1fr}.bz{flex-direction:row;flex-wrap:wrap}.bz button{flex:1 1 40%}.strip{grid-template-columns:54px minmax(0,1fr) 70px}}
+</style>
+</head>
+<body class="cockpit">
+<header class="head">
+  <a class="brand" href="/ru"><img src="/site/logo-mark.png" alt="" width="245" height="139"><span>AETHER<small>SYSTEM &amp; CO.</small></span><span class="sr">, на главную</span></a>
+  <nav class="nav" aria-label="Разделы сайта"><a href="/ru/about">О компании</a><a href="/ru/product">Aether Nexus</a><a href="/ru/solutions" aria-current="page">Решения</a><a href="/ru/team">Команда</a></nav>
+  <div class="tools">
+    <div class="lang"><button type="button" id="langBtn" aria-expanded="false" aria-controls="langMenu" aria-label="Язык: русский">РУ</button>
+      <div class="lang-menu" id="langMenu" hidden><a href="/kk/solutions">ҚАЗ</a><span aria-current="true">РУ</span><a href="/en/solutions">EN</a></div></div>
+    <a class="hbtn plat" href="https://platform.aethersystem.kz" target="_blank" rel="noopener noreferrer">Открыть платформу <span aria-hidden="true">↗</span><span class="sr">, открывается в новой вкладке</span></a>
+    <a class="hbtn primary" href="/ru/team#contacts">Контакты</a>
+    <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="mnav"><span aria-hidden="true"></span>Меню</button>
+  </div>
+</header>
+<div class="mnav" id="mnav" hidden>
+  <a href="/ru">Главная</a><a href="/ru/about">О компании</a><a href="/ru/product">Aether Nexus</a><a href="/ru/solutions" aria-current="page">Решения</a><a href="/ru/team">Команда</a><a href="/ru/team#contacts">Контакты</a>
+  <div class="mnav-row"><a href="/kk/solutions">ҚАЗ</a><span aria-current="true">РУ</span><a href="/en/solutions">EN</a></div>
+  <a class="hbtn primary" href="https://platform.aethersystem.kz" target="_blank" rel="noopener noreferrer">Открыть платформу <span aria-hidden="true">↗</span></a>
+</div>
+<main>
+
+<section class="mfd" data-hdg="0" data-name="Кому и для чего" aria-labelledby="t1">
+  <div class="mfd-in">
+    <div class="txt">
+      <p class="pg">RADAR <i>· страница 1 / 4</i></p>
+      <h1 id="t1">Кому и для чего</h1>
+      <p>Aether Nexus рассчитан на несколько категорий пользователей — у каждой свой контур задач и свой уровень доступа к данным.</p>
+      <p id="usr" style="min-height:3.3em;color:var(--k-white)"></p>
+    </div>
+    <div class="du"><span class="tag">ATC · PPI</span><div id="radar"></div><div class="keys"><span class="on">RADAR</span><span>EO</span><span>VSD</span><span>STRIPS</span></div></div>
+  </div>
+</section>
+
+<section class="mfd" data-hdg="90" data-name="Отрасли" aria-labelledby="t2">
+  <div class="mfd-in" style="grid-template-columns:minmax(0,.7fr) minmax(0,1.3fr)">
+    <div class="txt">
+      <p class="pg">EO <i>· страница 2 / 4</i></p>
+      <h2 id="t2">Восемь отраслей</h2>
+      <p>Aether Nexus проектируется как инфраструктура для операций беспилотной авиации в разных секторах экономики.</p>
+      <p class="ind-txt" id="indTxt" style="color:var(--k-white)"></p>
+    </div>
+    <div>
+      <div class="cam-wrap"><div class="bz" id="bzL"></div><div class="cam" id="cam"></div><div class="bz" id="bzR"></div></div>
+      <div class="cam-cap"><span id="camCap"></span><button class="vctl" id="vctl" type="button" aria-pressed="false">Пауза</button></div>
+    </div>
+  </div>
+</section>
+
+<section class="mfd" data-hdg="180" data-name="Автономные операции" aria-labelledby="t3">
+  <div class="mfd-in">
+    <div class="txt">
+      <p class="pg">VSD <i>· страница 3 / 4</i></p>
+      <h2 id="t3">Архитектура на вырост</h2>
+      <p>Архитектура ориентирована не только на сегодняшние операции с дистанционно управляемыми БВС, но и на дальнейший рост числа автоматизированных воздушных операций.</p>
+    </div>
+    <div class="du"><span class="tag">VSD · PROFILE</span><div id="vsd"></div><div class="keys"><span>RADAR</span><span>EO</span><span class="on">VSD</span><span>STRIPS</span></div></div>
+  </div>
+</section>
+
+<section class="mfd" data-hdg="270" data-name="Цифровая цепочка" aria-labelledby="t4">
+  <div class="mfd-in">
+    <div class="txt">
+      <p class="pg">STRIPS <i>· страница 4 / 4</i></p>
+      <h2 id="t4">Единая цифровая цепочка</h2>
+      <p>Одно из главных преимуществ архитектуры — возможность связать различные процессы в непрерывную последовательность.</p>
+      <a class="nextkey" href="/ru/team">NEXT ▸ КОМАНДА</a>
+    </div>
+    <div class="du"><span class="tag">FLIGHT PROGRESS STRIPS</span><div class="bay" id="bay" style="margin-top:22px"><div class="bay-h"><span>ЦЕПОЧКА · 15 ШАГОВ</span><span id="bayN">00 / 15</span></div></div><div class="keys"><span>RADAR</span><span>EO</span><span>VSD</span><span class="on">STRIPS</span></div></div>
+  </div>
+</section>
+
+</main>
+<footer class="pfoot">
+  <div><a class="brand" href="/ru"><img src="/site/logo-mark.png" alt="" width="245" height="139"><span>AETHER<small>SYSTEM &amp; CO.</small></span></a>
+    <p style="margin-top:16px">Цифровая инфраструктура для безопасного, прозрачного и масштабируемого развития беспилотной и автономной авиации.</p></div>
+  <div><h3>Навигация</h3><ul><li><a href="/ru">Главная</a></li><li><a href="/ru/about">О компании</a></li><li><a href="/ru/product">Aether Nexus</a></li><li><a href="/ru/solutions">Решения</a></li><li><a href="/ru/team">Команда</a></li><li><a href="/ru/team#contacts">Контакты</a></li></ul></div>
+  <div><h3>Платформа</h3><ul><li><a href="/ru/product">Aether Nexus</a></li><li><a href="/ru/product#ecosystem">Aether Core</a></li><li><a href="/ru/product#ecosystem">Aether UTM</a></li><li><a href="/ru/product#ecosystem">Aether Grid</a></li><li><a href="https://platform.aethersystem.kz" target="_blank" rel="noopener noreferrer">Открыть платформу ↗</a></li></ul></div>
+  <div><h3>Связь</h3><ul><li><a href="mailto:info@aethersystem.kz">info@aethersystem.kz</a></li><li><a href="tel:+77008323273">+7 700 832 32 73</a></li><li style="color:#a6b5c1;font-size:14.5px">Астана, район Нура, улица Санжара Асфендиярова, 8а, бизнес-центр Omega</li></ul></div>
+  <div class="copy"><span>© 2026 AETHER SYSTEM &amp; CO. ВСЕ ПРАВА ЗАЩИЩЕНЫ.</span><span>TECHNOLOGY FOR THE NEXT AIRSPACE</span></div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js"></script>
+<script src="/site/shared.js"></script>
+<script src="/site/cockpit.js"></script>
+<script>
+(function(){
+  var $ = AE.$, $$ = AE.$$, el = C.el, reduce = AE.reduce;
+
+  /* RADAR: a plan position indicator; the sweep turns, targets glow when it passes and fade after; each is a kind of user */
+  (function(){ var U = [['GOV', 'Государственные органы', 'Контроль, регистрация, регулирование, аналитика.'], ['OPR', 'Операторы БВС', 'Планирование и выполнение полётных операций.'], ['OWN', 'Владельцы БВС', 'Управление воздушными активами.'], ['MFR', 'Производители', 'Цифровой жизненный цикл выпускаемой продукции.'], ['SVC', 'Сервисные компании', 'Техническое обслуживание и ремонт.'], ['CRP', 'Корпоративные заказчики', 'Заказ услуг беспилотной авиации.'], ['INS', 'Страховые компании', 'Оценка и сопровождение рисков.'], ['FIN', 'Финансовые организации', 'Финансовое сопровождение операций.'], ['USS', 'UTM/USS-провайдеры', 'Обмен операционными данными.']];
+    var s = C.svg($('#radar'), 560, 560, 'Экран радара: девять категорий пользователей платформы'), cx = 280, cy = 280, R = 250, usr = $('#usr'), rnd = AE.mulberry(15);
+    var defs = el(s, 'defs', {}), rg = el(defs, 'radialGradient', { id: 'scope' }); el(rg, 'stop', { offset: 0, 'stop-color': '#04140c' }); el(rg, 'stop', { offset: 1, 'stop-color': '#010403' });
+    el(s, 'circle', { cx: cx, cy: cy, r: R, fill: 'url(#scope)', class: 'sy g', style: 'stroke-opacity:.6' });
+    [R / 3, R * 2 / 3].forEach(function(r){ el(s, 'circle', { cx: cx, cy: cy, r: r, class: 'sy g th', style: 'stroke-opacity:.35' }); });
+    for (var d = 0; d < 360; d += 10){ var a = d * Math.PI / 180; el(s, 'line', { x1: cx + Math.cos(a) * (R - (d % 30 ? 6 : 12)), y1: cy + Math.sin(a) * (R - (d % 30 ? 6 : 12)), x2: cx + Math.cos(a) * R, y2: cy + Math.sin(a) * R, class: 'sy g th', style: 'stroke-opacity:.6' }); }
+    el(s, 'line', { x1: cx - R, y1: cy, x2: cx + R, y2: cy, class: 'sy g th', style: 'stroke-opacity:.18' }); el(s, 'line', { x1: cx, y1: cy - R, x2: cx, y2: cy + R, class: 'sy g th', style: 'stroke-opacity:.18' });
+    var sweep = el(s, 'g', {}); for (var k = 0; k < 24; k++){ var a0 = -k * 1.4 * Math.PI / 180, a1 = -(k + 1) * 1.4 * Math.PI / 180; el(sweep, 'path', { d: 'M' + cx + ' ' + cy + ' L' + (cx + Math.cos(a0) * R) + ' ' + (cy + Math.sin(a0) * R) + ' A' + R + ' ' + R + ' 0 0 0 ' + (cx + Math.cos(a1) * R) + ' ' + (cy + Math.sin(a1) * R) + ' Z', fill: '#3fd68a', opacity: (0.22 * (1 - k / 24)).toFixed(3) }); }
+    el(sweep, 'line', { x1: cx, y1: cy, x2: cx + R, y2: cy, stroke: '#7dffb8', 'stroke-width': 2 });
+    var T = U.map(function(u, i){ var bear = (i / U.length) * 360 + 12, dist = [0.36, 0.62, 0.84][i % 3] * R, a = (bear - 90) * Math.PI / 180, x = cx + Math.cos(a) * dist, y = cy + Math.sin(a) * dist, g = el(s, 'g', { style: 'cursor:pointer' });
+      el(g, 'rect', { x: x - 5, y: y - 5, width: 10, height: 10, class: 'fx g' }); el(g, 'line', { x1: x + 6, y1: y - 6, x2: x + 22, y2: y - 22, class: 'sy g th' });
+      el(g, 'text', { x: x + 25, y: y - 28, class: 'tx g' }, u[0]); el(g, 'text', { x: x + 25, y: y - 14, class: 'tx s g' }, u[1].toUpperCase());
+      g.addEventListener('pointerenter', function(){ show(i); }); return { g: g, bear: (bear + 360) % 360, glow: 0 }; });
+    function show(i){ var u = U[i]; usr.innerHTML = '<span style="font-family:var(--f-mono);letter-spacing:.1em;color:var(--k-green)">' + u[0] + ' · ' + u[1].toUpperCase() + '</span><br>' + u[2]; }
+    var ang = 0, last = 0, lastShown = -1; show(0);
+    AE.onFrame(function(now){ var dt = reduce ? 0 : Math.min(50, now - (last || now)); last = now; ang = (ang + dt * 0.06) % 360; sweep.setAttribute('transform', 'rotate(' + (ang - 90).toFixed(2) + ' ' + cx + ' ' + cy + ')');
+      T.forEach(function(t, i){ var diff = (ang - t.bear + 360) % 360; if (diff < 4){ t.glow = 1; if (lastShown !== i){ lastShown = i; show(i); } } else t.glow = Math.max(0.25, t.glow - dt * 0.00035); t.g.setAttribute('opacity', reduce ? 1 : t.glow.toFixed(3)); }); });
+  })();
+
+  /* EO: the drone's camera — crosshair, compass tape, elevation scale and telemetry over the picture; eight bezel keys pick the industry */
+  (function(){ var ICON = { energy: '<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>', oilgas: '<path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/>', mining: '<path d="m8 3 4 8 5-5 5 15H2L8 3z"/>', agro: '<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 19 2c1 2 2 4.2 2 8 0 5.5-4.8 10-10 10Z"/>', logistics: '<path d="M21 16V8l-9-5-9 5v8l9 5z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/>', construction: '<rect x="4" y="2" width="16" height="20"/><path d="M9 22v-4h6v4"/>', infrastructure: '<path d="M2 18h20M2 9h20M4 18V9M20 18V9M4 9c2.5 4.5 13.5 4.5 16 0"/>', emergency: '<path d="M7 18v-6a5 5 0 1 1 10 0v6"/><path d="M5 18h14v3H5z"/>' };
+    var INDS = [['energy', 'Энергетика', 'Мониторинг ЛЭП, объектов генерации и энергетической инфраструктуры.', 'https://media.aethersystem.kz/v1/loops/energy-chase', 'осмотр ЛЭП'],
+      ['oilgas', 'Нефтегаз', 'Мониторинг трубопроводов, месторождений и производственной инфраструктуры.', 'https://media.aethersystem.kz/v1/loops/oilgas', 'осмотр трубопровода'],
+      ['mining', 'Горнодобыча', 'Карьерная съёмка, мониторинг объектов, геодезические работы.', 'https://media.aethersystem.kz/v1/loops/mining', 'съёмка карьера'],
+      ['agro', 'Сельское хоз.', 'Мониторинг полей, обработка, анализ состояния посевов.', 'https://media.aethersystem.kz/v1/loops/agro', 'мониторинг посевов'],
+      ['logistics', 'Логистика', 'Автоматизированная доставка и грузовые воздушные операции.', 'https://media.aethersystem.kz/v1/loops/logistics', 'доставка груза'],
+      ['construction', 'Строительство', 'Контроль строительных объектов и объёмов выполненных работ.', 'https://media.aethersystem.kz/v1/loops/construction', 'контроль стройки'],
+      ['infrastructure', 'Инфраструктура', 'Мониторинг дорог, мостов и других инфраструктурных объектов.', 'https://media.aethersystem.kz/v1/loops/infrastructure', 'осмотр моста'],
+      ['emergency', 'Экстренные', 'Поиск, мониторинг чрезвычайных ситуаций, оперативная разведка.', 'https://media.aethersystem.kz/v1/loops/emergency', 'поисковая операция']];
+    var FULL = ['Энергетика', 'Нефтегазовый сектор', 'Горнодобывающая отрасль', 'Сельское хозяйство', 'Логистика', 'Строительство', 'Инфраструктура', 'Экстренные службы'];
+    var cam = $('#cam'), cap = $('#camCap'), txt = $('#indTxt'), ctl = $('#vctl'), sec = cam.closest('.mfd'), cur = 0, paused = reduce, shownAt = Date.now();
+    INDS.forEach(function(d, i){ ($(i < 4 ? '#bzL' : '#bzR')).insertAdjacentHTML('beforeend', '<button type="button" aria-pressed="false" data-i="' + i + '">' + d[1] + '</button>'); });
+    var keys = $$('.bz button'); keys.sort(function(a, b){ return a.dataset.i - b.dataset.i; });
+    var media = document.createElement('div'); media.style.cssText = 'position:absolute;inset:0'; cam.appendChild(media);
+    var ov = C.svg(cam, 800, 500, 'Телеметрия камеры'); ov.setAttribute('class', 'ov'); ov.setAttribute('preserveAspectRatio', 'none');
+    el(ov, 'path', { d: 'M400 230 V210 M400 270 V290 M380 250 H360 M420 250 H440', class: 'sy g' }); el(ov, 'circle', { cx: 400, cy: 250, r: 6, class: 'sy g' });
+    [[30, 30, 1, 1], [770, 30, -1, 1], [30, 470, 1, -1], [770, 470, -1, -1]].forEach(function(c){ el(ov, 'path', { d: 'M' + c[0] + ' ' + (c[1] + c[3] * 30) + ' V' + c[1] + ' H' + (c[0] + c[2] * 30), class: 'sy g' }); });
+    var tape = el(ov, 'g', {}); for (var h = 0; h < 72; h++){ el(tape, 'line', { x1: h * 20, y1: 40, x2: h * 20, y2: h % 3 ? 46 : 52, class: 'sy g th' }); if (h % 3 === 0) el(tape, 'text', { x: h * 20, y: 64, 'text-anchor': 'middle', class: 'tx s g' }, ('00' + (h * 5) % 360).slice(-3)); }
+    for (var e = 0; e < 9; e++) el(ov, 'line', { x1: 60, y1: 150 + e * 25, x2: e % 2 ? 66 : 74, y2: 150 + e * 25, class: 'sy g th' });
+    var tl = el(ov, 'text', { x: 40, y: 455, class: 'tx s g' }), tr = el(ov, 'text', { x: 760, y: 455, 'text-anchor': 'end', class: 'tx s g' }), rec = el(ov, 'circle', { cx: 730, cy: 86, r: 6, class: 'fx', fill: '#e0554f' }); el(ov, 'text', { x: 744, y: 90, class: 'tx s', fill: '#e0554f' }, 'REC');
+    function show(i){ cur = i; var d = INDS[i]; keys.forEach(function(k, j){ k.setAttribute('aria-pressed', j === i); });
+      var mob = true;   // окно камеры маленькое: всегда берём лёгкую копию ролика (960 px)
+      media.innerHTML = d[3] ? '<video muted playsinline preload="metadata" poster="' + d[3] + '.jpg" src="' + d[3] + (mob ? '-m' : '') + '.mp4" aria-hidden="true"></video>' : '<div class="nosig"><div><svg viewBox="0 0 24 24" aria-hidden="true">' + ICON[d[0]] + '</svg>НЕТ СИГНАЛА · ВИДЕО ОТ ГЕНЕРАТОРОВ</div></div>';
+      var v = media.querySelector('video'); if (v && !paused){ var pr = v.play(); if (pr && pr.catch) pr.catch(function(){}); }
+      // следующая отрасль включается, только когда ролик доиграл до конца
+      shownAt = Date.now();
+      if (v){ var next = function(){ if (!paused && sec.classList.contains('live')) show((cur + 1) % INDS.length); };
+        v.addEventListener('ended', next); v.addEventListener('error', function(){ setTimeout(next, 1000); }); }
+      cap.innerHTML = d[3] ? '<b>ИЛЛЮСТРАЦИЯ</b> · ' + d[4] : '<b>ВИДЕО ОТ ГЕНЕРАТОРОВ</b> · 5 С, ПО ЗАДАНИЮ'; txt.innerHTML = '<span style="font-family:var(--f-mono);letter-spacing:.1em;color:var(--k-green)">' + FULL[i].toUpperCase() + '</span><br>' + d[2]; }
+    keys.forEach(function(k){ k.addEventListener('click', function(){ show(+k.dataset.i); }); });
+    // страховка: если ролик почему-то не играет, через 20 секунд всё равно идёт следующая отрасль
+    setInterval(function(){ if (paused || !sec.classList.contains('live')) { shownAt = Date.now(); return; }
+      if (Date.now() - shownAt > 20000) show((cur + 1) % INDS.length); }, 2000);
+    ctl.addEventListener('click', function(){ paused = !paused; ctl.textContent = paused ? 'Дальше' : 'Пауза'; ctl.setAttribute('aria-pressed', paused); var v = media.querySelector('video'); if (v){ if (paused) v.pause(); else v.play().catch(function(){}); } });
+    AE.onFrame(function(t){ var az = (t * 0.004) % 360; tape.setAttribute('transform', 'translate(' + (400 - (az / 5) * 20 - 360 * 4) .toFixed(1) + ' 0)'); tl.textContent = 'EO · WFOV · ' + FULL[cur].toUpperCase(); tr.textContent = 'AZ ' + ('00' + Math.round(az)).slice(-3) + '° · EL −32°'; rec.setAttribute('opacity', Math.floor(t / 600) % 2 ? 1 : 0.2); });
+    show(0);
+  })();
+
+  /* VSD: a vertical profile — the climb steps up through nine levels of autonomy, an aircraft symbol rides along it */
+  (function(){ var L = ['BVLOS', 'Автономные миссии', 'Автоматизированные маршруты', 'Drone delivery', 'Cargo UAV', 'Emergency UAV', 'Industrial UAV', 'Urban Air Mobility', 'Advanced Air Mobility'];
+    var s = C.svg($('#vsd'), 640, 460, 'Вертикальный профиль: девять ступеней автоматизированных воздушных операций'), x0 = 40, y0 = 410, dx = 62, dy = 40, pts = [[x0, y0]];
+    C.draw(el(s, 'line', { x1: 30, y1: y0 + 10, x2: 620, y2: y0 + 10, class: 'sy d' }), 0.05); C.draw(el(s, 'line', { x1: 30, y1: y0 + 10, x2: 30, y2: 30, class: 'sy d' }), 0.1);
+    L.forEach(function(l, i){ var x = x0 + i * dx, y = y0 - (i + 1) * dy; pts.push([x + 22, y], [x + dx, y]); });
+    var path = el(s, 'path', { d: 'M' + pts.map(function(p){ return p[0] + ' ' + p[1]; }).join(' L'), class: 'sy m', style: 'stroke-width:2.2' }); C.draw(path, 0.2);
+    L.forEach(function(l, i){ var x = x0 + i * dx + 22, y = y0 - (i + 1) * dy; el(s, 'line', { x1: x, y1: y, x2: x, y2: y0 + 10, class: 'sy d th dash' }); el(s, 'text', { x: x + 4, y: y - 8, class: 'tx s' + (i === L.length - 1 ? ' a' : '') }, L[i].toUpperCase()); });
+    var ac = el(s, 'path', { d: 'M-10 6 L10 0 L-10 -6 L-6 0 Z', class: 'fx c' }), len = 0; try { len = path.getTotalLength(); } catch (e) { len = 1000; }
+    var sec = s.closest('.mfd'), t0 = 0;
+    AE.onFrame(function(now){ if (!sec.classList.contains('live')){ t0 = 0; return; } if (!t0) t0 = now; var u = reduce ? 1 : Math.min(1, (now - t0) / 6000), p = path.getPointAtLength(len * u), q = path.getPointAtLength(Math.min(len, len * u + 2)), a = Math.atan2(q.y - p.y, q.x - p.x) * 180 / Math.PI;
+      ac.setAttribute('transform', 'translate(' + p.x.toFixed(1) + ' ' + p.y.toFixed(1) + ') rotate(' + a.toFixed(1) + ')'); });
+  })();
+
+  /* STRIPS: the fifteen steps as flight progress strips; when the page is live they are worked one by one */
+  (function(){ var S = ['БВС произведён', 'Идентифицирован', 'Импортирован', 'Зарегистрирован', 'Закреплён за владельцем', 'Закреплён за оператором', 'Создана миссия', 'Проверены требования', 'Проверено воздушное пространство', 'Получено разрешение', 'Выполнен полёт', 'Зафиксирован результат', 'Произведена оплата', 'Обновлена история эксплуатации', 'Назначено техобслуживание'];
+    var bay = $('#bay'), n = $('#bayN'); S.forEach(function(t, i){ bay.insertAdjacentHTML('beforeend', '<div class="strip"><span>AX-' + ('0' + (i + 1)).slice(-2) + '</span><span>' + t + '</span><span>ОЖИДАНИЕ</span></div>'); });
+    var strips = $$('.strip', bay), sec = bay.closest('.mfd'), timer = 0, k = 0;
+    function reset(){ clearInterval(timer); k = 0; strips.forEach(function(s){ s.className = 'strip'; s.lastChild.textContent = 'ОЖИДАНИЕ'; }); n.textContent = '00 / 15'; }
+    function step(){ if (k > 0){ strips[k - 1].className = 'strip done'; strips[k - 1].lastChild.textContent = 'ВЫПОЛНЕНО'; } if (k < strips.length){ strips[k].className = 'strip act'; strips[k].lastChild.textContent = 'В РАБОТЕ'; } n.textContent = ('0' + Math.min(k, 15)).slice(-2) + ' / 15'; k++; if (k > strips.length) clearInterval(timer); }
+    sec.addEventListener('mfd:live', function(){ reset(); if (reduce){ k = 15; strips.forEach(function(s){ s.className = 'strip done'; s.lastChild.textContent = 'ВЫПОЛНЕНО'; }); n.textContent = '15 / 15'; } else timer = setInterval(step, 420); });
+    sec.addEventListener('mfd:off', reset);
+  })();
+
+  C.start('РЕШЕНИЯ', 'iris'); AE.start();
+})();
+</script>
+</body>
+</html>

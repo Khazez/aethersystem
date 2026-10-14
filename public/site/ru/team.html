@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Команда — Aether</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/site/shared.css">
+<link rel="stylesheet" href="/site/cockpit.css">
+<style>
+/* Команда: лента карточек «ёлочкой» — фото квадратом в цвете, рядом должность и имя; строки идут
+   то вправо, то влево. Страница длиннее экрана и прокручивается: людей со временем станет больше.
+   Компасная лента сверху на этом разделе не нужна — она про полёт, а не про людей. */
+.hdg,.hdg-read{display:none}
+.mfd.team{display:block;align-items:stretch;padding-bottom:110px;
+  background:radial-gradient(70% 55% at 12% 6%,rgba(75,200,224,.12),transparent 62%),radial-gradient(55% 50% at 88% 92%,rgba(63,214,138,.08),transparent 60%),linear-gradient(180deg,#070d12 0%,#04080b 100%)}
+.mfd.team::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(140,190,210,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(140,190,210,.055) 1px,transparent 1px);background-size:52px 52px;
+  -webkit-mask-image:radial-gradient(75% 65% at 50% 35%,#000 20%,transparent 86%);mask-image:radial-gradient(75% 65% at 50% 35%,#000 20%,transparent 86%)}
+.team-in{position:relative;z-index:1;width:100%}
+.team-head{max-width:620px;display:flex;flex-direction:column;gap:14px;margin-bottom:clamp(28px,5vh,56px)}
+.crew{display:flex;flex-direction:column;gap:clamp(16px,2.6vh,26px)}
+.cm{display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(18px,2vw,28px);align-items:center;width:min(660px,100%);padding:clamp(14px,1.4vw,20px);
+  border:1px solid var(--k-line);border-radius:12px;background:linear-gradient(135deg,rgba(16,28,37,.92),rgba(8,14,19,.72));box-shadow:0 18px 40px rgba(0,0,0,.35);
+  opacity:0;transform:translateY(16px);transition:opacity .6s,transform .7s cubic-bezier(.2,.7,.2,1),border-color .3s,box-shadow .3s}
+.cm.on{opacity:1;transform:none}
+.cm:hover{border-color:rgba(75,200,224,.45);box-shadow:0 22px 50px rgba(0,0,0,.45)}
+.cm:nth-child(even){margin-left:auto;grid-template-columns:minmax(0,1fr) auto;text-align:right;transform:translateY(16px)}
+.cm:nth-child(even) .cm-ph{order:2}
+.cm-ph{position:relative;width:clamp(118px,13vw,168px);aspect-ratio:1/1;overflow:hidden;border-radius:10px;background:#05090c;border:1px solid rgba(75,200,224,.22)}
+.cm-ph img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.cm:hover .cm-ph img{transform:scale(1.05)}
+.cm-ph::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,10,14,0) 62%,rgba(4,10,14,.35));pointer-events:none}
+.cm-tx{min-width:0}
+.cm-no{font:500 10px var(--f-mono);letter-spacing:.2em;color:var(--k-dim)}
+.cm-name{margin-top:8px;font-weight:300;font-size:clamp(21px,2vw,30px);line-height:1.08;letter-spacing:-.02em;color:var(--k-white)}
+.cm-role{margin-top:9px;font:500 10.5px/1.55 var(--f-mono);letter-spacing:.12em;color:var(--k-cyan);text-transform:uppercase}
+.cm-mid{margin-top:6px;font:500 10.5px var(--f-mono);letter-spacing:.14em;color:var(--k-dim);text-transform:uppercase}
+.team-foot{margin-top:clamp(26px,4vh,46px)}
+@media (prefers-reduced-motion: reduce){.cm{opacity:1;transform:none;transition:none}.cm:nth-child(even){transform:none}.cm-ph img{transition:none}}
+@media (max-width:900px){
+  .cm,.cm:nth-child(even){grid-template-columns:auto minmax(0,1fr);text-align:left;margin-left:0;width:100%}
+  .cm:nth-child(even) .cm-ph{order:0}
+  .cm-ph{width:96px}
+  .cm-name{font-size:19px}
+}
+
+/* контакты внизу страницы команды: тот же тёмный стиль, без лишних панелей */
+.ct{margin-top:clamp(34px,6vh,64px);max-width:720px;display:flex;flex-direction:column;gap:14px}
+.ct h2{font-weight:300;font-size:clamp(26px,2.6vw,38px);line-height:1.08;letter-spacing:-.02em;color:var(--k-white)}
+.ct p.lead{color:var(--k-dim);font-size:16px;line-height:1.6;max-width:56ch}
+.ct-rows{display:flex;flex-direction:column;margin-top:6px;border-top:1px solid var(--k-line)}
+.ct-rows a,.ct-rows div{display:grid;grid-template-columns:120px minmax(0,1fr);gap:14px;padding:13px 0;border-bottom:1px solid var(--k-line);text-decoration:none;color:var(--k-white);font-size:16px;line-height:1.45}
+.ct-rows span{font:500 10.5px var(--f-mono);letter-spacing:.16em;color:var(--k-cyan);text-transform:uppercase;padding-top:4px}
+.ct-rows a:hover{color:var(--k-cyan)}
+.ct-rows a:focus-visible{outline:2px solid var(--k-cyan);outline-offset:3px}
+@media (max-width:620px){.ct-rows a,.ct-rows div{grid-template-columns:1fr;gap:4px}.ct-rows span{padding-top:0}}
+</style>
+</head>
+<body class="cockpit">
+<header class="head">
+  <a class="brand" href="/ru"><img src="/site/logo-mark.png" alt="" width="245" height="139"><span>AETHER<small>SYSTEM &amp; CO.</small></span><span class="sr">, на главную</span></a>
+  <nav class="nav" aria-label="Разделы сайта"><a href="/ru/about">О компании</a><a href="/ru/product">Aether Nexus</a><a href="/ru/solutions">Решения</a><a href="/ru/team" aria-current="page">Команда</a></nav>
+  <div class="tools">
+    <div class="lang"><button type="button" id="langBtn" aria-expanded="false" aria-controls="langMenu" aria-label="Язык: русский">РУ</button>
+      <div class="lang-menu" id="langMenu" hidden><a href="/kk/team">ҚАЗ</a><span aria-current="true">РУ</span><a href="/en/team">EN</a></div></div>
+    <a class="hbtn plat" href="https://platform.aethersystem.kz" target="_blank" rel="noopener noreferrer">Открыть платформу <span aria-hidden="true">↗</span><span class="sr">, открывается в новой вкладке</span></a>
+    <a class="hbtn primary" href="/ru/team#contacts">Контакты</a>
+    <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="mnav"><span aria-hidden="true"></span>Меню</button>
+  </div>
+</header>
+<div class="mnav" id="mnav" hidden>
+  <a href="/ru">Главная</a><a href="/ru/about">О компании</a><a href="/ru/product">Aether Nexus</a><a href="/ru/solutions">Решения</a><a href="/ru/team" aria-current="page">Команда</a><a href="/ru/team#contacts">Контакты</a>
+  <div class="mnav-row"><a href="/kk/team">ҚАЗ</a><span aria-current="true">РУ</span><a href="/en/team">EN</a></div>
+  <a class="hbtn primary" href="https://platform.aethersystem.kz" target="_blank" rel="noopener noreferrer">Открыть платформу <span aria-hidden="true">↗</span></a>
+</div>
+<main>
+
+<section class="mfd team" data-hdg="0" data-name="Команда" aria-labelledby="t1">
+  <div class="team-in">
+    <div class="team-head txt">
+      <p class="pg">CREW <i>· руководство</i></p>
+      <h1 id="t1">Наша команда</h1>
+      <p>Инженеры, специалисты по авиационному регулированию и разработчики цифровой инфраструктуры.</p>
+    </div>
+    <div class="crew" id="crew">
+        <article class="cm">
+          <div class="cm-ph"><img src="https://media.aethersystem.kz/v1/team/daulet.jpg" alt="Бекмухамбетов Даулет" width="720" height="720" loading="eager"></div>
+          <div class="cm-tx"><p class="cm-no">01 / 04</p><h2 class="cm-name">Бекмухамбетов Даулет</h2><p class="cm-role">Директор</p><p class="cm-mid">Айдарканович</p></div>
+        </article>
+        <article class="cm">
+          <div class="cm-ph"><img src="https://media.aethersystem.kz/v1/team/berikzhan.jpg" alt="Худайбергенов Берикжан" width="720" height="720" loading="eager"></div>
+          <div class="cm-tx"><p class="cm-no">02 / 04</p><h2 class="cm-name">Худайбергенов Берикжан</h2><p class="cm-role">Заместитель директора по техническим вопросам</p><p class="cm-mid">Талгатович</p></div>
+        </article>
+        <article class="cm">
+          <div class="cm-ph"><img src="https://media.aethersystem.kz/v1/team/azat.jpg" alt="Рахимгалиев Азат" width="720" height="720" loading="lazy"></div>
+          <div class="cm-tx"><p class="cm-no">03 / 04</p><h2 class="cm-name">Рахимгалиев Азат</h2><p class="cm-role">Заместитель директора по финансово-экономическим вопросам</p><p class="cm-mid">Слямгазыұлы</p></div>
+        </article>
+        <article class="cm">
+          <div class="cm-ph"><img src="https://media.aethersystem.kz/v1/team/bekzhan.jpg" alt="Тауман Бекжан" width="720" height="720" loading="lazy"></div>
+          <div class="cm-tx"><p class="cm-no">04 / 04</p><h2 class="cm-name">Тауман Бекжан</h2><p class="cm-role">IT-специалист</p></div>
+        </article>
+    </div>
+      <div class="ct" id="contacts">
+        <h2>Готовы обсудить сотрудничество?</h2>
+        <p class="lead">Мы открыты к диалогу с государственными органами, операторами, производителями, корпоративными заказчиками и технологическими партнёрами.</p>
+        <div class="ct-rows">
+          <a href="mailto:info@aethersystem.kz"><span>Почта</span>info@aethersystem.kz</a>
+          <a href="tel:+77008323273"><span>Телефон</span>+7 700 832 32 73</a>
+          <div><span>Адрес</span>Казахстан, Астана, район Нура, улица Санжара Асфендиярова, 8а, бизнес-центр Omega</div>
+        </div>
+      </div>
+  </div>
+</section>
+
+</main>
+<footer class="pfoot">
+  <div><a class="brand" href="/ru"><img src="/site/logo-mark.png" alt="" width="245" height="139"><span>AETHER<small>SYSTEM &amp; CO.</small></span></a>
+    <p style="margin-top:16px">Цифровая инфраструктура для безопасного, прозрачного и масштабируемого развития беспилотной и автономной авиации.</p></div>
+  <div><h3>Навигация</h3><ul><li><a href="/ru">Главная</a></li><li><a href="/ru/about">О компании</a></li><li><a href="/ru/product">Aether Nexus</a></li><li><a href="/ru/solutions">Решения</a></li><li><a href="/ru/team">Команда</a></li><li><a href="/ru/team#contacts">Контакты</a></li></ul></div>
+  <div><h3>Платформа</h3><ul><li><a href="/ru/product">Aether Nexus</a></li><li><a href="/ru/product#ecosystem">Aether Core</a></li><li><a href="/ru/product#ecosystem">Aether UTM</a></li><li><a href="/ru/product#ecosystem">Aether Grid</a></li><li><a href="https://platform.aethersystem.kz" target="_blank" rel="noopener noreferrer">Открыть платформу ↗</a></li></ul></div>
+  <div><h3>Связь</h3><ul><li><a href="mailto:info@aethersystem.kz">info@aethersystem.kz</a></li><li><a href="tel:+77008323273">+7 700 832 32 73</a></li><li style="color:#a6b5c1;font-size:14.5px">Астана, район Нура, улица Санжара Асфендиярова, 8а, бизнес-центр Omega</li></ul></div>
+  <div class="copy"><span>© 2026 AETHER SYSTEM &amp; CO. ВСЕ ПРАВА ЗАЩИЩЕНЫ.</span><span>TECHNOLOGY FOR THE NEXT AIRSPACE</span></div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js"></script>
+<script src="/site/shared.js"></script>
+<script src="/site/cockpit.js"></script>
+<script>
+(function(){
+  // карточки проявляются, когда доходят до экрана
+  var cards = AE.$$('#crew .cm');
+  if (AE.reduce) cards.forEach(function(c){ c.classList.add('on'); });
+  else { var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting){ e.target.classList.add('on'); io.unobserve(e.target); } }); }, { threshold: 0.2 });
+    cards.forEach(function(c, i){ c.style.transitionDelay = (i % 2 ? 0.06 : 0) + 's'; io.observe(c); }); }
+  C.start('КОМАНДА', 'shutter'); AE.start();
+})();
+</script>
+</body>
+</html>

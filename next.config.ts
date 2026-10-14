@@ -14,6 +14,28 @@ const nextConfig: NextConfig = {
     globalNotFound: true,
   },
 
+  async rewrites() {
+    /* Новая проба сайта лежит готовыми страницами в public/site/<язык>/.
+       beforeFiles — значит эти правила срабатывают раньше страниц приложения:
+       старые страницы [locale] остаются в коде нетронутыми, но наружу их
+       не видно. Чтобы вернуть прежний сайт, достаточно убрать этот блок.
+
+       Медиа (кадры и ролики) на страницах прописаны абсолютными адресами
+       media.aethersystem.kz, в репозитории их нет. */
+    const langs = "kk|ru|en";
+    return {
+      beforeFiles: [
+        { source: `/:lang(${langs})`, destination: "/site/:lang/index.html" },
+        {
+          source: `/:lang(${langs})/:page(about|product|solutions|team)`,
+          destination: "/site/:lang/:page.html",
+        },
+      ],
+      afterFiles: [],
+      fallback: [],
+    };
+  },
+
   async redirects() {
     return [
       {

@@ -1,0 +1,1221 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Главная целиком</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Full home page trial, top to bottom: three scroll-driven scenes (flight, grid over the city, landing), the drone
+   studio, calm text blocks in between, industry cards with short loops, and clouds drawn in code between the big
+   blocks. Frame scenes follow the settings the owner approved on 09.10 (direct scroll mapping, neighbour blending,
+   frames loaded after the page has opened, canvas at CSS resolution, Lenis smooth scrolling). */
+:root{
+  --void:#04070a; --abyss:#080d12; --ink:#e6edf2; --dim:#a6b5c1; --faint:#6b7f8c; --line:rgba(160,190,210,.16);
+  --cyan:#4bc8e0; --ok:#35d07f; --warn:#e0b34f; --alert:#e0554f;
+  --studio:#cdd6dc; --studio-ink:#0c1a24; --studio-dim:#3d5262; --studio-faint:#6b7f8c; --studio-accent:#0b6f84; --studio-line:rgba(12,40,60,.2);
+  --f-sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --gutter:clamp(16px,5vw,72px); color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{background:var(--void)}
+html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!important}
+body{margin:0;background:var(--void);color:var(--ink);font-family:var(--f-sans);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.k{font:500 11px var(--f-mono);letter-spacing:.2em;color:var(--cyan);margin:0;text-transform:uppercase}
+h1,h2,h3{margin:0;font-weight:300;letter-spacing:-.025em;text-wrap:balance}
+p{margin:0}
+
+/* header: brand on the left, which block you are in on the right */
+.head{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;gap:24px;padding:calc(env(safe-area-inset-top,0px) + 12px) var(--gutter) 12px;background:linear-gradient(180deg,rgba(4,7,10,.8),rgba(4,7,10,.45));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.06)}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:#eef3f6;font:500 15px var(--f-sans);letter-spacing:.2em}
+.brand img{height:30px;width:auto;display:block}
+.brand small{display:block;font:400 9.5px var(--f-mono);letter-spacing:.24em;opacity:.7}
+.nav{display:flex;gap:30px;margin:0 auto}
+.nav a{color:#c9d4db;text-decoration:none;font-size:14.5px;white-space:nowrap}
+.nav a:hover{color:#fff}
+.tools{display:flex;align-items:center;gap:10px;margin-left:auto}
+.nav + .tools{margin-left:0}
+.lang{position:relative}
+.lang button{font:500 11px var(--f-mono);letter-spacing:.12em;color:#c9d4db;background:transparent;border:1px solid rgba(255,255,255,.18);padding:10px 12px;cursor:pointer}
+.lang-menu[hidden]{display:none}
+.lang-menu{position:absolute;right:0;top:calc(100% + 6px);display:flex;flex-direction:column;min-width:76px;background:#0a1117;border:1px solid rgba(255,255,255,.14)}
+.lang-menu a,.lang-menu span,.mnav-row a,.mnav-row span{font:500 11.5px var(--f-mono);letter-spacing:.12em;padding:10px 12px;color:#c9d4db;text-decoration:none}
+.lang-menu span,.mnav-row span{color:var(--cyan)}
+.hbtn{display:inline-flex;align-items:center;gap:8px;font-size:14px;text-decoration:none;color:#e6edf2;border:1px solid rgba(255,255,255,.2);padding:9px 16px;background:rgba(4,7,10,.25);white-space:nowrap}
+.hbtn.primary{border-color:rgba(75,200,224,.6);color:#bfefff;background:rgba(75,200,224,.1)}
+.hbtn:focus-visible,.nav a:focus-visible,.lang button:focus-visible,.burger:focus-visible,.rail button:focus-visible,.brand:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.burger{display:none;align-items:center;gap:8px;font-size:14px;color:#e6edf2;background:transparent;border:1px solid rgba(255,255,255,.2);padding:9px 12px;cursor:pointer}
+.burger span{width:14px;height:8px;border-top:1.5px solid currentColor;border-bottom:1.5px solid currentColor}
+.mnav{position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 62px);z-index:29;display:flex;flex-direction:column;gap:2px;padding:14px var(--gutter) 22px;background:rgba(6,10,14,.97);border-bottom:1px solid rgba(255,255,255,.08)}
+.mnav[hidden]{display:none}
+.mnav > a:not(.hbtn){padding:13px 0;border-bottom:1px solid rgba(255,255,255,.08);color:#e6edf2;text-decoration:none;font-size:17px}
+.mnav-row{display:flex;gap:4px;margin:10px 0}
+.mnav .hbtn{justify-content:center;margin-top:6px}
+/* the seven home blocks as a rail on the right: where you are, and a click jumps there */
+.rail{position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:25;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.rail button{display:flex;align-items:center;gap:10px;background:transparent;border:0;padding:5px 0;cursor:pointer;color:#c9d4db;font:500 10.5px var(--f-mono);letter-spacing:.1em}
+.rail button i{display:block;width:14px;height:2px;background:rgba(255,255,255,.35);transition:width .35s,background .35s}
+.rail button span{opacity:0;transform:translateX(6px);transition:opacity .3s,transform .3s;white-space:nowrap;background:rgba(4,7,10,.6);padding:3px 7px}
+.rail button.on i{width:26px;background:var(--cyan)}
+.rail button.on span,.rail button:hover span,.rail button:focus-visible span{opacity:1;transform:none}
+.rail.light button i{background:rgba(12,40,60,.35)}.rail.light button.on i{background:var(--studio-accent)}
+@media (max-width:1180px){.nav{display:none}.burger{display:inline-flex}.head .hbtn.plat{display:none}}
+@media (max-width:760px){.rail{display:none}.head .hbtn.primary,.lang{display:none}.brand img{height:26px}}
+
+/* temporary-material notes inside the scenes */
+/* пометки тихие */
+.chip{position:absolute;z-index:6;right:var(--gutter);bottom:calc(env(safe-area-inset-bottom,0px) + 16px);max-width:min(440px,calc(100% - 2*var(--gutter)));font:400 9.5px/1.45 var(--f-mono);letter-spacing:.12em;color:rgba(214,221,226,.42);text-shadow:0 1px 6px rgba(4,7,10,.9);background:none;border:0;padding:0}
+.chip b{color:inherit;font-weight:400}
+.chip.ok b{color:inherit}
+
+/* pinned scenes */
+.scene{position:relative}
+.stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+.film{position:absolute;inset:0;width:100%;height:100%;display:block}
+.window{position:absolute;inset:0;will-change:clip-path}
+.shade{position:absolute;inset:0;pointer-events:none}
+.say{position:absolute;left:var(--gutter);top:50%;transform:translateY(-46%);width:min(560px,calc(100% - 2*var(--gutter)));display:flex;flex-direction:column;gap:16px;opacity:0;transition:opacity .45s,transform .6s cubic-bezier(.2,.7,.2,1);pointer-events:none;z-index:4}
+.say.on{opacity:1;transform:translateY(-50%);pointer-events:auto}
+.say h1{font-size:clamp(36px,4.6vw,64px);line-height:1.04;text-shadow:0 2px 24px rgba(0,0,0,.25)}
+.say h2{font-size:clamp(30px,3.6vw,50px);line-height:1.06;text-shadow:0 2px 24px rgba(0,0,0,.25)}
+.say p{color:#d6dde2;font-size:17px;line-height:1.6;max-width:46ch}
+.acts{display:flex;flex-wrap:wrap;gap:12px;margin-top:4px}
+.btn{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-size:14.5px;font-weight:500;padding:13px 18px;border:1px solid rgba(255,255,255,.28);color:var(--ink);background:rgba(4,7,10,.3)}
+.btn.primary{border-color:rgba(75,200,224,.6);color:#bfefff;background:rgba(75,200,224,.14)}
+.btn:focus-visible,.pause:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.five{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:0;max-width:440px}
+.five li{display:grid;grid-template-columns:96px 1fr;gap:12px;padding:9px 0;border-top:1px solid rgba(255,255,255,.16);font-size:15px;color:#dfe6ea}
+.five li:last-child{border-bottom:1px solid rgba(255,255,255,.16)}
+.five b{font:500 11.5px var(--f-mono);letter-spacing:.14em;color:var(--cyan);padding-top:3px}
+.chain{font:500 12px/1.9 var(--f-mono);letter-spacing:.12em;color:#cfe9f0}
+.hint{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);transform:translateX(-50%);font:500 10.5px var(--f-mono);letter-spacing:.18em;color:#d6dde2;transition:opacity .4s;z-index:4}
+
+#intro{height:460vh;height:460svh}
+#intro .shade{background:linear-gradient(90deg,rgba(4,7,10,.58) 0%,rgba(4,7,10,.22) 38%,rgba(4,7,10,0) 60%),linear-gradient(0deg,rgba(4,7,10,.5) 0%,rgba(4,7,10,0) 30%),linear-gradient(180deg,rgba(4,7,10,.45) 0%,rgba(4,7,10,0) 18%)}
+
+/* clouds drawn in code: one fixed layer that lives while a cloud spacer crosses the screen */
+#clouds{position:fixed;inset:0;width:100%;height:100%;z-index:20;pointer-events:none;display:block;visibility:hidden}
+.cloudgap{height:110vh;height:110svh}
+.cloudgap.to-studio{background:linear-gradient(180deg,#151b20 0%,#101214 100%)}
+.cloudgap.to-story{background:linear-gradient(180deg,#101214 0%,#0c1a24 100%)}
+.cloudgap.to-landing{background:linear-gradient(180deg,var(--void) 0%,#9fb4c6 100%)}
+
+/* the fleet: a dark studio, three aircraft classes; each clip hovers in a loop, the scroll switches between them */
+#studio{height:380vh;height:380svh;background:#101214;color:var(--ink)}
+#fleet{position:absolute;left:28%;right:0;top:9%;bottom:7%;-webkit-mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 62%,transparent 100%);mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 62%,transparent 100%)}
+#fleet video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;will-change:opacity,transform;transform-origin:50% 45%;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 16%,#000 84%,transparent 100%),linear-gradient(0deg,transparent 0,#000 18%,#000 82%,transparent 100%);-webkit-mask-composite:source-in;mask-image:linear-gradient(90deg,transparent 0,#000 16%,#000 84%,transparent 100%),linear-gradient(0deg,transparent 0,#000 18%,#000 82%,transparent 100%);mask-composite:intersect}   /* each clip has its own soft edges, so in flight only the aircraft moves, not a rectangle */
+.fl-text{position:absolute;left:var(--gutter);top:50%;transform:translateY(-50%);width:min(430px,34vw);z-index:2;display:flex;flex-direction:column;gap:16px}
+.fl-text .lead{color:var(--dim);font-size:15.5px;line-height:1.6;margin:0}
+.fl-cards{position:relative;min-height:300px}
+.fl-card{position:absolute;inset:0 0 auto 0;opacity:0;transform:translateY(12px);transition:opacity .45s,transform .6s cubic-bezier(.2,.7,.2,1)}
+.fl-card.on{opacity:1;transform:none}
+.fl-card .n{font:500 11px var(--f-mono);letter-spacing:.18em;color:var(--cyan);margin:0 0 12px}
+.fl-card h2{font-size:clamp(40px,4.6vw,74px);line-height:.95;letter-spacing:-.035em;margin:0 0 16px}
+.fl-card p{color:var(--dim);font-size:16.5px;line-height:1.6;margin:0;max-width:34ch}
+.fl-ticks{display:flex;gap:8px;margin-top:6px}
+.fl-ticks i{display:block;width:34px;height:2px;background:rgba(255,255,255,.22);transition:background .35s,width .35s}
+.fl-ticks i.on{background:var(--cyan);width:56px}
+
+/* calm text blocks */
+.calm{position:relative;padding:clamp(80px,12vh,140px) var(--gutter);background:var(--void)}
+.calm-head{display:grid;gap:16px;max-width:880px;margin-bottom:clamp(36px,6vh,64px)}
+.calm-head h2{font-size:clamp(32px,3.8vw,54px);line-height:1.06}
+.calm-head p{color:var(--dim);font-size:17px;line-height:1.65;max-width:62ch}
+.rv{opacity:0;transform:translateY(14px);transition:opacity .7s ease-out,transform .8s cubic-bezier(.2,.7,.2,1);transition-delay:var(--d,0s)}
+.rv.in{opacity:1;transform:none}
+
+/* problem: thirteen parties, scattered data, then one contour */
+.problem-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:clamp(28px,4vw,64px);align-items:center}
+#web{width:100%;height:auto;display:block;overflow:visible}
+#web .mess{stroke:var(--alert);stroke-width:1;stroke-dasharray:3 5;opacity:.55;transition:opacity 1.1s ease .2s}
+#web .spoke{stroke:var(--cyan);stroke-width:1.2;opacity:.85;transition:stroke-dashoffset 1.1s cubic-bezier(.3,.7,.2,1)}
+#web .node{fill:var(--abyss);stroke:rgba(200,220,230,.55);stroke-width:1}
+#web .lbl{fill:#c7d3db;font:400 12.5px var(--f-sans)}
+#web .core{fill:rgba(75,200,224,.08);stroke:var(--cyan);stroke-width:1.2;transition:fill 1s ease .9s}
+#web .core-t{fill:var(--cyan);font:500 11px var(--f-mono);letter-spacing:.16em}
+#web.joined .mess{opacity:0}
+#web.joined .core{fill:rgba(75,200,224,.2)}
+.cons h3{font:500 11px var(--f-mono);letter-spacing:.18em;color:var(--faint);margin:0 0 12px}
+.cons ul{list-style:none;margin:0;padding:0;columns:1}
+.cons li{padding:10px 0;border-top:1px solid var(--line);color:#cbd5dc;font-size:15px}
+.cons li:last-child{border-bottom:1px solid var(--line)}
+.solution{margin-top:22px;color:var(--ink);font-size:17px;line-height:1.55;border-left:2px solid var(--cyan);padding-left:14px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin-top:clamp(40px,7vh,72px);border-top:1px solid var(--line)}
+.stats div{padding:22px 18px 0 0}
+.stats b{display:block;font-weight:300;font-size:clamp(40px,4.4vw,64px);letter-spacing:-.03em;line-height:1}
+.stats span{display:block;margin-top:10px;color:var(--dim);font-size:14px;max-width:22ch}
+.people{display:none}
+
+/* platform modules */
+.mods{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.mods article{padding:22px 20px 26px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:10px;min-height:190px}
+.mods b{font:500 11px var(--f-mono);letter-spacing:.14em;color:var(--faint)}
+.mods h3{font-size:19px;font-weight:400;letter-spacing:-.01em}
+.mods p{color:var(--dim);font-size:14.5px;line-height:1.55}
+
+/* the problem → platform scene drawn in code */
+#story{height:960vh;height:960svh;background:var(--void)}
+#storyCv{position:absolute;inset:0;width:100%;height:100%;display:block}
+#story .shade{background:linear-gradient(90deg,rgba(4,7,10,.72) 0%,rgba(4,7,10,.3) 34%,rgba(4,7,10,0) 52%)}
+.cons2{list-style:none;margin:2px 0 0;padding:0;max-width:440px}
+.cons2 li{display:grid;grid-template-columns:22px 1fr;padding:7px 0;border-top:1px solid rgba(255,255,255,.12);color:#6f7f8a;font-size:14.5px;line-height:1.4;transition:color .35s}
+.cons2 li::before{content:"·";font:500 13px var(--f-mono)}
+.cons2 li.bad{color:#ffc4be}.cons2 li.bad::before{content:"!";color:var(--alert)}
+.cons2 li.fixed{color:#8fb9c4;text-decoration:line-through;text-decoration-color:rgba(75,200,224,.8)}.cons2 li.fixed::before{content:"✓";color:var(--cyan)}
+.statrow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 26px;max-width:480px;margin-top:6px}
+.statrow b{display:block;font-weight:300;font-size:clamp(40px,4.2vw,60px);line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums;color:#eef8fb}
+.statrow span{display:block;margin-top:6px;font-size:13.5px;color:#b7c6cf;max-width:22ch}
+.modpanel h2{font-size:clamp(36px,4.4vw,62px)}
+.ticks{display:flex;gap:6px;margin-top:6px}.ticks i{width:22px;height:2px;background:rgba(255,255,255,.2);transition:background .3s}.ticks i.on{background:var(--cyan)}
+
+/* Aether Grid over the city */
+#kz{height:380vh;height:380svh}
+#grid{height:360vh;height:360svh}
+#grid .shade{background:linear-gradient(90deg,rgba(4,7,10,.72) 0%,rgba(4,7,10,.35) 36%,rgba(4,7,10,0) 58%),linear-gradient(180deg,rgba(4,7,10,.45) 0%,rgba(4,7,10,0) 22%),linear-gradient(0deg,rgba(4,7,10,.45) 0%,rgba(4,7,10,0) 26%)}
+#hud{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;z-index:1}   /* captions above the shade, still under the text */
+.uses{list-style:none;margin:2px 0 0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:0 18px;max-width:440px}
+.uses li{padding:8px 0;border-top:1px solid rgba(255,255,255,.16);font-size:14.5px;color:#7f8f9b;transition:color .4s}
+.uses li.on{color:#eef3f6}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font:500 10.5px var(--f-mono);letter-spacing:.12em;color:#d6dde2}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{width:10px;height:10px;display:inline-block}
+.demo{font:500 10px var(--f-mono);letter-spacing:.14em;color:var(--warn)}
+.exit{position:absolute;inset:0;background:var(--void);opacity:0;pointer-events:none;z-index:5}
+
+/* industries */
+.inds{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(14px,1.6vw,24px)}
+.ind{display:flex;flex-direction:column;gap:12px}
+.media{position:relative;aspect-ratio:16/10;overflow:hidden;background:#0b1117;border:1px solid var(--line)}
+.media video,.media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.media .tag{position:absolute;left:10px;bottom:10px;font:400 9px/1.4 var(--f-mono);letter-spacing:.12em;color:rgba(214,221,226,.42);text-shadow:0 1px 6px rgba(4,7,10,.9);background:none;padding:0}
+.media .tag b{color:inherit;font-weight:400}
+.ph{position:absolute;inset:0;display:grid;place-items:center;background:radial-gradient(80% 90% at 50% 40%,#13202a 0%,#0a1016 70%)}
+.ph::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,rgba(75,200,224,0) 35%,rgba(75,200,224,.09) 50%,rgba(75,200,224,0) 65%);background-size:250% 100%;animation:sweep 5.5s linear infinite}
+@keyframes sweep{from{background-position:120% 0}to{background-position:-120% 0}}
+.ph svg{width:42px;height:42px;stroke:#7fb7c6;fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;opacity:.9}
+.ind h3{font-size:18px;font-weight:400;letter-spacing:-.01em}
+.ind p{color:var(--dim);font-size:14.5px;line-height:1.5}
+.inds-bar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+.pause{font:500 11px var(--f-mono);letter-spacing:.14em;color:var(--ink);background:transparent;border:1px solid var(--line);padding:9px 12px;cursor:pointer}
+
+/* industries: one screen, eight strips, the open one is wide and plays */
+#industries{height:420vh;height:420svh;background:var(--void)}
+.ind-stage{display:flex;flex-direction:column;gap:18px;padding:calc(env(safe-area-inset-top,0px) + 78px) var(--gutter) calc(env(safe-area-inset-bottom,0px) + 22px)}
+.ind-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:end;gap:12px 40px}
+.ind-head h2{font-size:clamp(34px,3.6vw,52px);line-height:1;margin-top:10px}
+.ind-sub{color:var(--dim);font-size:15.5px;line-height:1.55;max-width:56ch}
+.strips{flex:1;min-height:0;display:flex;gap:8px}
+.strip{position:relative;flex:1 1 0;min-width:0;min-height:0;overflow:hidden;border:1px solid var(--line);background:#0b1117;transition:flex-grow .85s cubic-bezier(.2,.7,.2,1),border-color .5s}
+.strip.on{flex-grow:6.5;border-color:rgba(75,200,224,.45)}
+.strip video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.strip .dim{position:absolute;inset:0;background:rgba(4,7,10,.62);transition:background .7s}
+.strip.on .dim{background:linear-gradient(0deg,rgba(4,7,10,.88) 0%,rgba(4,7,10,.25) 46%,rgba(4,7,10,.1) 100%)}
+.strip .no{position:absolute;top:14px;left:14px;font:500 11px var(--f-mono);letter-spacing:.14em;color:var(--cyan);z-index:2}
+.strip .vt{position:absolute;left:50%;bottom:20px;transform:translateX(-50%) rotate(180deg);writing-mode:vertical-rl;font-size:16px;white-space:nowrap;color:#dfe8ec;transition:opacity .35s;z-index:2}
+.strip.on .vt{opacity:0}
+.strip .body{position:absolute;left:26px;right:26px;bottom:24px;display:flex;flex-direction:column;gap:10px;max-width:560px;opacity:0;transform:translateY(12px);transition:opacity .45s,transform .6s;z-index:2;pointer-events:none}
+.strip.on .body{opacity:1;transform:none;transition-delay:.3s}
+.strip h3{font-size:clamp(26px,2.6vw,38px);font-weight:300;letter-spacing:-.02em;line-height:1.05;white-space:nowrap}
+.strip .body p{color:#d6dde2;font-size:15.5px;line-height:1.5;max-width:46ch}
+.strip .tag{align-self:flex-start;font:400 9px/1.4 var(--f-mono);letter-spacing:.12em;color:rgba(214,221,226,.42);text-shadow:0 1px 6px rgba(4,7,10,.9);background:none;padding:0}
+.strip .tag b{color:inherit;font-weight:400}
+/* the inspection frame over the energy clip: corner brackets, a pulse, a label; shown once the clip has stopped */
+.insp{position:absolute;z-index:1;pointer-events:none;opacity:0;transform:scale(1.12);transition:opacity .5s,transform .7s cubic-bezier(.2,.7,.2,1)}
+.insp.show{opacity:1;transform:none}
+.insp i{position:absolute;width:18px;height:18px;border:2px solid var(--alert)}
+.insp i:nth-child(1){left:0;top:0;border-right:0;border-bottom:0}.insp i:nth-child(2){right:0;top:0;border-left:0;border-bottom:0}
+.insp i:nth-child(3){left:0;bottom:0;border-right:0;border-top:0}.insp i:nth-child(4){right:0;bottom:0;border-left:0;border-top:0}
+.insp em{position:absolute;inset:0;border:1px solid rgba(224,85,79,.5);animation:inspPulse 1.8s ease-in-out infinite}
+@keyframes inspPulse{0%,100%{opacity:.25}50%{opacity:.9}}
+.insp span{position:absolute;right:calc(100% + 10px);top:0;white-space:nowrap;display:flex;flex-direction:column;gap:3px;font:500 10.5px/1.35 var(--f-mono);letter-spacing:.1em;color:#fff;background:rgba(4,7,10,.74);border-left:2px solid var(--alert);padding:6px 9px}
+.insp span small{font-size:9.5px;color:var(--warn)}
+.insp.right span{right:auto;left:calc(100% + 10px)}
+.insp.upl span{right:auto;left:0}
+.insp .hot{position:absolute;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:radial-gradient(circle,rgba(255,236,170,.95) 0,rgba(255,140,40,.8) 22%,rgba(235,60,30,.45) 45%,rgba(235,60,30,0) 70%);mix-blend-mode:screen;animation:hotPulse 1.1s ease-in-out infinite}
+@keyframes hotPulse{0%,100%{transform:scale(.8);opacity:.75}50%{transform:scale(1.15);opacity:1}}
+.strip video{transition:transform 2.4s cubic-bezier(.3,.7,.2,1)}
+@media (prefers-reduced-motion: reduce){.insp .hot{animation:none}.strip video{transition:none}}
+.insp.ok i{border-color:var(--cyan)}.insp.ok em{border-color:rgba(75,200,224,.5)}.insp.ok span{border-left-color:var(--cyan)}
+.insp.up span{right:0;top:auto;bottom:calc(100% + 8px);white-space:normal;width:max-content;max-width:min(230px,70vw)}   /* no room on the left (phone): the label sits above the frame */
+@media (prefers-reduced-motion: reduce){.insp{transition:none;transform:none}.insp em{animation:none}}
+.strip .ph svg{width:40px;height:40px}
+.strip:not(.on) .ph svg{transform:translateY(-30px)}
+.pick{position:absolute;inset:0;width:100%;height:100%;background:transparent;border:0;padding:0;cursor:pointer;z-index:3}
+.strip.on .pick{cursor:default}
+.pick:focus-visible{outline:2px solid var(--cyan);outline-offset:-3px}
+
+/* stages and landing */
+#landing{height:480vh;height:480svh}
+#landing .shade{background:linear-gradient(90deg,rgba(4,7,10,.74) 0%,rgba(4,7,10,.4) 34%,rgba(4,7,10,0) 56%),linear-gradient(180deg,rgba(4,7,10,.4) 0%,rgba(4,7,10,0) 20%)}
+.stages{list-style:none;margin:4px 0 0;padding:0;max-width:460px}
+.stages li{display:grid;grid-template-columns:40px 1fr;gap:10px;padding:10px 0;border-top:1px solid rgba(255,255,255,.16);color:#8796a1;transition:color .4s}
+.stages li:last-child{border-bottom:1px solid rgba(255,255,255,.16)}
+.stages b{font:500 12px var(--f-mono);letter-spacing:.1em;padding-top:2px}
+.stages strong{display:block;font-weight:400;font-size:16px}
+.stages small{display:block;font-size:13.5px;line-height:1.45;max-height:0;overflow:hidden;opacity:0;transition:max-height .5s,opacity .5s}
+.stages li.on{color:#eef3f6}
+.stages li.on b{color:var(--cyan)}
+.stages li.on small{max-height:60px;opacity:1;color:#c9d4db}
+.contact{display:grid;gap:0;margin-top:6px;max-width:460px}
+.contact a,.contact div{display:grid;grid-template-columns:110px 1fr;gap:12px;padding:11px 0;border-top:1px solid rgba(255,255,255,.18);text-decoration:none;color:#eef3f6;font-size:15.5px;line-height:1.45}
+.contact span{font:500 10.5px var(--f-mono);letter-spacing:.14em;color:#9fb0bc;padding-top:3px}
+.contact > :last-child{border-bottom:1px solid rgba(255,255,255,.18)}
+.foot{padding:28px var(--gutter) calc(env(safe-area-inset-bottom,0px) + 28px);display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font:500 10.5px var(--f-mono);letter-spacing:.12em;color:var(--faint);border-top:1px solid var(--line)}
+
+@media (max-width:1100px){.mods{grid-template-columns:repeat(2,minmax(0,1fr))}.inds{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:900px){
+  #fleet{left:-4%;right:-4%;top:17%;bottom:auto;height:calc(108vw * .5625)}   /* the window has the clip's own proportions, so its edges fall inside the feathered mask */
+  .fl-text{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 86px);transform:none;width:auto;right:calc(var(--gutter) + 58px);gap:10px}
+  .fl-text .lead{display:none}.fl-cards{min-height:210px}.fl-card h2{font-size:40px}.fl-card p{font-size:14.5px}
+  .problem-grid{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stats div{padding-bottom:18px}
+}
+@media (max-width:760px){
+  .say{top:calc(env(safe-area-inset-top,0px) + 70px);transform:translateY(6px);gap:10px}.say.on{transform:none}
+  .say h1{font-size:30px}.say h2{font-size:25px}.say p{font-size:14.5px}
+  .five li{grid-template-columns:86px 1fr;font-size:14px;padding:6px 0}
+  #story .shade{background:linear-gradient(180deg,rgba(4,7,10,.9) 0%,rgba(4,7,10,.6) 40%,rgba(4,7,10,0) 60%)}
+  .cons2{display:none}
+  .ind-head{grid-template-columns:1fr auto}.ind-sub{display:none}
+  .strips{flex-direction:column;gap:6px}
+  .strip .vt{writing-mode:horizontal-tb;transform:none;left:46px;bottom:auto;top:12px;font-size:14px}
+  .strip .body{left:16px;right:16px;bottom:14px;gap:6px}.strip .body p{font-size:13.5px}.strip h3{white-space:normal}
+  .strip:not(.on) .ph svg{display:none}.statrow b{font-size:34px}.statrow span{font-size:12px}
+  #intro .shade,#grid .shade,#landing .shade{background:linear-gradient(180deg,rgba(4,7,10,.86) 0%,rgba(4,7,10,.55) 38%,rgba(4,7,10,0) 62%)}
+  .chip{left:var(--gutter);right:auto;font-size:9.5px}
+  .where i{display:none}
+  .mods,.inds{grid-template-columns:1fr}
+  #web .lbl{display:none}.people{display:block;margin-top:14px;columns:2;font-size:13.5px;color:#c7d3db;list-style:none;padding:0}
+  .people li{padding:3px 0}
+  .uses{grid-template-columns:1fr 1fr}.stages small{display:none}
+  #gridSay > p:nth-of-type(2){display:none}
+  #grid .shade{background:linear-gradient(180deg,rgba(4,7,10,.88) 0%,rgba(4,7,10,.62) 44%,rgba(4,7,10,0) 66%)}
+}
+@media (prefers-reduced-motion: reduce){.rv{opacity:1;transform:none;transition:none}.ph::after{animation:none}.say{transition:none}}
+/* back to the top */
+.totop{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);z-index:28;display:flex;align-items:center;gap:8px;height:40px;padding:0 14px 0 12px;background:rgba(6,10,14,.78);border:1px solid rgba(255,255,255,.2);color:#e9eef1;font:500 10.5px var(--f-mono);letter-spacing:.16em;text-transform:uppercase;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);opacity:0;visibility:hidden;transform:translateY(8px);transition:opacity .3s,transform .3s,visibility 0s .3s,border-color .2s,color .2s}
+.totop.on{opacity:1;visibility:visible;transform:none;transition:opacity .3s,transform .3s,border-color .2s,color .2s}
+.totop svg{width:18px;height:18px}
+.totop:hover{border-color:var(--cyan);color:var(--cyan)}
+.totop:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.totop{padding:0;width:44px;height:44px;justify-content:center}   /* square: the captions in the corner end 58px from the edge */
+@media (max-width:900px){.totop{bottom:calc(env(safe-area-inset-bottom,0px) + 104px)}}
+
+/* подчёркивание под пунктом меню: едет за курсором, возвращается к текущему разделу */
+.nav{position:relative}
+.nav a{border-bottom-color:transparent}
+.nav-ink{position:absolute;left:0;bottom:0;height:1.5px;width:0;background:var(--cyan);box-shadow:0 0 8px rgba(75,200,224,.55);opacity:0;pointer-events:none;transition:transform .34s cubic-bezier(.2,.7,.2,1),width .34s cubic-bezier(.2,.7,.2,1),opacity .25s}
+@media (prefers-reduced-motion: reduce){.nav-ink{transition:none}}
+
+/* экран ожидания: живое поле сетки, аппарат идёт за курсором; держится, пока не придут первые кадры */
+.boot{position:fixed;inset:0;z-index:60;background:var(--void);transition:opacity .55s}
+.boot.off{opacity:0;pointer-events:none}
+#bootField{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.boot-in{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:24px 16px;pointer-events:none;isolation:isolate}
+.boot-in::before{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(560px,86vw);height:300px;pointer-events:none;
+  background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(4,7,10,.92) 0%,rgba(4,7,10,.75) 45%,rgba(4,7,10,0) 100%)}
+.boot img{position:relative;height:46px;width:auto;opacity:.95}
+.boot .line{position:relative;width:min(260px,52vw);height:2px;background:rgba(255,255,255,.12);overflow:hidden}
+.boot .line i{display:block;height:100%;width:0;background:var(--cyan);box-shadow:0 0 10px rgba(75,200,224,.6);transition:width .25s}
+.boot p{position:relative;margin:0;font:500 10.5px var(--f-mono);letter-spacing:.24em;color:var(--faint);text-transform:uppercase;font-variant-numeric:tabular-nums}
+.boot .tip{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);text-align:center;font:500 9.5px var(--f-mono);letter-spacing:.2em;color:var(--faint);text-transform:uppercase}
+html.booting,html.booting body{overflow:hidden}
+@media (prefers-reduced-motion: reduce){.boot{transition:none}.boot .line i{transition:none}}
+</style>
+<div class="boot" id="boot">
+  <canvas id="bootField" aria-hidden="true"></canvas>
+  <div class="boot-in">
+    <img src="/site/logo-mark.png" alt="AETHER SYSTEM &amp; CO." width="245" height="139">
+    <div class="line" aria-hidden="true"><i id="bootBar"></i></div>
+    <p id="bootTxt" role="status" aria-live="polite">Загрузка · 0%</p>
+  </div>
+  <p class="tip">Ведите мышью или пальцем</p>
+</div>
+
+</head>
+<body>
+<header class="head">
+  <a class="brand" href="#intro" data-goto="0"><img src="/site/logo-mark.png" alt="" width="245" height="139"><span>AETHER<small>SYSTEM &amp; CO.</small></span></a>
+  <nav class="nav" aria-label="Разделы сайта">
+    <a href="/ru/about">О компании</a><a href="/ru/product">Aether Nexus</a><a href="/ru/solutions">Решения</a><a href="/ru/team">Команда</a>
+  </nav>
+  <div class="tools">
+    <div class="lang"><button type="button" id="langBtn" aria-expanded="false" aria-controls="langMenu" aria-label="Язык: русский">РУ</button>
+      <div class="lang-menu" id="langMenu" hidden><a href="/kk">ҚАЗ</a><span aria-current="true">РУ</span><a href="/en">EN</a></div></div>
+    <a class="hbtn plat" href="https://platform.aethersystem.kz" target="_blank" rel="noopener noreferrer">Открыть платформу <span aria-hidden="true">↗</span><span class="sr">, открывается в новой вкладке</span></a>
+    <a class="hbtn primary" href="/ru/team#contacts">Контакты</a>
+    <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="mnav"><span aria-hidden="true"></span>Меню</button>
+  </div>
+</header>
+<div class="mnav" id="mnav" hidden>
+  <a href="/ru/about">О компании</a><a href="/ru/product">Aether Nexus</a><a href="/ru/solutions">Решения</a><a href="/ru/team">Команда</a><a href="/ru/team#contacts">Контакты</a>
+  <div class="mnav-row"><a href="/kk">ҚАЗ</a><span aria-current="true">РУ</span><a href="/en">EN</a></div>
+  <a class="hbtn primary" href="https://platform.aethersystem.kz" target="_blank" rel="noopener noreferrer">Открыть платформу <span aria-hidden="true">↗</span></a>
+</div>
+<nav class="rail" id="rail" aria-label="Блоки главной"></nav>
+<canvas id="clouds" aria-hidden="true"></canvas>
+
+<!-- 1. Opening: the flight, scroll drives it -->
+<section class="scene" id="intro" data-block="1" data-name="Вступление" data-kind="видео от прокрутки" aria-label="Вступление">
+  <div class="stage">
+    <canvas class="film" id="introFilm" aria-hidden="true"></canvas>
+    <div class="shade"></div>
+    <div class="say on" data-from="0" data-to="0.28">
+      <p class="k">AETHER SYSTEM &amp; CO.</p>
+      <h1>Цифровая инфраструктура для автономной авиации</h1>
+      <p>Мы создаём единую цифровую среду, в которой беспилотный аппарат, оператор, воздушное пространство, разрешение, норматив и коммерческая операция связаны в одном контуре.</p>
+      <div class="acts"><a class="btn primary" href="#story" data-goto="platform">Возможности платформы</a><a class="btn" href="https://platform.aethersystem.kz" target="_blank" rel="noopener noreferrer">Открыть платформу <span aria-hidden="true">↗</span></a></div>
+    </div>
+    <div class="say" data-from="0.34" data-to="0.62">
+      <p class="k">Принцип работы</p>
+      <h2>Пять функций, вокруг которых построена вся архитектура Aether Nexus</h2>
+      <ul class="five">
+        <li><b>CONNECT</b>Соединяет участников в едином цифровом контуре</li>
+        <li><b>CONTROL</b>Управляет операциями от планирования до завершения</li>
+        <li><b>COMPLY</b>Переводит требования в цифровые проверки</li>
+        <li><b>OPERATE</b>Обеспечивает выполнение и мониторинг миссий</li>
+        <li><b>ANALYZE</b>Формирует аналитическую картину пространства</li>
+      </ul>
+    </div>
+    <div class="say" data-from="0.68" data-to="1.01">
+      <p class="k">Ключевая концепция</p>
+      <h2>Вместо отдельного управления каждым элементом создаётся связанная цифровая модель</h2>
+      <p class="chain">DRONE · OPERATOR · MISSION · AIRSPACE · REGULATION · INFRASTRUCTURE · FINANCE · DATA</p>
+    </div>
+    <p class="hint" id="hint">ПРОКРУТИТЕ ВНИЗ</p>
+    <p class="chip"><b>ИЛЛЮСТРАЦИЯ</b> · Астана, ось Нұржол</p>
+  </div>
+</section>
+
+<div class="cloudgap to-studio" data-clouds="studio" aria-hidden="true"></div>
+
+<!-- 2. The fleet: three aircraft classes in a dark studio -->
+<section class="scene" id="studio" data-block="2" data-name="Аппараты" data-kind="видео по кругу, прокрутка переключает" aria-labelledby="flT">
+  <div class="stage">
+    <div id="fleet" aria-hidden="true">
+      <video muted loop playsinline preload="none" data-src="ind"></video>
+      <video muted loop playsinline preload="none" data-src="cargo"></video>
+      <video muted loop playsinline preload="none" data-src="taxi"></video>
+    </div>
+    <div class="fl-text">
+      <p class="k" id="flT">One digital environment for autonomous aviation</p>
+      <p class="lead">Aether Nexus проектируется как инфраструктура для операций беспилотной авиации в разных секторах экономики.</p>
+      <div class="fl-cards">
+        <div class="fl-card on"><p class="n">01 / 03 · ИНСПЕКЦИОННЫЙ БВС</p><h2>Мониторинг объектов</h2><p>Мониторинг ЛЭП, объектов генерации, трубопроводов, месторождений, дорог и мостов.</p></div>
+        <div class="fl-card"><p class="n">02 / 03 · ГРУЗОВОЙ БВС</p><h2>Логистика</h2><p>Автоматизированная доставка и грузовые воздушные операции.</p></div>
+        <div class="fl-card"><p class="n">03 / 03 · ВОЗДУШНОЕ ТАКСИ</p><h2>Advanced Air Mobility</h2><p>Инфраструктура для новых форм автономного воздушного транспорта.</p></div>
+      </div>
+      <div class="fl-ticks" id="flTicks"><i class="on"></i><i></i><i></i></div>
+    </div>
+    <p class="chip"><b>ИЛЛЮСТРАЦИЯ</b> · классы аппаратов, а не конкретные модели</p>
+  </div>
+</section>
+
+<div class="cloudgap to-story" data-clouds="story" aria-hidden="true"></div>
+
+<!-- 3–4. The problem and the platform: one scene drawn in code, driven by the scroll -->
+<section class="scene" id="story" data-block="3" data-name="Проблема" data-kind="сцена кодом от прокрутки" aria-label="Проблема и платформа">
+  <div class="stage">
+    <canvas id="storyCv" aria-hidden="true"></canvas>
+    <div class="shade"></div>
+    <div class="say" data-from="0" data-to="0.14">
+      <p class="k">Проблема</p>
+      <h2>Один полёт — десятки участников</h2>
+      <p>В одной операции беспилотного воздушного судна участвуют владелец, оператор, пилот, производитель, сервисная организация, страховая компания, государственный авиационный орган, поставщик UTM-сервисов, органы контроля, таможня, финансовые организации, заказчик и инфраструктурные операторы.</p>
+    </div>
+    <div class="say" data-from="0.14" data-to="0.4">
+      <p class="k">К чему это приводит</p>
+      <h2>Без единой цифровой архитектуры их данные остаются в разных системах</h2>
+      <ul class="cons2" id="cons2">
+        <li>Дублирование данных между системами</li>
+        <li>Ручная обработка документов и заявок</li>
+        <li>Сложные и долгие процедуры согласования</li>
+        <li>Недостаточная прозрачность операций</li>
+        <li>Отсутствие единой истории эксплуатации БВС</li>
+        <li>Сложности при масштабировании количества полётов</li>
+        <li>Повышенная нагрузка на государственные органы</li>
+        <li>Сложность интеграции информационных систем</li>
+      </ul>
+    </div>
+    <div class="say" data-from="0.4" data-to="0.47">
+      <p class="k">Aether Nexus</p>
+      <h2>Aether Nexus создаётся для решения этой проблемы посредством единого цифрового контура</h2>
+      <div class="statrow" id="stats">
+        <div><b>0</b><span>категорий участников одной операции</span></div>
+        <div><b>0</b><span>функциональных модулей платформы</span></div>
+        <div><b>0</b><span>категорий пользователей системы</span></div>
+        <div><b>0</b><span>отраслей применения</span></div>
+      </div>
+    </div>
+    <div class="say" data-from="0.53" data-to="0.61">
+      <p class="k">Платформа</p>
+      <h2>Aether Nexus — не только UTM</h2>
+      <p>UTM является одним из операционных слоёв платформы. Более широкая задача — создать цифровой инфраструктурный слой, связывающий участников беспилотной авиации между собой.</p>
+    </div>
+    <div class="say modpanel" data-from="0.61" data-to="1.01">
+      <p class="k" id="mNum">01 / 12</p>
+      <h2 id="mTitle">Digital Identity</h2>
+      <p id="mText"></p>
+      <div class="ticks" id="ticks" aria-hidden="true"></div>
+      <div class="acts"><a class="btn primary" href="/ru/product">Все возможности платформы</a><a class="btn" href="https://platform.aethersystem.kz" target="_blank" rel="noopener noreferrer">Открыть платформу <span aria-hidden="true">↗</span></a></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. Kazakhstan: a grid of airspace cells grows over the country, then the camera dives to Astana -->
+<section class="scene" id="kz" data-block="5" data-name="Карта" data-kind="сцена кодом от прокрутки" aria-labelledby="kzT">
+  <div class="stage">
+    <canvas class="film" id="kzCv" aria-hidden="true"></canvas>
+    <div class="shade" style="background:linear-gradient(90deg,rgba(4,7,10,.72) 0%,rgba(4,7,10,.3) 34%,rgba(4,7,10,0) 52%)"></div>
+    <div class="say on" data-from="0" data-to="0.8">
+      <p class="k">Aether Grid</p>
+      <h2 id="kzT">Цифровое представление воздушного пространства</h2>
+      <p>Воздушное пространство может быть представлено в виде сетки, где каждая ячейка содержит координаты, высотный диапазон, статус, ограничения, текущую загрузку, активные миссии и уровень риска.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 6. Aether Grid over the city -->
+<section class="scene" id="grid" data-block="6" data-name="Aether Grid" data-kind="видео от прокрутки + петля + подписи кодом" aria-labelledby="gt">
+  <div class="stage">
+    <div class="window" id="gridWin">
+      <canvas class="film" id="gridFilm" aria-hidden="true"></canvas>
+      <canvas id="hud" aria-hidden="true"></canvas>
+      <video id="gridLoop" muted playsinline loop preload="none" aria-hidden="true" hidden></video>
+      <div class="shade"></div>
+    </div>
+    <div class="say" data-from="0.06" data-to="1.01" id="gridSay">
+      <p class="k">Aether Grid</p>
+      <h2 id="gt">Воздушное пространство как цифровая структура</h2>
+      <ul class="uses" id="uses"><li>Маршрутизации</li><li>Анализа трафика</li><li>Обнаружения конфликтов</li><li>Оценки загрузки</li><li>Управления ограничениями</li><li>Прогнозирования</li></ul>
+      <div class="legend"><span><i style="background:rgba(92,214,240,.85)"></i>Свободно</span><span><i style="background:rgba(232,176,72,.9)"></i>Занято</span></div>
+      <p class="demo">ИЛЛЮСТРАЦИЯ · СТАТУСЫ ЯЧЕЕК УСЛОВНЫЕ</p>
+    </div>
+    <div class="exit" id="gridExit"></div>
+  </div>
+</section>
+
+<!-- 6. Industries: eight strips across one screen; the scroll opens them one by one -->
+<section class="scene" id="industries" data-block="7" data-name="Отрасли" data-kind="короткие видео, прокрутка листает" aria-labelledby="it">
+  <div class="stage ind-stage">
+    <div class="ind-head">
+      <div><p class="k">Применение</p><h2 id="it">Отрасли</h2></div>
+      <p class="ind-sub">Aether Nexus проектируется как инфраструктура для операций беспилотной авиации в разных секторах экономики.</p>
+      <button class="pause" id="pauseAll" type="button" aria-pressed="false">Остановить видео</button>
+    </div>
+    <div class="strips" id="strips"></div>
+  </div>
+</section>
+
+<div class="cloudgap to-landing" data-clouds="landing" aria-hidden="true"></div>
+
+<!-- 7. Development stages and the landing -->
+<section class="scene" id="landing" data-block="8" data-name="Этапы и посадка" data-kind="кадры от прокрутки" aria-labelledby="lt">
+  <div class="stage">
+    <div class="window" id="landWin"><canvas class="film" id="landFilm" aria-hidden="true"></canvas><div class="shade"></div></div>
+    <div class="say" data-from="0.04" data-to="0.82">
+      <p class="k">Стратегия</p>
+      <h2 id="lt">Этапы развития рынка</h2>
+      <ol class="stages" id="stages">
+        <li><b>I</b><span><strong>Цифровизация регистрации</strong><small>Цифровая регистрация и управление беспилотными воздушными судами.</small></span></li>
+        <li><b>II</b><span><strong>UTM и управление операциями</strong><small>Цифровое управление полётными операциями и воздушным движением БВС.</small></span></li>
+        <li><b>III</b><span><strong>Масштабирование BVLOS</strong><small>Полёты за пределами визуальной видимости и рост коммерческих операций.</small></span></li>
+        <li><b>IV</b><span><strong>Интеграция систем</strong><small>Связывание государственных и коммерческих информационных систем.</small></span></li>
+        <li><b>V</b><span><strong>Массовое внедрение</strong><small>Массовое применение автономной авиации в экономике.</small></span></li>
+        <li><b>VI</b><span><strong>Advanced Air Mobility</strong><small>Инфраструктура для новых форм автономного воздушного транспорта.</small></span></li>
+      </ol>
+    </div>
+    <div class="say" data-from="0.84" data-to="1.01">
+      <p class="k">Контакты</p>
+      <h2>Готовы обсудить сотрудничество?</h2>
+      <p>Мы открыты к диалогу с государственными органами, операторами, производителями, корпоративными заказчиками и технологическими партнёрами.</p>
+      <div class="contact">
+        <a href="mailto:info@aethersystem.kz"><span>ПОЧТА</span>info@aethersystem.kz</a>
+        <a href="tel:+77008323273"><span>ТЕЛЕФОН</span>+7 700 832 32 73</a>
+        <div><span>АДРЕС</span>Казахстан, Астана, район Нура, улица Санжара Асфендиярова, 8а, бизнес-центр Omega</div>
+      </div>
+      <div class="acts"><a class="btn primary" href="https://platform.aethersystem.kz" target="_blank" rel="noopener noreferrer">Открыть платформу <span aria-hidden="true">↗</span></a></div>
+    </div>
+    <p class="chip"><b>ИЛЛЮСТРАЦИЯ</b> · посадка у терминала, Астана</p>
+  </div>
+</section>
+<footer class="foot"><span>© AETHER SYSTEM &amp; CO.</span><span>ПРОБА ГЛАВНОЙ · ТЕКСТЫ С САЙТА · ВИДЕО — ИЛЛЮСТРАЦИИ</span></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js"></script>
+<script>
+(function(){
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $ = function(s, r){ return (r || document).querySelector(s); }, $$ = function(s, r){ return [].slice.call((r || document).querySelectorAll(s)); };
+  var clamp = function(v, a, b){ return Math.min(b, Math.max(a, v)); };
+  var smooth = function(a, b, v){ var t = clamp((v - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+  var pad3 = function(i){ return ('00' + i).slice(-3); };
+  function afterLoad(fn){ if (document.readyState === 'complete') fn(); else addEventListener('load', fn, { once: true }); }
+  function prog(el){ var r = el.getBoundingClientRect(); return clamp(-r.top / Math.max(1, r.height - innerHeight), 0, 1); }
+  function entry(el){ var r = el.getBoundingClientRect(); return clamp(1 - r.top / innerHeight, 0, 1); }
+
+  /* ---------- frame scenes: the approved settings ----------
+     position = progress·(N−1) straight from the scroll; the next frame is laid over the current one at the
+     in-between share (no single-frame steps while the scroll slows down); frame 0 first and alone, the rest after
+     the page has finished loading, six at a time in the order 0, last, middle, quarters…; canvas at CSS pixels. */
+  function order(n){ var out = [0, n - 1], seen = { 0: 1 }, spans = [[0, n - 1]]; seen[n - 1] = 1;
+    while (spans.length){ var next = []; spans.forEach(function(s){ if (s[1] - s[0] <= 1) return; var m = (s[0] + s[1]) >> 1; if (!seen[m]){ seen[m] = 1; out.push(m); } next.push([s[0], m], [m, s[1]]); }); spans = next; }
+    return out; }
+  function Seq(o){
+    var s = { pos: 0, drawn: -1, shown: -1, n: o.n, frames: new Array(o.n), ok: new Array(o.n).fill(false), started: false };
+    var cv = o.canvas, ctx = cv.getContext('2d');
+    s.start = function(){ if (s.started) return; s.started = true; var q = order(o.n), busy = 0, cap = 1;
+      function more(){ cap = 6; pump(); }
+      function pump(){ while (busy < cap && q.length){ (function(i){ busy++; var im = new Image(); im.decoding = 'async';
+        im.onload = function(){ busy--; s.frames[i] = im; s.ok[i] = true; if (s.shown < 0 || Math.abs(i - s.pos) <= Math.abs(s.shown - s.pos) + 1) s.draw(); if (i === 0) afterLoad(more); else pump(); };
+        // если лёгкого набора кадров нет на сервере, берём тот же кадр из полного
+        im.onerror = function(){ if (!im.__alt && /-m\/$/.test(o.dir)){ im.__alt = 1; im.src = o.dir.replace(/-m\/$/, '/') + 'f' + pad3(i) + o.ext; return; }
+          busy--; if (i === 0) afterLoad(more); else pump(); };
+        im.src = o.dir + 'f' + pad3(i) + o.ext; })(q.shift()); } }
+      pump(); };
+    function nearest(i){ if (s.ok[i]) return i; for (var d = 1; d < 25; d++){ if (s.ok[i - d]) return i - d; if (s.ok[i + d]) return i + d; } return s.shown; }
+    function paint(im, alpha){
+      var cw = cv.width, ch = cv.height, wide = cw > ch, nw = im.naturalWidth || im.videoWidth, nh = im.naturalHeight || im.videoHeight;
+      var sc = o.fit === 'contain' ? Math.min(cw / nw, ch / nh) : Math.max(cw / nw, ch / nh) * (wide && o.nudge ? 1 + o.nudge : 1);
+      var w = nw * sc, h = nh * sc, x = (cw - w) / 2 + (wide && o.nudge ? cw * o.nudge : 0), y = (ch - h) / 2;
+      if (!wide && o.tall){ sc = cw / nw * o.tall; w = nw * sc; h = nh * sc; x = (cw - w) / 2; y = ch - h - ch * 0.11; }   // a phone: the whole frame across the screen, low, under the text
+      if (wide && o.side){ w = cw * o.side; h = w * nh / nw; x = cw - w; y = (ch - h) / 2; }   // a wide screen: the frame takes the right part, the text keeps the dark left
+      s.rect = [x, y, w, h]; ctx.globalAlpha = alpha; ctx.drawImage(im, x, y, w, h);
+    }
+    // the frame melts into the dark at its edges
+    function fadeEdges(){ var r = s.rect, wide = cv.width > cv.height; if (!r || !(wide ? o.side : o.tall)) return; ctx.globalAlpha = 1;
+      var top = wide ? 0.12 : 0.28, bot = wide ? 0.88 : 0.82, g = ctx.createLinearGradient(0, r[1], 0, r[1] + r[3]);
+      g.addColorStop(0, 'rgba(4,7,10,1)'); g.addColorStop(top, 'rgba(4,7,10,0)'); g.addColorStop(bot, 'rgba(4,7,10,0)'); g.addColorStop(1, 'rgba(4,7,10,1)');
+      ctx.fillStyle = g; ctx.fillRect(0, r[1] - 1, cv.width, r[3] + 2);
+      if (wide){ var l = ctx.createLinearGradient(r[0], 0, r[0] + r[2] * 0.22, 0); l.addColorStop(0, 'rgba(4,7,10,1)'); l.addColorStop(1, 'rgba(4,7,10,0)'); ctx.fillStyle = l; ctx.fillRect(r[0] - 1, 0, r[2] * 0.22 + 1, cv.height); } }
+    s.draw = function(){
+      var i0 = Math.floor(s.pos), t = s.pos - i0, a = nearest(i0); if (a < 0 || a === undefined || !s.frames[a]) return;
+      var blend = a === i0 && t > 0.004 && s.ok[i0 + 1];
+      if (o.fit === 'contain'){                                   // transparent frames: a true cross-fade, added on a cleared canvas
+        ctx.clearRect(0, 0, cv.width, cv.height); ctx.globalCompositeOperation = 'lighter';
+        paint(s.frames[a], blend ? 1 - t : 1); if (blend) paint(s.frames[i0 + 1], t); ctx.globalCompositeOperation = 'source-over';
+      } else { if ((o.tall && cv.width <= cv.height) || (o.side && cv.width > cv.height)){ ctx.globalAlpha = 1; ctx.fillStyle = '#04070a'; ctx.fillRect(0, 0, cv.width, cv.height); } paint(s.frames[a], 1); if (blend) paint(s.frames[i0 + 1], t); fadeEdges(); }
+      ctx.globalAlpha = 1; s.shown = a; s.drawn = s.pos;
+    };
+    s.set = function(p){ s.pos = clamp(p, 0, 1) * (o.n - 1); if (Math.abs(s.pos - s.drawn) > 0.002) s.draw(); };
+    s.paintSrc = function(src){ paint(src, 1); fadeEdges(); ctx.globalAlpha = 1; };   // a playing video in place of the frames
+    s.size = function(){ var r = cv.getBoundingClientRect(); s.k = o.hd ? Math.min(3, devicePixelRatio || 1) : 1;   /* телефоны с тройной плотностью рисуют честно, иначе кадр мылится */ cv.width = Math.max(1, Math.round(r.width * s.k)); cv.height = Math.max(1, Math.round(r.height * s.k)); s.shown = -1; s.draw(); };
+    return s;
+  }
+  // телефон берёт лёгкий набор кадров: холст там всё равно не шире 800 точек
+  var MOB = matchMedia('(max-width:900px)').matches;
+  var intro = Seq({ canvas: $('#introFilm'), dir: MOB ? 'https://media.aethersystem.kz/v1/intro-m/' : 'https://media.aethersystem.kz/v1/intro/', ext: '.avif', n: 160, hd: true });
+  var studio = (function(){
+    var sec = $('#studio'), vids = $$('#fleet video'), cards = $$('.fl-card'), ticks = $$('#flTicks i'), small = matchMedia('(max-width:900px)').matches, cur = -1, seen = false;
+    var lastP = 0, api;
+    new IntersectionObserver(function(es){ seen = es[0].isIntersecting; if (!seen) vids.forEach(function(v){ v.pause(); }); else api.set(lastP); }).observe(sec);   // the block may come into view after the last scroll event
+    return api = {
+      start: function(){ vids.forEach(function(v){ var n = v.dataset.src; v.poster = 'https://media.aethersystem.kz/v1/fleet/' + n + '.jpg'; if (!reduce){ v.src = 'https://media.aethersystem.kz/v1/fleet/' + n + (small ? '-m' : '') + '.mp4'; v.load(); } }); api.set(lastP); },
+      // three equal parts of the block; neighbours crossfade over the last and first sixth of each part
+      set: function(p){ lastP = p; var n = vids.length, x = clamp(p, 0, 1) * n;
+        vids.forEach(function(v, i){ var d = x - (i + 0.5); if ((i === 0 && d < 0) || (i === n - 1 && d > 0)) d = 0;
+          // straight and one at a time: the aircraft leaves fully to the right before the next one comes in from the left
+          var out = smooth(0.18, 0.5, d), inn = smooth(0.18, 0.5, -d), o = 1 - smooth(0.36, 0.5, Math.abs(d));
+          v.style.transform = 'translateX(' + ((out - inn) * 72).toFixed(2) + '%)';
+          v.style.opacity = o.toFixed(3);
+          if (seen && !reduce && o > 0.01){ if (v.paused && v.src) v.play().catch(function(){}); } else if (!v.paused) v.pause(); });
+        var k = Math.min(n - 1, Math.floor(x));
+        if (k !== cur){ cur = k; cards.forEach(function(c, j){ c.classList.toggle('on', j === k); }); ticks.forEach(function(t, j){ t.classList.toggle('on', j === k); }); } },
+      size: function(){}
+    };
+  })();
+  var gridS = Seq({ canvas: $('#gridFilm'), dir: MOB ? 'https://media.aethersystem.kz/v1/grid-m/' : 'https://media.aethersystem.kz/v1/grid/', ext: '.avif', n: 80, nudge: 0.08, hd: true });
+  var land = Seq({ canvas: $('#landFilm'), dir: MOB ? 'https://media.aethersystem.kz/v1/landing-m/' : 'https://media.aethersystem.kz/v1/landing/', ext: '.avif', n: 129, side: 0.82, tall: 1.35, hd: true });   // wide: the right 82 per cent; phone: across the screen, low   // nudged right so the stages list clears the aircraft
+  intro.start();
+  // the other scenes start loading a screen or so before they arrive, so the first screen stays light
+  var lazy = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting){ e.target.__seq.start(); lazy.unobserve(e.target); } }); }, { rootMargin: '150% 0px 150% 0px' });
+  [[ '#studio', studio ], [ '#grid', gridS ], [ '#landing', land ]].forEach(function(x){ var el = $(x[0]); el.__seq = x[1]; lazy.observe(el); });
+
+  /* ---------- clouds drawn in code (the live site's recipe: soft multi-blob sprites, light, slightly cool) ---------- */
+  var CL = { cv: $('#clouds'), puffs: [], tex: [], on: false };
+  CL.ctx = CL.cv.getContext('2d');
+  function cloudTexture(seed){
+    var c = document.createElement('canvas'), S = 256; c.width = c.height = S; var g = c.getContext('2d'), rnd = mulberry(seed);
+    var l = 0.93 + rnd() * 0.07, tint = 'rgba(' + Math.round(236 * l + 14) + ',' + Math.round(242 * l + 11) + ',' + Math.round(248 * l + 7) + ',';
+    for (var i = 0; i < 26; i++){
+      var x = S / 2 + (rnd() - 0.5) * S * 0.58, y = S / 2 + (rnd() - 0.5) * S * 0.44, r = S * (0.09 + rnd() * 0.19);
+      var gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, tint + '0.36)'); gr.addColorStop(0.55, tint + '0.14)'); gr.addColorStop(1, tint + '0)');
+      g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+    }
+    g.globalCompositeOperation = 'source-atop';                    // a cooler underside gives the puff volume
+    var sh = g.createLinearGradient(0, S * 0.35, 0, S * 0.8); sh.addColorStop(0, 'rgba(160,176,192,0)'); sh.addColorStop(1, 'rgba(160,176,192,0.2)');
+    g.fillStyle = sh; g.fillRect(0, 0, S, S); return c;
+  }
+  function mulberry(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  (function(){ var rnd = mulberry(7), count = innerWidth < 760 ? 46 : 84;
+    for (var k = 0; k < 6; k++) CL.tex.push(cloudTexture(11 + k * 17));
+    for (var i = 0; i < count; i++) CL.puffs.push({ x: (rnd() - 0.5) * 2.6, y: (rnd() - 0.5) * 1.5, z: 0.25 + rnd() * 4.2, s: 0.55 + rnd() * 0.9, asp: 0.6 + rnd() * 0.3, rot: rnd() * 6.28, spin: (rnd() - 0.5) * 0.08, tex: i % 6, op: 0.45 + rnd() * 0.45 });
+    CL.puffs.sort(function(a, b){ return b.z - a.z; });
+  })();
+  function drawClouds(q, time){
+    var cv = CL.cv, ctx = CL.ctx, W = cv.width, H = cv.height, cx = W / 2, cy = H * 0.5, camZ = q * 4.0;
+    ctx.clearRect(0, 0, W, H);
+    var life = smooth(0.12, 0.3, q) * (1 - smooth(0.72, 0.9, q));            // clouds gather and thin out, never pop
+    for (var i = 0; i < CL.puffs.length; i++){
+      var p = CL.puffs[i], d = p.z - camZ; if (d < 0.06 || d > 3.4) continue;
+      var k = 1 / d, size = p.s * W * 0.5 * k; if (size > W * 3.2) continue;
+      var a = p.op * life * clamp((3.4 - d) / 0.9, 0, 1) * clamp((d - 0.06) / 0.4, 0, 1); if (a < 0.01) continue;
+      var x = cx + (p.x + Math.sin(time * 0.00012 + p.rot) * 0.03) * W * 0.5 * k, y = cy + p.y * H * 0.55 * k;
+      ctx.save(); ctx.globalAlpha = a; ctx.translate(x, y); ctx.rotate(p.rot + time * 0.00002 * p.spin * 50); ctx.scale(1, p.asp);
+      ctx.drawImage(CL.tex[p.tex], -size / 2, -size / 2, size, size); ctx.restore();
+    }
+    var white = 0.97 * smooth(0.26, 0.47, q) * (1 - smooth(0.53, 0.76, q));   // inside the cloud: the seam between blocks is never seen
+    if (white > 0.005){ ctx.globalAlpha = white; ctx.fillStyle = '#e9eef2'; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
+  }
+
+  /* ---------- Aether Grid: the hologram assembles with the scroll, then lives on as a loop; captions in code ----------
+     u, v: the point in the frame (0–1); at: share of the assembly when the caption appears; dx, dy: where the label sits. */
+  var GRID_BUILT = 0.62;                                           // the first 62% of the block assemble the city
+  var GL = { v: $('#gridLoop'), on: false };
+  var HUD = { cv: $('#hud'), on: false, p: 0 }; HUD.ctx = HUD.cv.getContext('2d');
+  var TAGS = { ru: ['AETHER NEXUS · AETHER GRID', 'БАЙТЕРЕК · АСТАНА', 'ХАН ШАТЫР', 'ЯЧЕЙКА B-07 · ЗАНЯТО', 'КОРИДОР ПОЛЁТА · 0–150 М'],
+    en: ['AETHER NEXUS · AETHER GRID', 'BAITEREK · ASTANA', 'KHAN SHATYR', 'CELL B-07 · OCCUPIED', 'FLIGHT CORRIDOR · 0–150 M'],
+    kk: ['AETHER NEXUS · AETHER GRID', 'БӘЙТЕРЕК · АСТАНА', 'ХАН ШАТЫР', 'B-07 ҰЯШЫҒЫ · БОС ЕМЕС', 'ҰШУ ДӘЛІЗІ · 0–150 М'] };
+  var TAG_TXT = TAGS[document.documentElement.lang] || TAGS.ru, ILLU = { ru: 'ИЛЛЮСТРАЦИЯ', en: 'ILLUSTRATION', kk: 'ИЛЛЮСТРАЦИЯ' }[document.documentElement.lang] || 'ИЛЛЮСТРАЦИЯ';
+  var CYAN = '92,214,240', AMBER = '232,176,72';
+  var TAG_AT = [[0.5, 0.515, 0.48, 70, -78, CYAN], [0.5, 0.3, 0.6, 46, -40, CYAN], [0.77, 0.6, 0.9, -34, 64, AMBER], [0.72, 0.72, 0.95, -30, 58, CYAN]];
+  function gridLoop(want){
+    if (want === GL.on) return; GL.on = want;
+    if (want){ if (!GL.v.src) GL.v.src = 'https://media.aethersystem.kz/v1/grid/' + (innerWidth < 900 ? 'loop-m' : 'loop') + '.mp4'; try { GL.v.currentTime = 0; } catch (e) {} GL.v.play().catch(function(){}); }
+    else { GL.v.pause(); gridS.draw(); }
+  }
+  function drawHud(time){
+    var cv = HUD.cv, ctx = HUD.ctx, W = cv.width, H = cv.height, p = HUD.p, k = gridS.k || 1, r = gridS.rect && gridS.rect.map(function(v){ return v / k; }); ctx.clearRect(0, 0, W, H);
+    gridLoop(!reduce && p >= GRID_BUILT && gridS.ok[gridS.n - 1]);   // checked every frame: the last frame may arrive after the scroll stopped
+    if (GL.on && GL.v.readyState >= 2) gridS.paintSrc(GL.v);
+    if (!r) return;
+    var built = clamp(p / GRID_BUILT, 0, 1), small = W < 760, tall = H > W;   // a phone: the text takes the top half, captions go below their points
+    ctx.font = '500 ' + (small ? 9.5 : 11) + 'px "IBM Plex Mono", monospace'; ctx.textBaseline = 'middle';
+    // the title over the wall of screens
+    var tv = smooth(0.9, 1, built);
+    if (tv > 0.02){ var t = TAG_TXT[0] + (tall ? ' · ' + ILLU : ''), tw = ctx.measureText(t).width, tx = tall ? (W - tw - 24) / 2 : Math.min(W - tw - 40, r[0] + r[2] * 0.6), ty = tall ? H - 56 : Math.max(100, r[1] + r[3] * 0.09);
+      { ctx.globalAlpha = tv; ctx.fillStyle = 'rgba(4,7,10,0.7)'; ctx.fillRect(tx, ty - 13, tw + 24, 26); ctx.strokeStyle = 'rgba(' + CYAN + ',0.7)'; ctx.strokeRect(tx + 0.5, ty - 12.5, tw + 23, 25);
+        ctx.fillStyle = '#eef3f6'; ctx.fillText(t, tx + 12, ty + 1); ctx.globalAlpha = 1; } }
+    // captions with leader lines
+    TAG_AT.forEach(function(g, i){
+      var a = smooth(g[2], g[2] + 0.08, built); if (a < 0.02) return;
+      var x = r[0] + g[0] * r[2], y = r[1] + g[1] * r[3]; if (x < 12 || x > W - 12 || y < (tall ? H * 0.5 : 60) || y > H - 40) return;
+      var txt = TAG_TXT[i + 1], tw = ctx.measureText(txt).width, lx = x + g[3], ly = y + (tall ? Math.abs(g[4]) * 0.8 : g[4]), left = g[3] < 0;
+      var bx = left ? lx - tw - 22 : lx + 8; bx = clamp(bx, 8, W - tw - (tall ? 30 : 130));   // clear of the block rail on the right
+      var pulse = time ? 0.75 + 0.25 * Math.sin(time / 420 + i) : 1;
+      ctx.globalAlpha = a; ctx.strokeStyle = 'rgba(' + g[5] + ',0.9)'; ctx.fillStyle = 'rgba(' + g[5] + ',' + pulse.toFixed(3) + ')'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(x, y, 3.5, 0, 6.29); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(lx, ly); ctx.lineTo(left ? bx + tw + 22 : bx, ly); ctx.stroke();
+      ctx.fillStyle = 'rgba(4,7,10,0.72)'; ctx.fillRect(bx, ly - 11, tw + 22, 22);
+      ctx.fillStyle = 'rgba(' + g[5] + ',0.95)'; ctx.fillRect(left ? bx + tw + 20 : bx, ly - 11, 2, 22);
+      ctx.fillStyle = '#eef3f6'; ctx.fillText(txt, bx + 11, ly + 1); ctx.globalAlpha = 1;
+    });
+  }
+
+  /* ---------- modules and industries from the site's texts ---------- */
+  var MODS = [['Digital Identity', 'Уникальный цифровой профиль каждой беспилотной авиационной системы: идентификатор, производитель, владелец, документы, история эксплуатации.'],
+    ['Digital Registry', 'Цифровой реестр беспилотных воздушных судов и операторов с разграничением доступа по ролям.'],
+    ['UTM', 'Цифровая организация операций БВС: миссия, маршрут, проверка пространства, согласование, мониторинг.'],
+    ['Regulatory Compliance', 'Перевод применимых правил в структурированные цифровые проверки: COMPLIANT · CONDITIONAL · NON-COMPLIANT.'],
+    ['Airspace Intelligence', 'Единая цифровая картина воздушного пространства: структура, ограничения, зоны режима, метеоданные, активные операции.'],
+    ['Aether Grid', 'Воздушное пространство как цифровая пространственная сетка — основа для машинной маршрутизации и обнаружения конфликтов.'],
+    ['Conformance Monitoring', 'Контроль соответствия фактической операции разрешённым параметрам: маршрут, высота, геозона, временное окно.'],
+    ['AI-Inspector', 'Автоматизация предварительной проверки больших объёмов данных: анализ документов, выявление несоответствий, приоритизация случаев.'],
+    ['Lifecycle Management', 'Управление жизненным циклом от производства и импорта до вывода из эксплуатации.'],
+    ['Fleet Management', 'Переход от управления одним БВС к управлению флотом: состояние, миссии, обслуживание, документы.'],
+    ['Government Integration', 'Отдельный цифровой контур для государственных пользователей: реестр, активные миссии, инциденты, аналитика.'],
+    ['Marketplace & FinTech', 'Коммерческий слой: заказ услуг беспилотной авиации, электронные расчёты, escrow, связь оплаты с результатом миссии.']];
+  var ICON = {
+    energy: '<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
+    oilgas: '<path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/>',
+    mining: '<path d="m8 3 4 8 5-5 5 15H2L8 3z"/>',
+    agro: '<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 19 2c1 2 2 4.2 2 8 0 5.5-4.8 10-10 10Z"/><path d="M2 21c0-3 1.9-5.4 5.1-6C9.5 14.5 12 13 13 12"/>',
+    logistics: '<path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.7z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/>',
+    construction: '<rect x="4" y="2" width="16" height="20" rx="1"/><path d="M9 22v-4h6v4M8 6h.01M12 6h.01M16 6h.01M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01"/>',
+    infrastructure: '<path d="M2 18h20M2 9h20M4 18V9M20 18V9M4 9c2.5 4.5 13.5 4.5 16 0M8 18v-5.5M12 18v-4.5M16 18v-5.5"/>',
+    emergency: '<path d="M7 18v-6a5 5 0 1 1 10 0v6"/><path d="M5 21a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2z"/><path d="M21 12h1M2 12h1M12 2v1M4.9 4.9l.7.7M19.1 4.9l-.7.7"/>' };
+  var INDS = [['energy', 'Энергетика', 'Мониторинг ЛЭП, объектов генерации и энергетической инфраструктуры.', 'https://media.aethersystem.kz/v1/loops/energy-chase','<b>ИЛЛЮСТРАЦИЯ</b> · осмотр ЛЭП', 'once', [0.7, 0.27, 0.8, 0.52], 'ПЕРЕГРЕВ ИЗОЛЯТОРА · ТРЕБУЕТСЯ ОСМОТР', null, [50, 56]],
+    ['oilgas', 'Нефтегазовый сектор', 'Мониторинг трубопроводов, месторождений и производственной инфраструктуры.', 'https://media.aethersystem.kz/v1/loops/oilgas','<b>ИЛЛЮСТРАЦИЯ</b> · осмотр трубопровода', 'once', [0.27, 0.56, 0.5, 0.93], 'ВОЗМОЖНАЯ УТЕЧКА · ПРОВЕРКА', null],
+    ['mining', 'Горнодобывающая отрасль', 'Карьерная съёмка, мониторинг объектов, геодезические работы.', 'https://media.aethersystem.kz/v1/loops/mining','<b>ИЛЛЮСТРАЦИЯ</b> · съёмка карьера', 'once', [0.08, 0.16, 0.46, 0.76], 'СЪЁМКА УСТУПА · ОБЪЁМ ВЫЕМКИ', 'ok'],
+    ['agro', 'Сельское хозяйство', 'Мониторинг полей, обработка, анализ состояния посевов.', 'https://media.aethersystem.kz/v1/loops/agro','<b>ИЛЛЮСТРАЦИЯ</b> · мониторинг посевов', 'once', [0.08, 0.32, 0.52, 0.72], 'ПРИЗНАКИ ЗАСУХИ · УЧАСТОК 12', null],
+    ['logistics', 'Логистика', 'Автоматизированная доставка и грузовые воздушные операции.', 'https://media.aethersystem.kz/v1/loops/logistics','<b>ИЛЛЮСТРАЦИЯ</b> · доставка груза', 'once', [0.28, 0.58, 0.47, 0.82], 'ГРУЗ ДОСТАВЛЕН · 14 МИН', 'ok'],
+    ['construction', 'Строительство', 'Контроль строительных объектов и объёмов выполненных работ.', 'https://media.aethersystem.kz/v1/loops/construction','<b>ИЛЛЮСТРАЦИЯ</b> · контроль стройки', 'once', [0.62, 0.62, 0.98, 0.95], 'ЭТАЖ 18 · ГОТОВНОСТЬ 72 %', 'ok'],
+    ['infrastructure', 'Инфраструктура', 'Мониторинг дорог, мостов и других инфраструктурных объектов.', 'https://media.aethersystem.kz/v1/loops/infrastructure','<b>ИЛЛЮСТРАЦИЯ</b> · осмотр моста', 'once', [0.62, 0.05, 0.8, 0.55], 'ТРЕЩИНА В ОПОРЕ · ТРЕБУЕТСЯ ОСМОТР', null],
+    ['emergency', 'Экстренные службы', 'Поиск, мониторинг чрезвычайных ситуаций, оперативная разведка.', 'https://media.aethersystem.kz/v1/loops/emergency','<b>ИЛЛЮСТРАЦИЯ</b> · поисковая операция', 'once', [0.4, 0.48, 0.84, 0.95], 'ГРУППА НАЙДЕНА · КООРДИНАТЫ ПЕРЕДАНЫ', 'ok']];
+  // eight strips across one screen: the scroll opens one at a time, and only the open one plays its loop
+  $('#strips').innerHTML = INDS.map(function(d, i){
+    var media = d[3] ? '<video muted playsinline' + (d[5] === 'once' ? '' : ' loop') + ' preload="none" poster="' + d[3] + '.jpg" src="' + d[3] + (innerWidth < 900 ? '-m' : '') + '.mp4" aria-hidden="true"></video>'
+      + (d[5] === 'once' ? '<span class="insp' + (d[8] ? ' ok' : '') + '" data-box="' + d[6].join(',') + '" aria-hidden="true"><em></em><i></i><i></i><i></i><i></i><span>' + d[7] + '<small>ИЛЛЮСТРАЦИЯ</small></span>' + (d[9] ? '<b class="hot" style="left:' + d[9][0] + '%;top:' + d[9][1] + '%"></b>' : '') + '</span>' : '')
+      : '<span class="ph"><svg viewBox="0 0 24 24" aria-hidden="true">' + ICON[d[0]] + '</svg></span>';
+    var tag = d[3] ? '<span class="tag">' + d[4] + '</span>' : '<span class="tag">ВИДЕО ОТ ГЕНЕРАТОРОВ · 5 С</span>';
+    return '<article class="strip" data-i="' + i + '">' + media + '<span class="dim"></span><span class="no">' + ('0' + (i + 1)).slice(-2) + '</span><span class="vt" aria-hidden="true">' + d[1] + '</span>'
+      + '<div class="body"><h3>' + d[1] + '</h3><p>' + d[2] + '</p>' + tag + '</div><button class="pick" type="button" aria-label="Показать отрасль: ' + d[1] + '"></button></article>'; }).join('');
+  var stripEls = $$('#strips .strip'), curInd = -1, indVisible = false, stopped = reduce, pb = $('#pauseAll'), snapT = 0;
+  function syncVideos(){ stripEls.forEach(function(el, i){ var v = $('video', el); if (!v) return; var act = i === curInd && indVisible;
+    if (act && !stopped){ if (!(v.ended && el.__act)){ var pr = v.play(); if (pr && pr.catch) pr.catch(function(){}); } } else v.pause();
+    el.__act = act; }); }
+  // the inspection frame sits on the detail at the end of the clip: data-box is u0,v0,u1,v1 of the 16:9 clip
+  function placeInsp(el){ var b = $('.insp', el); if (!b) return; var INSP = b.dataset.box.split(',').map(Number), w = el.clientWidth, h = el.clientHeight, k = Math.max(w / 16, h / 9), vw = 16 * k, vh = 9 * k, x0 = (w - vw) / 2, y0 = (h - vh) / 2;
+    var bx0 = Math.max(8, x0 + INSP[0] * vw), bx1 = Math.min(w - 8, x0 + INSP[2] * vw), by0 = Math.max(8, y0 + INSP[1] * vh), by1 = Math.min(h - 8, y0 + INSP[3] * vh);
+    var cx = (bx0 + bx1) / 2, cy = (by0 + by1) / 2, Z = 1, vid = $('video', el);
+    if (el.classList.contains('zoom')) Z = clamp(w * 0.55 / Math.max(40, bx1 - bx0), 1.15, 1.8);
+    if (vid){ vid.style.transformOrigin = cx + 'px ' + cy + 'px'; vid.style.transform = Z > 1 ? 'scale(' + Z.toFixed(3) + ')' : 'none'; }
+    bx0 = cx + (bx0 - cx) * Z; bx1 = cx + (bx1 - cx) * Z; by0 = cy + (by0 - cy) * Z; by1 = cy + (by1 - cy) * Z;
+    b.style.left = bx0 + 'px'; b.style.top = by0 + 'px'; b.style.width = Math.max(0, bx1 - bx0) + 'px'; b.style.height = Math.max(0, by1 - by0) + 'px';
+    var L = bx0, R = w - bx1; b.classList.toggle('right', L < 360 && R >= 360); b.classList.toggle('up', L < 360 && R < 360); b.classList.toggle('upl', L < 360 && R < 360 && bx0 + bx1 < w); }
+  stripEls.forEach(function(el){ var v = $('video', el), b = $('.insp', el); if (!v || !b) return;
+    var near = function(){ return v.duration && v.currentTime > v.duration - 0.6; };
+    var sync = function(){ placeInsp(el); var done = el.classList.contains('on') && (v.ended || near() || reduce);
+      b.classList.toggle('show', done); el.classList.toggle('zoom', done); placeInsp(el); };
+    ['timeupdate', 'ended', 'play', 'seeked'].forEach(function(t){ v.addEventListener(t, sync); });
+    // доиграв, ролик держит кадр осмотра, потом идёт заново
+    var again = 0;
+    v.addEventListener('ended', function(){ clearTimeout(again); again = setTimeout(function(){
+      if (!el.classList.contains('on') || stopped || reduce) return;
+      b.classList.remove('show'); el.classList.remove('zoom'); placeInsp(el);
+      try { v.currentTime = 0; } catch (e) {}
+      var pr = v.play(); if (pr && pr.catch) pr.catch(function(){});
+    }, 3200); });
+    new ResizeObserver(sync).observe(el);   // the open strip grows over .85 s; the frame keeps to the insulators
+    new MutationObserver(sync).observe(el, { attributes: true, attributeFilter: ['class'] }); });
+  function syncPause(){ pb.textContent = stopped ? 'Включить видео' : 'Остановить видео'; pb.setAttribute('aria-pressed', stopped ? 'true' : 'false'); }
+  pb.addEventListener('click', function(){ stopped = !stopped; syncPause(); syncVideos(); });
+  syncPause();
+  // gentle reveal of the calm blocks
+  var ro = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting){ e.target.classList.add('in'); ro.unobserve(e.target); } }); }, { threshold: 0.15 });
+  $$('.rv').forEach(function(el){ ro.observe(el); });
+
+  /* ---------- the problem and the platform as one scene drawn in code ----------
+     Thirteen parties drift in the dark with red, broken data between them; consequences flash up as warnings.
+     The Aether Nexus core lights up and pulls everyone into one contour, the data turns into steady cyan streams
+     and the warnings are struck out. The camera dives through the core into the platform: twelve modules on three
+     rings around one axis, lit one by one by the scroll. Streams, rotation and dust keep moving on their own,
+     so a stopped scroll never looks like a still picture. */
+  var ST = (function(){
+    var sec = $('#story'), cv = $('#storyCv'), ctx = cv.getContext('2d'), W = 1, H = 1, DPR = 1, rnd = mulberry(21), small = innerWidth < 760, bg = null;
+    function glow(rgb){ var c = document.createElement('canvas'), s = 64; c.width = c.height = s; var g = c.getContext('2d'), gr = g.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
+      gr.addColorStop(0, 'rgba(' + rgb + ',1)'); gr.addColorStop(0.16, 'rgba(' + rgb + ',0.6)'); gr.addColorStop(0.45, 'rgba(' + rgb + ',0.13)'); gr.addColorStop(1, 'rgba(' + rgb + ',0)');
+      g.fillStyle = gr; g.fillRect(0, 0, s, s); return c; }
+    var GL = { cyan: glow('75,200,224'), red: glow('224,85,79'), white: glow('225,246,255') };
+    var WHO = ['Владелец', 'Оператор', 'Пилот', 'Производитель', 'Сервисная организация', 'Страховая компания', 'Авиационный орган', 'Поставщик UTM', 'Органы контроля', 'Таможня', 'Финансовые организации', 'Заказчик', 'Инфраструктурные операторы'];
+    var CONS = ['Дублирование данных', 'Ручная обработка', 'Долгие согласования', 'Нет прозрачности', 'Нет единой истории БВС', 'Трудно масштабировать', 'Нагрузка на госорганы', 'Сложная интеграция'];
+    var CN = [1, 4, 7, 10, 2, 5, 8, 11];
+    var nodes = WHO.map(function(w, i){ var a = i / WHO.length * Math.PI * 2;
+      return { name: w, c: [(rnd() - 0.5) * 980, (rnd() - 0.5) * 720, (rnd() - 0.5) * 980], o: [Math.cos(a), 0, Math.sin(a)], ph: rnd() * 6.28, w: [0, 0, 0], s: null }; });
+    var pairs = []; for (var i = 0; i < 26; i++){ var a = Math.floor(rnd() * 13), b = Math.floor(rnd() * 13); if (a !== b) pairs.push([a, b, rnd() * 6.28]); }
+    var dust = []; for (i = 0; i < (small ? 260 : 640); i++){ var th = rnd() * 6.28, fi = Math.acos(2 * rnd() - 1), r = 520 + rnd() * 1250; dust.push([Math.sin(fi) * Math.cos(th) * r, Math.cos(fi) * r * 0.6, Math.sin(fi) * Math.sin(th) * r, 0.35 + rnd() * 0.65]); }
+    function spawn(k, order, initial){ k.ord = rnd() < order; k.a = Math.floor(rnd() * 13); do { k.b = Math.floor(rnd() * 13); } while (k.b === k.a);
+      k.u = initial ? rnd() : 0; k.sp = 0.00016 + rnd() * 0.0003; k.lost = !k.ord && rnd() < 0.35 ? 0.3 + rnd() * 0.45 : 2; k.j = rnd() * 6.28; return k; }
+    var packs = []; for (i = 0; i < (small ? 130 : 300); i++) packs.push(spawn({}, 0, true));
+    var ringRot = [0, 0.55, 1.1], st = { p: 0, on: false }, cam = { yaw: 0, pitch: 0.3, dist: 980, f: 1, cx: 0, cy: 0 }, last = 0;
+    var e = function(a, b){ return smooth(a, b, st.p); }, mix = function(a, b, t){ return a + (b - a) * t; };
+    function P(x, y, z){
+      var cy = Math.cos(cam.yaw), sy = Math.sin(cam.yaw), cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch);
+      var x1 = x * cy - z * sy, z1 = x * sy + z * cy, y1 = y * cp + z1 * sp, z2 = z1 * cp - y * sp, d = z2 + cam.dist;
+      if (d < 40) return null; var k = cam.f / d; return [cam.cx + x1 * k, cam.cy - y1 * k, k, d];
+    }
+    function sprite(img, s, size, alpha){ if (!s || alpha < 0.01) return; ctx.globalAlpha = Math.min(1, alpha); ctx.drawImage(img, s[0] - size / 2, s[1] - size / 2, size, size); }
+    function poly(pts, close){ var started = false; ctx.beginPath(); for (var i = 0; i < pts.length; i++){ var s = pts[i]; if (!s){ started = false; continue; } if (!started){ ctx.moveTo(s[0], s[1]); started = true; } else ctx.lineTo(s[0], s[1]); } if (close && pts[0] && pts[pts.length - 1]) ctx.lineTo(pts[0][0], pts[0][1]); ctx.stroke(); }
+    function ring(cx, cy, cz, rad, tiltX, rot, segs){ var out = []; for (var i = 0; i <= segs; i++){ var a = i / segs * Math.PI * 2 + rot, x = Math.cos(a) * rad, z = Math.sin(a) * rad, y = z * Math.sin(tiltX), zz = z * Math.cos(tiltX); out.push(P(cx + x, cy + y, cz + zz)); } return out; }
+    function size(){ var r = cv.getBoundingClientRect(); DPR = Math.min(devicePixelRatio || 1, small ? 1.5 : 1.75); W = Math.max(1, r.width); H = Math.max(1, r.height);
+      cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR); bg = null; }
+    function draw(now){
+      var t = reduce ? 0 : now, dt = reduce ? 0 : Math.min(50, Math.max(0, now - (last || now))); last = now;
+      var wide = W > H * 1.05; ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+      cam.cx = W * (wide ? 0.63 : 0.5); cam.cy = H * (wide ? 0.54 : 0.68); cam.f = Math.min(W * (wide ? 0.62 : 1.1), H * 1.15);
+      if (!bg){ bg = ctx.createRadialGradient(cam.cx, cam.cy, 0, cam.cx, cam.cy, Math.max(W, H) * 0.85); bg.addColorStop(0, '#0c1a24'); bg.addColorStop(0.55, '#071017'); bg.addColorStop(1, '#04070a'); }
+      ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+      // timeline
+      var K = e(0.3, 0.42), core = e(0.27, 0.34), dive = e(0.46, 0.54), plat = e(0.5, 0.58), exp = e(0.52, 0.63), fin = e(0.97, 1), P1 = 1 - dive;
+      cam.yaw = t * 0.00005 + st.p * 2.4; cam.pitch = 0.3 + 0.2 * plat;
+      cam.dist = mix(mix(mix(1000, 860, K), 230, dive), 820, plat);
+      ctx.globalCompositeOperation = 'lighter';
+      // dust: depth that turns with the camera
+      for (var i = 0; i < dust.length; i++){ var d = dust[i], s = P(d[0], d[1], d[2]); if (!s) continue; var al = d[3] * Math.min(1, s[2] * 2.2) * 0.55; if (al < 0.02) continue;
+        ctx.globalAlpha = al; ctx.fillStyle = '#9fd8ea'; var sz = Math.max(0.6, 1.6 * s[2] * 1.4); ctx.fillRect(s[0], s[1], sz, sz); }
+      // a polar grid on the plane of the contour: airspace as structure
+      var gv = 0.9 * K * P1 + 0.7 * plat; if (gv > 0.01){ ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(75,200,224,' + (0.09 * gv).toFixed(3) + ')';
+        for (var rr = 150; rr <= 900; rr += 150) poly(ring(0, plat > 0.5 ? -200 * exp : 0, 0, rr, 0, 0, 96), false);
+        for (var sp = 0; sp < 24; sp++){ var aa = sp / 24 * Math.PI * 2; poly([P(Math.cos(aa) * 150, 0, Math.sin(aa) * 150), P(Math.cos(aa) * 900, 0, Math.sin(aa) * 900)]); } }
+      // node positions: scattered → one ring that later opens wide as the camera passes through
+      var R = 300 + 620 * dive;
+      for (i = 0; i < nodes.length; i++){ var n = nodes[i], k = smooth(0, 1, (st.p - 0.3 - i * 0.006) / 0.12), wob = (1 - k) * 26;
+        n.k = k; n.w[0] = mix(n.c[0], n.o[0] * R, k) + Math.sin(t * 0.0006 + n.ph) * wob; n.w[1] = mix(n.c[1], 0, k) + Math.cos(t * 0.0005 + n.ph) * wob; n.w[2] = mix(n.c[2], n.o[2] * R, k) + Math.sin(t * 0.0004 + n.ph * 2) * wob;
+        n.s = P(n.w[0], n.w[1], n.w[2]); }
+      // broken links between parties: red, flickering, gone once the contour forms
+      var lv = 0.42 * (1 - K) * P1; if (lv > 0.01){ ctx.setLineDash([3, 6]); ctx.lineWidth = 1;
+        for (i = 0; i < pairs.length; i++){ var A = nodes[pairs[i][0]].s, B = nodes[pairs[i][1]].s; if (!A || !B) continue; var fl = 0.55 + 0.45 * Math.sin(t * 0.004 + pairs[i][2]);
+          ctx.strokeStyle = 'rgba(224,85,79,' + (lv * fl).toFixed(3) + ')'; ctx.beginPath(); ctx.moveTo(A[0], A[1]); ctx.lineTo(B[0], B[1]); ctx.stroke(); }
+        ctx.setLineDash([]); }
+      // data packets: red and lost in the chaos, cyan streams into the core once it exists
+      if (P1 > 0.01){ ctx.lineWidth = 1.6; ctx.lineCap = 'round';
+        for (i = 0; i < packs.length; i++){ var q = packs[i]; q.u += q.sp * dt * (q.ord ? 1.3 : 1);
+          if (q.u >= 1 || q.u >= q.lost + 0.12) spawn(q, core > 0.5 ? K : 0, false);
+          var a0 = nodes[q.a].w, pa, pb;
+          var pos = function(u){ if (q.ord){ var m = 1 - u, cx = a0[0] * 0.5, cy = 160, cz = a0[2] * 0.5; return [m * m * a0[0] + 2 * m * u * cx, m * m * a0[1] + 2 * m * u * cy, m * m * a0[2] + 2 * m * u * cz]; }
+            var b0 = nodes[q.b].w, j = Math.sin(u * 9 + q.j) * 22; return [mix(a0[0], b0[0], u), mix(a0[1], b0[1], u) + j, mix(a0[2], b0[2], u)]; };
+          var uu = Math.min(q.u, q.lost); pa = pos(Math.max(0, uu - 0.06)); pb = pos(uu);
+          var sa = P(pa[0], pa[1], pa[2]), sb = P(pb[0], pb[1], pb[2]); if (!sa || !sb) continue;
+          var fade = q.u > q.lost ? 1 - (q.u - q.lost) / 0.12 : 1, alp = P1 * fade * (q.ord ? 0.95 : 0.75);
+          ctx.globalAlpha = Math.max(0, alp); ctx.strokeStyle = q.ord ? '#7fe3f5' : (q.lost < 2 ? '#e0554f' : '#e0b34f');
+          ctx.beginPath(); ctx.moveTo(sa[0], sa[1]); ctx.lineTo(sb[0], sb[1]); ctx.stroke();
+          if (q.ord) sprite(GL.cyan, sb, 10 + 18 * sb[2], alp * 0.8); else if (q.lost < 2 && q.u > q.lost) sprite(GL.red, sb, 26 * sb[2] + 8, 0.6 * fade * P1);
+        } }
+      // the core: a light with three turning rings; it grows into the platform's axis
+      if (core > 0.01){ var cs = P(0, 0, 0), rc = 62 * core;
+        if (cs){ sprite(GL.cyan, cs, rc * 7 * cs[2] * (1 + 0.05 * Math.sin(t * 0.003)), 0.9 * core); sprite(GL.white, cs, rc * 2.2 * cs[2], core); }
+        ctx.lineWidth = 1.4; for (var g = 0; g < 3; g++){ ctx.strokeStyle = 'rgba(120,225,245,' + (0.55 * core).toFixed(3) + ')'; poly(ring(0, 0, 0, rc * (1.5 + g * 0.35), 0.5 + g * 0.9, t * 0.0008 * (g % 2 ? -1 : 1) + g, 72), false); }
+        if (cs && plat < 0.5 && core > 0.6){ ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = (core - 0.6) / 0.4 * P1; ctx.fillStyle = '#bfefff'; ctx.font = '500 11px "IBM Plex Mono", monospace'; ctx.textAlign = 'center';
+          ctx.fillText('AETHER NEXUS', cs[0], cs[1] + rc * cs[2] * 2.6 + 16); ctx.textAlign = 'left'; ctx.globalCompositeOperation = 'lighter'; } }
+      // the parties: red while apart, cyan once in the contour
+      for (i = 0; i < nodes.length; i++){ var nn = nodes[i], s2 = nn.s; if (!s2) continue; var rk = nn.k;
+        sprite(rk > 0.5 ? GL.cyan : GL.red, s2, (28 + 10 * Math.sin(t * 0.002 + nn.ph)) * s2[2] * 1.6 + 10, 0.85 * P1);
+        sprite(GL.white, s2, 9 * s2[2] * 1.6 + 3, P1); }
+      ctx.globalCompositeOperation = 'source-over';
+      for (i = 0; i < nodes.length; i++){ var n3 = nodes[i], s3 = n3.s; if (!s3) continue; var la = P1 * (0.5 + 0.5 * Math.min(1, s3[2] * 1.4));
+        if (small && n3.k < 0.5) la *= 0.75; if (la < 0.03) continue;
+        ctx.globalAlpha = la; ctx.fillStyle = n3.k > 0.5 ? '#d9f4fb' : '#f0c9c5'; ctx.font = '400 ' + Math.round(11 + 3 * Math.min(1, s3[2] * 1.2)) + 'px Inter, system-ui, sans-serif'; ctx.fillText(n3.name, s3[0] + 12, s3[1] + 4); }
+      // consequences flash up as warnings, then are struck out as the contour forms
+      ctx.font = '500 ' + (small ? 10.5 : 12) + 'px Inter, system-ui, sans-serif';
+      for (var j = 0; j < CONS.length; j++){ var ap = 0.14 + j * 0.018, vp = 0.31 + j * 0.012, al2 = e(ap, ap + 0.02) * (1 - e(vp + 0.025, vp + 0.06)) * P1; if (al2 < 0.02) continue;
+        var nd = nodes[CN[j]].s; if (!nd) continue; var tx = nd[0] + 18, ty = nd[1] - 34 - (j % 2) * 18, tw = ctx.measureText(CONS[j]).width + 34, fix = e(vp, vp + 0.025);
+        ctx.globalAlpha = al2; ctx.strokeStyle = fix > 0.5 ? 'rgba(75,200,224,.9)' : 'rgba(224,85,79,.95)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(nd[0], nd[1]); ctx.lineTo(tx, ty + 12); ctx.stroke();
+        ctx.fillStyle = fix > 0.5 ? 'rgba(6,30,38,.82)' : 'rgba(46,10,10,.82)'; ctx.fillRect(tx, ty, tw, 24); ctx.strokeRect(tx + 0.5, ty + 0.5, tw - 1, 23);
+        ctx.fillStyle = fix > 0.5 ? '#4bc8e0' : '#ff6a61'; ctx.fillText(fix > 0.5 ? '✓' : '!', tx + 10, ty + 16);
+        ctx.fillStyle = fix > 0.5 ? '#a9dce8' : '#ffd7d3'; ctx.fillText(CONS[j], tx + 24, ty + 16);
+        if (fix > 0){ ctx.strokeStyle = 'rgba(120,225,245,.95)'; ctx.beginPath(); ctx.moveTo(tx + 22, ty + 12); ctx.lineTo(tx + 22 + (tw - 30) * fix, ty + 12); ctx.stroke(); } }
+      // the platform: twelve modules on three rings around one axis
+      if (plat > 0.01){ ctx.globalCompositeOperation = 'lighter'; var labels = [];
+        var m = st.p >= 0.61 ? Math.min(11, Math.floor((st.p - 0.61) / 0.37 * 12)) : -1;
+        var ax0 = P(0, -320 * exp, 0), ax1 = P(0, 320 * exp, 0); if (ax0 && ax1){ ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(120,225,245,' + (0.6 * plat).toFixed(3) + ')'; ctx.beginPath(); ctx.moveTo(ax0[0], ax0[1]); ctx.lineTo(ax1[0], ax1[1]); ctx.stroke(); }
+        for (var pu = 0; pu < 6; pu++){ var yy = ((t * 0.00025 + pu / 6) % 1) * 640 - 320, sp2 = P(0, yy * exp, 0); sprite(GL.white, sp2, 16 * (sp2 ? sp2[2] : 0) * 2 + 4, 0.8 * plat); }
+        for (var rg = 0; rg < 3; rg++){ var ry = (1 - rg) * 190 * exp, rad = 30 + 270 * exp;
+          if (m >= 0 && (m >> 2) === rg){ var want = -cam.yaw - 0.75 - (m % 4) * Math.PI / 2, dif = Math.atan2(Math.sin(want - ringRot[rg]), Math.cos(want - ringRot[rg])); ringRot[rg] += dif * Math.min(1, dt * 0.004 + (reduce ? 1 : 0)); }
+          else ringRot[rg] += dt * 0.00006 * (rg === 1 ? -1 : 1);
+          var rot = ringRot[rg];
+          ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(75,200,224,' + (0.05 * plat).toFixed(3) + ')'; var pts = ring(0, ry, 0, rad, 0, 0, 96); poly(pts, false);
+          ctx.lineWidth = 1.2; ctx.strokeStyle = 'rgba(120,225,245,' + (0.4 * plat).toFixed(3) + ')'; poly(pts, false);
+          for (var sl = 0; sl < 4; sl++){ var mi = rg * 4 + sl, an = sl / 4 * Math.PI * 2 + rot, mx = Math.cos(an) * rad, mz = Math.sin(an) * rad, ms = P(mx, ry, mz), hub = P(0, ry, 0); if (!ms) continue;
+            var act = mi === m, done = m >= 0 && mi < m;
+            if (hub){ ctx.lineWidth = act ? 2 : 1; ctx.strokeStyle = 'rgba(120,225,245,' + ((act ? 0.8 : 0.22) * plat).toFixed(3) + ')'; ctx.beginPath(); ctx.moveTo(ms[0], ms[1]); ctx.lineTo(hub[0], hub[1]); ctx.stroke();
+              var qq = (t * 0.0005 + mi * 0.37) % 1, pp = P(mix(mx, 0, qq), ry, mix(mz, 0, qq)); sprite(GL.cyan, pp, 14 * (pp ? pp[2] : 0) * 2 + 4, (act ? 1 : 0.5) * plat); }
+            sprite(act ? GL.white : GL.cyan, ms, (act ? 70 : done ? 34 : 24) * ms[2] * 1.5 + 8, (act ? 1 : done ? 0.75 : 0.45) * plat);
+            if (act) sprite(GL.cyan, ms, 150 * ms[2] * 1.5, 0.5 * plat);
+            ms.mi = mi; ms.act = act; ms.done = done; labels.push(ms); } }
+        ctx.globalCompositeOperation = 'source-over';
+        labels.forEach(function(s4){ ctx.globalAlpha = plat * (s4.act ? 1 : s4.done ? 0.8 : 0.5); ctx.fillStyle = s4.act ? '#ffffff' : '#bfe6f0';
+          ctx.font = (s4.act ? '500 ' + (small ? 14 : 17) : '400 ' + (small ? 10.5 : 12)) + 'px Inter, system-ui, sans-serif'; if (!small || s4.act){ var lw = ctx.measureText(MODS[s4.mi][0]).width, lx = s4[0] + (s4.act ? 18 : 12); if (lx + lw > W - 16) lx = s4[0] - (s4.act ? 18 : 12) - lw; ctx.fillText(MODS[s4.mi][0], lx, s4[1] + 5); } });
+      }
+      // passing through the core: a short flash; at the very end the scene goes dark into the next block
+      ctx.globalCompositeOperation = 'source-over';
+      var fl2 = smooth(0.48, 0.5, st.p) * (1 - smooth(0.5, 0.522, st.p)); if (fl2 > 0.01){ var fg = ctx.createRadialGradient(cam.cx, cam.cy, 0, cam.cx, cam.cy, Math.max(W, H) * 0.7); fg.addColorStop(0, 'rgba(235,250,255,0.95)'); fg.addColorStop(0.35, 'rgba(120,220,245,0.45)'); fg.addColorStop(1, 'rgba(75,200,224,0)');
+        ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = fl2; ctx.fillStyle = fg; ctx.fillRect(0, 0, W, H); ctx.globalCompositeOperation = 'source-over'; }
+      if (fin > 0.01){ ctx.globalAlpha = fin; ctx.fillStyle = '#04070a'; ctx.fillRect(0, 0, W, H); }
+      ctx.globalAlpha = 1;
+    }
+    // text beside the scene follows the same timeline
+    var consLi = $$('#cons2 li'), statB = $$('#stats b'), STAT = [13, 18, 9, 8], mNum = $('#mNum'), mTitle = $('#mTitle'), mText = $('#mText'), ticks = $('#ticks'), curM = -2;
+    ticks.innerHTML = MODS.map(function(){ return '<i></i>'; }).join(''); var tickI = $$('#ticks i');
+    function set(p){ st.p = p;
+      consLi.forEach(function(li, j){ var ap = 0.14 + j * 0.018, vp = 0.31 + j * 0.012; li.classList.toggle('bad', p >= ap && p < vp); li.classList.toggle('fixed', p >= vp); });
+      var c = smooth(0.4, 0.45, p); statB.forEach(function(b, i){ b.textContent = Math.round(STAT[i] * c) + (i === 0 ? '+' : ''); });
+      var m = p >= 0.61 ? Math.min(11, Math.floor((p - 0.61) / 0.37 * 12)) : 0;
+      if (m !== curM){ curM = m; mNum.textContent = ('0' + (m + 1)).slice(-2) + ' / 12'; mTitle.textContent = MODS[m][0]; mText.textContent = MODS[m][1]; tickI.forEach(function(el, i){ el.classList.toggle('on', i <= m); }); }
+    }
+    return { size: size, draw: draw, set: set, st: st, sec: sec };
+  })();
+
+  /* ---------- Kazakhstan: the outline is drawn, a grid of airspace cells grows from Astana, routes light up ----------
+     Not the dotted map of the 07.10 trial: the country lies as a plane seen in perspective, hexagonal cells rise on it
+     as columns in a wave from Astana, arcs join the cities with lights running along them, and the camera finally
+     dives to Astana, handing over to the Aether Grid block. An illustration of the principle, not a working network. */
+  var KZ = (function(){
+    var mix = function(a, b, t){ return a + (b - a) * t; }, sec = $('#kz'), cv = $('#kzCv'), ctx = cv.getContext('2d'), W = 1, H = 1, DPR = 1, small = innerWidth < 760, p = 0, last = 0;
+    var RAW = [70.95,42.25,70.76,42.19,70.66,42.11,70.58,42.04,70.49,42.08,70.33,42.03,70.1,41.82,69.79,41.7,69.57,41.63,69.37,41.49,69.15,41.43,69.04,41.26,68.85,41.12,68.66,40.96,68.56,40.83,68.59,40.71,68.57,40.62,68.42,40.62,68.16,40.72,68.05,40.81,68.09,40.96,68.06,41.06,67.99,41.13,67.87,41.18,67.74,41.19,67.37,41.17,67.04,41.15,66.75,41.16,66.67,41.27,66.6,41.49,66.54,41.74,66.5,41.99,66.19,42,66.01,42.09,66.02,42.31,66.06,42.61,66.09,42.87,66.01,42.95,65.8,42.88,65.67,43.06,65.5,43.31,65.27,43.42,65.08,43.57,64.91,43.71,64.71,43.65,64.5,43.57,64.32,43.56,64.01,43.58,63.68,43.6,63.21,43.63,62.85,43.58,62.46,43.54,62.07,43.49,61.89,43.58,61.62,43.8,61.39,43.99,61.16,44.17,61.07,44.35,60.88,44.46,60.6,44.59,60.33,44.72,60.05,44.85,59.77,44.98,59.5,45.11,59.22,45.24,58.95,45.38,58.67,45.51,58.45,45.54,58.13,45.47,57.67,45.38,57.33,45.3,56.97,45.22,56.59,45.13,56.26,45.06,55.98,44.99,55.98,44.54,55.98,44.08,55.98,43.62,55.98,43.16,55.98,42.7,55.98,42.24,55.98,41.78,55.98,41.32,55.84,41.31,55.55,41.26,55.43,41.3,55.32,41.41,55.16,41.56,54.95,41.81,54.9,41.92,54.68,42.08,54.27,42.28,54.12,42.34,53.93,42.33,53.5,42.26,53.06,42.15,52.87,42.06,52.49,41.78,52.46,42.05,52.52,42.24,52.62,42.43,52.6,42.76,52.49,42.82,52.32,42.82,52.18,42.87,52.02,42.86,51.9,42.87,51.81,42.95,51.7,43.1,51.51,43.17,51.3,43.17,51.31,43.36,51.3,43.48,51.24,43.58,51.06,43.75,50.83,44.19,50.68,44.27,50.33,44.33,50.25,44.41,50.26,44.53,50.41,44.62,50.86,44.63,51.11,44.51,51.31,44.53,51.54,44.53,51.43,44.6,51.31,44.62,51.06,44.81,51.01,44.92,51.15,45.04,51.29,45.23,51.42,45.36,51.73,45.4,52.43,45.4,52.77,45.34,53.08,45.31,53.09,45.41,52.77,45.57,53.04,45.97,53.11,46.41,53.08,46.55,53.17,46.67,53.07,46.86,52.92,46.95,52.48,46.99,52.38,46.92,52.19,46.84,52.09,46.84,51.95,46.89,51.65,47.02,51.29,47.1,50.92,47.04,50.68,46.94,50.53,46.87,50.42,46.88,50.1,46.7,49.89,46.6,49.63,46.57,49.44,46.54,49.34,46.49,49.29,46.44,49.23,46.34,48.96,46.44,48.61,46.57,48.54,46.61,48.5,46.7,48.56,46.76,48.65,46.76,48.78,46.71,48.95,46.73,48.83,46.95,48.6,47.26,48.41,47.46,48.17,47.71,47.93,47.76,47.48,47.8,47.29,47.74,47.13,47.88,47.11,48.02,47.06,48.23,46.85,48.32,46.61,48.57,46.85,48.97,47.01,49.1,47.02,49.2,46.85,49.3,46.82,49.5,46.99,49.85,47.25,50,47.3,50.14,47.33,50.27,47.43,50.36,47.6,50.41,47.85,50.28,48.18,49.97,48.33,49.86,48.6,49.87,48.81,49.96,48.82,50.1,48.75,50.23,48.67,50.55,48.66,50.62,48.81,50.6,49.06,50.73,49.38,50.93,49.5,51.08,49.82,51.13,50.1,51.25,50.31,51.32,50.52,51.51,50.76,51.68,50.88,51.72,51.16,51.65,51.29,51.54,51.34,51.48,51.47,51.48,51.78,51.55,52.22,51.71,52.42,51.59,52.57,51.48,52.64,51.48,52.74,51.5,52.9,51.47,53.23,51.48,53.34,51.48,53.53,51.4,53.78,51.21,54.04,51.12,54.19,51,54.42,50.78,54.47,50.58,54.56,50.54,54.64,50.59,54.64,50.78,54.57,50.91,54.57,50.99,54.73,51,55.01,50.87,55.36,50.67,55.69,50.58,55.93,50.65,56.1,50.78,56.33,50.94,56.57,51,56.79,51.03,57.01,51.07,57.31,50.95,57.56,50.9,57.72,50.98,57.83,51.09,58.05,51.07,58.19,51.08,58.55,50.97,58.81,50.74,58.98,50.68,59.17,50.65,59.5,50.6,59.5,50.51,59.75,50.54,59.89,50.69,60.01,50.84,60.11,50.83,60.29,50.7,60.51,50.67,60.94,50.7,61.39,50.86,61.51,51.14,61.55,51.32,61.36,51.44,60.99,51.53,60.63,51.62,60.42,51.7,60.28,51.83,60.03,51.93,60.23,52.02,60.5,52.15,60.83,52.23,60.99,52.34,60.82,52.57,60.8,52.74,60.94,52.86,61.05,52.97,61.4,53,61.72,52.97,61.97,52.94,62.08,53.01,62.01,53.11,61.66,53.23,61.44,53.24,61.2,53.29,61.19,53.41,61.31,53.47,61.5,53.48,61.53,53.52,61.47,53.58,61.34,53.57,61.1,53.58,60.99,53.66,61.11,53.75,61.11,53.88,61.23,54.02,61.6,53.99,61.99,53.95,62.04,54,62.59,54.04,63.07,54.11,63.19,54.17,63.41,54.18,63.7,54.24,63.85,54.24,64.04,54.28,64.2,54.35,64.53,54.36,64.81,54.37,65,54.37,65.16,54.36,65.24,54.52,65.38,54.56,65.48,54.62,65.91,54.69,66.22,54.67,66.75,54.74,67.26,54.83,67.69,54.87,67.94,54.95,68.16,54.98,68.24,55.05,68.21,55.16,68.44,55.19,68.71,55.31,68.98,55.39,69.49,55.36,69.87,55.25,70.09,55.18,70.29,55.18,70.42,55.25,70.74,55.31,70.91,55.13,71.13,54.72,71.16,54.54,71.15,54.36,71.09,54.21,71.68,54.18,72,54.21,72.11,54.31,72.27,54.27,72.39,54.12,72.4,53.96,72.53,53.98,72.6,54.02,72.56,54.09,72.62,54.13,72.91,54.11,73.23,53.96,73.38,53.96,73.59,54.04,73.67,54.06,73.72,54,73.55,53.87,73.31,53.71,73.33,53.54,73.37,53.45,73.47,53.47,73.73,53.6,74.07,53.61,74.28,53.53,74.4,53.5,74.43,53.6,74.68,53.75,74.89,53.83,75.05,53.83,75.38,53.97,75.4,54.07,75.66,54.11,75.88,54.17,76.27,54.31,76.54,54.35,76.76,54.44,76.79,54.32,76.65,54.15,76.42,54.11,76.48,54.02,76.58,53.94,77.13,53.67,77.7,53.38,77.86,53.27,78.2,52.93,78.72,52.36,79.15,51.87,79.55,51.38,79.86,50.96,80.07,50.76,80.09,50.84,80.22,50.91,80.35,50.92,80.45,51,80.42,51.14,80.49,51.2,80.61,51.22,80.74,51.29,80.88,51.28,80.97,51.19,81.13,51.19,81.11,51.07,81.07,50.97,81.32,50.97,81.41,50.91,81.45,50.82,81.47,50.74,81.75,50.76,82.1,50.71,82.33,50.74,82.61,50.77,82.72,50.87,82.92,50.89,83.09,50.96,83.27,50.99,83.58,50.94,83.86,50.82,84,50.68,84.18,50.52,84.26,50.29,84.4,50.24,84.61,50.2,84.92,50.09,85,50.01,85,49.89,85.14,49.75,85.23,49.62,85.37,49.62,85.88,49.56,85.97,49.5,86.09,49.51,86.24,49.55,86.42,49.64,86.61,49.77,86.73,49.75,86.67,49.66,86.63,49.56,86.81,49.49,87,49.29,87.15,49.24,87.3,49.15,87.23,49.11,86.94,49.1,86.81,49.05,86.73,48.94,86.72,48.7,86.55,48.53,86.37,48.49,86.06,48.42,85.75,48.39,85.65,48.25,85.56,48.05,85.56,47.75,85.59,47.49,85.67,47.34,85.58,47.19,85.48,47.06,85.23,47.04,85.01,46.91,84.79,46.83,84.72,46.94,84.59,46.97,84.34,47,84.12,46.98,83.83,47,83.63,47.04,83.19,47.19,83.03,47.19,83,47.03,82.8,46.62,82.56,46.16,82.43,45.81,82.32,45.59,82.33,45.52,82.58,45.44,82.63,45.37,82.6,45.22,82.52,45.13,82.4,45.16,82.27,45.22,81.99,45.16,81.87,45.18,81.76,45.31,81.6,45.31,81.04,45.17,80.78,45.14,80.51,45.1,80.23,45.03,79.95,44.94,79.88,44.86,80,44.8,80.26,44.81,80.46,44.75,80.46,44.68,80.38,44.66,80.36,44.55,80.35,44.33,80.36,44.17,80.4,44.05,80.5,43.89,80.65,43.56,80.67,43.35,80.73,43.27,80.79,43.16,80.75,43.1,80.51,43.09,80.37,43.02,80.38,42.97,80.54,42.91,80.42,42.86,80.2,42.73,80.16,42.63,80.21,42.4,80.26,42.24,80.21,42.19,79.92,42.41,79.6,42.46,79.43,42.48,79.3,42.6,79.16,42.76,79.06,42.76,78.89,42.77,78.64,42.83,78.38,42.87,78.02,42.86,77.62,42.9,77.46,42.9,77.24,42.91,76.99,42.97,76.65,42.93,76.22,42.92,75.84,42.94,75.68,42.83,75.37,42.84,74.82,42.98,74.36,43.18,74.19,43.21,74.09,43.19,73.89,43.13,73.61,43.05,73.45,42.7,73.49,42.41,73.32,42.47,73.19,42.53,72.79,42.6,72.67,42.66,72.28,42.76,71.82,42.82,71.73,42.82,71.51,42.77,71.26,42.73,71.09,42.59,71,42.46,70.89,42.34,70.95,42.25], S = 50, LON0 = 66.9, LAT0 = 48.2, CL = Math.cos(48 * Math.PI / 180);
+    function geo(lon, lat){ return [(lon - LON0) * S * CL, (lat - LAT0) * S]; }
+    var outline = []; for (var i = 0; i < RAW.length; i += 2) outline.push(geo(RAW[i], RAW[i + 1]));
+    function inside(x, z){ var c = false; for (var i = 0, j = outline.length - 1; i < outline.length; j = i++){ var a = outline[i], b = outline[j]; if ((a[1] > z) !== (b[1] > z) && x < (b[0] - a[0]) * (z - a[1]) / (b[1] - a[1]) + a[0]) c = !c; } return c; }
+    var CITIES = [['Астана', 71.45, 51.17, 1], ['Алматы', 76.89, 43.24, 1], ['Шымкент', 69.59, 42.34, 1], ['Актобе', 57.17, 50.28, 1], ['Караганда', 73.10, 49.81, 1], ['Атырау', 51.92, 47.10, 1], ['Усть-Каменогорск', 82.61, 49.95, 1], ['Павлодар', 76.95, 52.29, 1], ['Костанай', 63.62, 53.21, 1], ['Актау', 51.20, 43.65, 1],
+      ['Уральск', 51.37, 51.23, 0], ['Петропавловск', 69.15, 54.87, 0], ['Кызылорда', 65.51, 44.85, 0], ['Тараз', 71.37, 42.90, 0], ['Семей', 80.25, 50.41, 0], ['Жезказган', 67.71, 47.80, 0]].map(function(c){ var g = geo(c[1], c[2]); return { n: c[0], x: g[0], z: g[1], big: c[3] }; });
+    var by = {}; CITIES.forEach(function(c){ by[c.n] = c; }); var AST = by['Астана'];
+    var ROUTES = [['Астана', 'Алматы'], ['Астана', 'Шымкент'], ['Астана', 'Актобе'], ['Астана', 'Караганда'], ['Астана', 'Атырау'], ['Астана', 'Усть-Каменогорск'], ['Астана', 'Павлодар'], ['Астана', 'Костанай'], ['Астана', 'Уральск'], ['Астана', 'Петропавловск'],
+      ['Алматы', 'Шымкент'], ['Атырау', 'Актау'], ['Караганда', 'Жезказган'], ['Семей', 'Усть-Каменогорск'], ['Кызылорда', 'Шымкент'], ['Тараз', 'Алматы']].map(function(r, k){ var a = by[r[0]], b = by[r[1]], d = Math.hypot(a.x - b.x, a.z - b.z); return { a: a, b: b, h: 40 + d * 0.22, k: k / 16 }; });
+    // hexagonal cells inside the border, flat-topped, with a height and a distance from Astana for the wave
+    var sz = small ? 30 : 21, cells = [], minX = 1e9, maxX = -1e9, minZ = 1e9, maxZ = -1e9, rnd = mulberry(77), dmax = 0;
+    outline.forEach(function(q){ minX = Math.min(minX, q[0]); maxX = Math.max(maxX, q[0]); minZ = Math.min(minZ, q[1]); maxZ = Math.max(maxZ, q[1]); });
+    var HX = []; for (i = 0; i < 6; i++){ var an = i / 6 * Math.PI * 2; HX.push([Math.cos(an) * sz * 0.92, Math.sin(an) * sz * 0.92]); }
+    for (var c = 0, x = minX; x <= maxX; x += sz * 1.5, c++) for (var z = minZ + (c % 2 ? sz * 0.866 : 0); z <= maxZ; z += sz * 1.732){ if (!inside(x, z)) continue;
+      var d = Math.hypot(x - AST.x, z - AST.z); dmax = Math.max(dmax, d); var n = 0.5 + 0.5 * Math.sin(x * 0.011 + z * 0.017) * Math.cos(x * 0.007 - z * 0.013);
+      cells.push({ x: x, z: z, d: d, h: 6 + n * 46 + rnd() * 8, s: rnd() * 6.28, busy: rnd() < 0.05 }); }
+    cells.sort(function(a, b){ return b.z - a.z; });   // far (north) first
+    var cam = { yaw: 0, pitch: 0.9, dist: 1900, f: 1, cx: 0, cy: 0, tx: 0, tz: 0 };
+    function P(x, y, z){ x -= cam.tx; z -= cam.tz; var cy = Math.cos(cam.yaw), sy = Math.sin(cam.yaw), cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch);
+      var x1 = x * cy - z * sy, z1 = x * sy + z * cy, y1 = y * cp + z1 * sp, z2 = z1 * cp - y * sp, dd = z2 + cam.dist; if (dd < 40) return null; var k = cam.f / dd; return [cam.cx + x1 * k, cam.cy - y1 * k, k, dd]; }
+    function glow(rgb){ var cc = document.createElement('canvas'), s = 64; cc.width = cc.height = s; var g = cc.getContext('2d'), gr = g.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
+      gr.addColorStop(0, 'rgba(' + rgb + ',1)'); gr.addColorStop(0.16, 'rgba(' + rgb + ',0.6)'); gr.addColorStop(0.45, 'rgba(' + rgb + ',0.13)'); gr.addColorStop(1, 'rgba(' + rgb + ',0)'); g.fillStyle = gr; g.fillRect(0, 0, s, s); return cc; }
+    var G = glow('75,200,224'), GW = glow('225,246,255'), GA = glow('224,179,79');
+    function spr(img, s, size, a){ if (!s || a < 0.01) return; ctx.globalAlpha = Math.min(1, a); ctx.drawImage(img, s[0] - size / 2, s[1] - size / 2, size, size); }
+    function arc(r, u){ var m = 1 - u; return [m * r.a.x + u * r.b.x, Math.sin(u * Math.PI) * r.h, m * r.a.z + u * r.b.z]; }
+    function size(){ var rr = cv.getBoundingClientRect(); DPR = Math.min(devicePixelRatio || 1, small ? 1.5 : 1.75); W = Math.max(1, rr.width); H = Math.max(1, rr.height); cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR); }
+    function draw(now){
+      var t = reduce ? 0 : now, dt = reduce ? 0 : Math.min(50, now - (last || now)); last = now; var wide = W > H * 1.05;
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+      var bg = ctx.createRadialGradient(W * 0.6, H * 0.55, 0, W * 0.6, H * 0.55, Math.max(W, H) * 0.85); bg.addColorStop(0, '#0d1d29'); bg.addColorStop(1, '#04070a'); ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+      var tr = smooth(0.0, 0.2, p), wave = smooth(0.14, 0.56, p) * (dmax + 160), rts = smooth(0.5, 0.78, p), dive = smooth(0.8, 0.98, p), fin = smooth(0.95, 1, p), open = smooth(0, 0.6, p);
+      cam.cx = W * (wide ? 0.67 : 0.5); cam.cy = H * (wide ? 0.56 : 0.66); cam.f = Math.min(W * (wide ? 0.5 : 1.15), H * 1.0);
+      cam.tx = AST.x * dive; cam.tz = mix(-40, AST.z, dive); cam.yaw = -0.12 + Math.sin(t * 0.00006) * 0.05 + p * 0.22; cam.pitch = mix(mix(1.0, 0.62, open), 0.8, dive); cam.dist = mix(mix(2000, 1380, open), 230, dive);
+      // the country, faintly filled once its border is drawn
+      var poly = outline.map(function(q){ return P(q[0], 0, q[1]); });
+      if (tr > 0.95){ ctx.fillStyle = 'rgba(75,200,224,' + (0.05 * (tr - 0.95) / 0.05).toFixed(3) + ')'; ctx.beginPath(); var st = false; poly.forEach(function(s){ if (!s) return; if (!st){ ctx.moveTo(s[0], s[1]); st = true; } else ctx.lineTo(s[0], s[1]); }); ctx.closePath(); ctx.fill(); }
+      // cells: columns rising in a wave from Astana, the front of the wave brightest
+      ctx.lineWidth = 1;
+      for (var i = 0; i < cells.length; i++){ var ce = cells[i]; if (ce.d > wave) continue; var ap = Math.min(1, (wave - ce.d) / 140), front = Math.max(0, 1 - Math.abs(wave - ce.d) / 70) * (wave < dmax ? 1 : 0);
+        var h = ce.h * ap * (1 + 0.12 * Math.sin(t * 0.0018 + ce.s)), base = P(ce.x, 0, ce.z), top = P(ce.x, h, ce.z); if (!base || !top) continue;
+        var col = ce.busy ? '224,179,79' : '75,200,224';
+        ctx.globalAlpha = 0.25 * ap; ctx.strokeStyle = 'rgba(' + col + ',.8)'; ctx.beginPath(); ctx.moveTo(base[0], base[1]); ctx.lineTo(top[0], top[1]); ctx.stroke();
+        ctx.beginPath(); for (var k = 0; k < 6; k++){ var q = P(ce.x + HX[k][0], h, ce.z + HX[k][1]); if (!q) continue; if (k === 0) ctx.moveTo(q[0], q[1]); else ctx.lineTo(q[0], q[1]); } ctx.closePath();
+        ctx.globalAlpha = 1; ctx.fillStyle = 'rgba(' + col + ',' + (0.04 + 0.1 * ap + 0.35 * front).toFixed(3) + ')'; ctx.fill();
+        ctx.strokeStyle = 'rgba(' + (front > 0.3 ? '225,246,255' : ce.busy ? '235,195,110' : '127,227,245') + ',' + (0.18 + 0.35 * ap + 0.45 * front).toFixed(3) + ')'; ctx.stroke(); }
+      // the border, traced from the west
+      var nb = Math.round(poly.length * tr); ctx.globalCompositeOperation = 'lighter'; ctx.lineJoin = 'round';
+      [[6, 0.08], [1.6, 0.9]].forEach(function(w){ ctx.lineWidth = w[0]; ctx.strokeStyle = 'rgba(127,227,245,' + w[1] + ')'; ctx.globalAlpha = 1; ctx.beginPath(); var st = false; for (var j = 0; j < nb; j++){ var s = poly[j]; if (!s){ st = false; continue; } if (!st){ ctx.moveTo(s[0], s[1]); st = true; } else ctx.lineTo(s[0], s[1]); } if (tr >= 1 && poly[0]) ctx.lineTo(poly[0][0], poly[0][1]); ctx.stroke(); });
+      if (tr > 0 && tr < 1 && poly[nb - 1]) spr(GW, poly[nb - 1], 30, 1);
+      // routes between cities, with lights running along them
+      ROUTES.forEach(function(r){ var rp = Math.max(0, Math.min(1, (rts - r.k * 0.6) / 0.4)); if (rp <= 0) return; var pts = [], n = 36;
+        for (var s = 0; s <= Math.round(n * rp); s++) pts.push(P.apply(null, arc(r, s / n)));
+        ctx.lineWidth = 1.4; ctx.strokeStyle = 'rgba(150,232,248,.7)'; ctx.globalAlpha = 1; ctx.beginPath(); var st = false; pts.forEach(function(s){ if (!s){ st = false; return; } if (!st){ ctx.moveTo(s[0], s[1]); st = true; } else ctx.lineTo(s[0], s[1]); }); ctx.stroke();
+        if (rp >= 1) for (var q = 0; q < 2; q++){ var u = ((t * 0.00011 + q * 0.5 + r.k * 3) % 1), sp = P.apply(null, arc(r, u)); spr(GW, sp, 12, 0.95); spr(G, sp, 46, 0.5); } });
+      // cities
+      CITIES.forEach(function(ci){ var s = P(ci.x, 0, ci.z); if (!s) return; var isA = ci === AST, a = tr > 0.6 ? 1 : 0;
+        spr(isA ? GW : G, s, (isA ? 26 : 14) + 6 * Math.sin(t * 0.003), a); if (isA){ spr(G, s, 120 + 30 * Math.sin(t * 0.002), 0.6 * a); } });
+      ctx.globalCompositeOperation = 'source-over';
+      if (tr > 0.6) CITIES.forEach(function(ci){ if (!ci.big && small) return; var s = P(ci.x, 0, ci.z); if (!s) return; var isA = ci === AST;
+        ctx.globalAlpha = (isA ? 1 : 0.75) * (1 - dive * (isA ? 0 : 1)); ctx.fillStyle = isA ? '#ffffff' : '#bfe6f0'; ctx.font = (isA ? '500 ' + (small ? 13 : 15) : '400 ' + (small ? 10.5 : 12)) + 'px Inter, system-ui, sans-serif'; ctx.fillText(ci.n, s[0] + (isA ? 14 : 9), s[1] - (isA ? 10 : 6)); });
+      if (fin > 0.01){ ctx.globalAlpha = fin; ctx.fillStyle = '#04070a'; ctx.fillRect(0, 0, W, H); }
+      ctx.globalAlpha = 1;
+    }
+    return { sec: sec, size: size, draw: draw, set: function(v){ p = v; }, on: false };
+  })();
+
+  /* ---------- one place that reads the scroll and sets every scene ---------- */
+  var secIntro = $('#intro'), secStudio = $('#studio'), secGrid = $('#grid'), secLand = $('#landing'), secInd = $('#industries');
+  var gaps = $$('[data-clouds]'), blocks = $$('[data-block]'), hint = $('#hint'), pts = $$('#pts li'), uses = $$('#uses li'), stages = $$('#stages li');
+  // rail of the seven blocks, menu, language
+  var RAIL = [['Вступление', '#intro', 0], ['Аппараты', '#studio', 0.02], ['Проблема', '#story', 0], ['Платформа', '#story', 0.535], ['Карта', '#kz', 0.02], ['Aether Grid', '#grid', 0.05], ['Отрасли', '#industries', 0], ['Этапы и посадка', '#landing', 0.03]];
+  var rail = $('#rail'); rail.innerHTML = RAIL.map(function(r, i){ return '<button type="button" data-i="' + i + '"><span>' + (i + 1) + ' · ' + r[0] + '</span><i></i></button>'; }).join(''); var railBtns = $$('#rail button');
+  function goTo(sel, frac){ var el = $(sel), y = el.offsetTop + frac * Math.max(0, el.offsetHeight - innerHeight); if (lenis) lenis.scrollTo(y, { duration: 1.4 }); else scrollTo(0, y); }
+  railBtns.forEach(function(x, i){ x.addEventListener('click', function(){ goTo(RAIL[i][1], RAIL[i][2]); }); });
+  $$('[data-goto]').forEach(function(a){ a.addEventListener('click', function(e){ e.preventDefault(); $('#mnav').hidden = true; $('#burger').setAttribute('aria-expanded', 'false'); if (a.dataset.goto === 'contacts') goTo('#landing', 0.93); else if (a.dataset.goto === 'platform') goTo('#story', 0.535); else goTo('#intro', 0); }); });
+  var lb = $('#langBtn'), lm = $('#langMenu'); lb.addEventListener('click', function(){ lm.hidden = !lm.hidden; lb.setAttribute('aria-expanded', lm.hidden ? 'false' : 'true'); });
+  var bg2 = $('#burger'), mn = $('#mnav'); bg2.addEventListener('click', function(){ mn.hidden = !mn.hidden; bg2.setAttribute('aria-expanded', mn.hidden ? 'false' : 'true'); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ lm.hidden = true; mn.hidden = true; lb.setAttribute('aria-expanded', 'false'); bg2.setAttribute('aria-expanded', 'false'); } });
+  var gridWin = $('#gridWin'), landWin = $('#landWin'), gridExit = $('#gridExit'), cloudQ = -1, curBlock = null, flSnapT = 0;
+  function says(sec, p){ $$('.say', sec).forEach(function(el){ el.classList.toggle('on', p >= +el.dataset.from && p < +el.dataset.to); }); }
+  // a video block opens as a window in the middle of the screen and grows to full screen as it rises into place
+  function opening(win, sec){ var e = smooth(0, 1, entry(sec)), a = (1 - e) * 13, b = (1 - e) * 19, r = (1 - e) * 14;
+    win.style.clipPath = e >= 0.999 ? 'none' : 'inset(' + a.toFixed(2) + '% ' + b.toFixed(2) + '% ' + a.toFixed(2) + '% ' + b.toFixed(2) + '% round ' + r.toFixed(1) + 'px)'; }
+  function update(){
+    var p1 = prog(secIntro); intro.set(p1); says(secIntro, p1); hint.style.opacity = p1 > 0.02 ? 0 : 1;
+    var p2 = prog(secStudio); studio.set(p2);
+    // magnetic: a rest between two aircraft is pulled to the nearest one, so the screen is never left empty
+    clearTimeout(flSnapT);
+    (function(){ var r = secStudio.getBoundingClientRect(), pinned = r.top <= 1 && r.bottom >= innerHeight - 1;
+      if (!pinned || reduce || !lenis) return;
+      var c = (Math.min(2, Math.floor(p2 * 3)) + 0.5) / 3; if (Math.abs(p2 - c) < 0.085) return;
+      flSnapT = setTimeout(function(){ var q = prog(secStudio), cc = (Math.min(2, Math.floor(q * 3)) + 0.5) / 3;
+        if (Math.abs(q - cc) < 0.085) return;
+        lenis.scrollTo(secStudio.offsetTop + cc * (secStudio.offsetHeight - innerHeight), { duration: 0.8 }); }, 200);
+    })();
+    var pS = prog(ST.sec); ST.set(pS); says(ST.sec, pS); var sr = ST.sec.getBoundingClientRect(); ST.st.on = sr.top < innerHeight && sr.bottom > 0;
+    var pK = prog(KZ.sec); KZ.set(pK); says(KZ.sec, pK); var kr = KZ.sec.getBoundingClientRect(); KZ.on = kr.top < innerHeight && kr.bottom > 0;
+    var p5 = prog(secGrid); gridS.set(p5 / GRID_BUILT); says(secGrid, p5); HUD.p = p5; opening(gridWin, secGrid);
+    var ku = Math.floor(smooth(0.12, 0.8, p5) * uses.length + 0.0001); uses.forEach(function(li, j){ li.classList.toggle('on', j < ku); });
+    gridExit.style.opacity = smooth(0.9, 1, p5).toFixed(3);
+    var pI = prog(secInd), ir = secInd.getBoundingClientRect(), vis = ir.top < innerHeight * 0.6 && ir.bottom > innerHeight * 0.4, ai = Math.min(7, Math.floor(pI * 8 * 0.9999));
+    if (ai !== curInd || vis !== indVisible){ curInd = ai; indVisible = vis; stripEls.forEach(function(el, i){ el.classList.toggle('on', i === ai); }); syncVideos(); }
+    // arriving from above: when the scroll comes to rest with the block partly in view, finish the move so it fills the screen
+    clearTimeout(snapT);
+    if (lenis && lenis.direction !== -1 && ir.top > 2 && ir.top < innerHeight * 0.55) snapT = setTimeout(function(){ var r2 = secInd.getBoundingClientRect(); if (r2.top > 2 && r2.top < innerHeight * 0.55) lenis.scrollTo(secInd, { duration: 0.9 }); }, 180);
+    var p7 = prog(secLand); land.set(p7); says(secLand, p7); opening(landWin, secLand);
+    var ks = Math.min(stages.length - 1, Math.floor(clamp((p7 - 0.06) / 0.74, 0, 0.999) * stages.length)); stages.forEach(function(li, j){ li.classList.toggle('on', j === ks); });
+    // clouds: q runs 0→1 while a cloud spacer crosses the screen
+    cloudQ = -1; gaps.forEach(function(g){ var r = g.getBoundingClientRect(), q = (innerHeight - r.top) / (innerHeight + r.height); if (q > 0 && q < 1) cloudQ = q; });
+    if (reduce) cloudQ = -1;
+    CL.cv.style.visibility = cloudQ >= 0 ? 'visible' : 'hidden';
+    // which block is in the middle of the screen
+    var mid = innerHeight / 2, b = null; blocks.forEach(function(el){ var r = el.getBoundingClientRect(); if (r.top <= mid && r.bottom > mid) b = el; });
+    if (b){ var num = +b.dataset.block; if (b === ST.sec && ST.st.p >= 0.5) num = 4; if (num !== curBlock){ curBlock = num; railBtns.forEach(function(x, i){ x.classList.toggle('on', i === num - 1); }); }  }
+    var hr = secGrid.getBoundingClientRect(); HUD.on = hr.top < innerHeight && hr.bottom > 0; if (!HUD.on) gridLoop(false);
+  }
+  function size(){
+    intro.size(); studio.size(); gridS.size(); land.size(); ST.size(); KZ.size();
+    CL.cv.width = innerWidth; CL.cv.height = innerHeight; HUD.cv.width = HUD.cv.getBoundingClientRect().width || innerWidth; HUD.cv.height = HUD.cv.getBoundingClientRect().height || innerHeight;
+  }
+  addEventListener('resize', function(){ size(); update(); });
+  window.__page = { intro: intro, studio: studio, grid: gridS, land: land, get cloudQ(){ return cloudQ; }, get lenis(){ return lenis; } };   // for the test script
+  size(); update();
+
+  // anchors scroll smoothly too
+  var lenis = null;
+  $$('a[href^="#"]:not([data-goto])').forEach(function(a){ a.addEventListener('click', function(e){ var t = $(a.getAttribute('href')); if (!t) return; e.preventDefault(); if (lenis) lenis.scrollTo(t, { duration: 1.6 }); else t.scrollIntoView(); }); });
+  $$('#strips .pick').forEach(function(b){ b.addEventListener('click', function(){ var i = +b.parentNode.dataset.i, y = secInd.offsetTop + (i + 0.5) / 8 * (secInd.offsetHeight - innerHeight); if (lenis) lenis.scrollTo(y, { duration: 1.2 }); else scrollTo(0, y); }); });
+  if (!reduce && window.Lenis){ try { lenis = new Lenis({ lerp: 0.12, smoothWheel: true }); lenis.on('scroll', update); } catch (e) { lenis = null; } }
+  if (!lenis) addEventListener('scroll', update, { passive: true });
+  // the page opens at its beginning even if the preview window carried a scroll position over (undone until the visitor touches the page)
+  if (!location.hash){ try { history.scrollRestoration = 'manual'; } catch (e) {}
+    var touched = false, mark = function(){ touched = true; }; ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(function(t){ addEventListener(t, mark, { once: true, passive: true }); });
+    var toStart = function(){ if (touched || scrollY < 2) return; if (lenis) lenis.scrollTo(0, { immediate: true, force: true }); else scrollTo(0, 0); };
+    toStart(); [80, 300, 800, 1600].forEach(function(t){ setTimeout(toStart, t); }); addEventListener('load', toStart); }
+  // back to the top, once the page has been scrolled more than a screen down
+  (function(){ var b = document.createElement('button'); b.type = 'button'; b.className = 'totop'; b.setAttribute('aria-label', 'Наверх'); b.title = 'Наверх';
+    b.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3.5M3.5 8 8 3.5 12.5 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square"/></svg>';
+    document.body.appendChild(b);
+    b.addEventListener('click', function(){ if (lenis) lenis.scrollTo(0, { duration: reduce ? 0.01 : 2.2, lock: true, force: true }); else scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); var br = $('.brand'); if (br) br.focus({ preventScroll: true }); });
+    var show = function(){ b.classList.toggle('on', scrollY > innerHeight * 1.1); }; if (lenis) lenis.on('scroll', show); else addEventListener('scroll', show, { passive: true }); show(); })();
+  var t0 = performance.now();
+  (function tick(now){
+    if (lenis) lenis.raf(now);
+    if (cloudQ >= 0) drawClouds(cloudQ, now);
+    if (ST.st.on) ST.draw(now);
+    if (KZ.on) KZ.draw(now);
+    if (HUD.on) drawHud(reduce ? 0 : now);
+    requestAnimationFrame(tick);
+  })(t0);
+})();
+</script>
+<script>
+/* подчёркивание в шапке: едет за курсором, при уходе мыши возвращается к текущему разделу */
+(function(){
+  var nav = document.querySelector('.nav'); if (!nav) return;
+  var links = [].slice.call(nav.querySelectorAll('a')); if (!links.length) return;
+  var ink = document.createElement('i'); ink.className = 'nav-ink'; ink.setAttribute('aria-hidden', 'true'); nav.appendChild(ink);
+  var home = nav.querySelector('a[aria-current="page"]'), cur = null;
+  function move(a){ cur = a || null;
+    if (!a){ ink.style.opacity = '0'; return; }
+    var r = a.getBoundingClientRect(), n = nav.getBoundingClientRect();
+    ink.style.width = r.width.toFixed(1) + 'px'; ink.style.transform = 'translateX(' + (r.left - n.left).toFixed(1) + 'px)'; ink.style.opacity = '1'; }
+  links.forEach(function(a){ a.addEventListener('pointerenter', function(){ move(a); }); a.addEventListener('focus', function(){ move(a); }); });
+  nav.addEventListener('pointerleave', function(){ move(home); });
+  nav.addEventListener('focusout', function(){ setTimeout(function(){ if (!nav.contains(document.activeElement)) move(home); }, 0); });
+  addEventListener('resize', function(){ move(cur || home); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ move(cur || home); });
+  move(home);
+})();
+</script>
+<script>
+
+/* экран ожидания: поле сетки и аппарат за курсором; полоса — настоящая загрузка кадров вступления */
+(function(){
+  var ov = document.getElementById('boot'); if (!ov) return;
+  var bar = document.getElementById('bootBar'), txt = document.getElementById('bootTxt');
+  var cv = document.getElementById('bootField'), ctx = cv.getContext('2d');
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var NEED = 14, MAX = 7000, t0 = performance.now(), done = false, raf = 0;
+  document.documentElement.classList.add('booting');
+
+  var W = 0, H = 0, CELL = 54;
+  function size(){ var d = Math.min(2, devicePixelRatio || 1); W = innerWidth; H = innerHeight;
+    cv.width = Math.round(W * d); cv.height = Math.round(H * d); ctx.setTransform(d, 0, 0, d, 0, 0); }
+  size(); addEventListener('resize', size);
+
+  function hash(x, y){ var h = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return h - Math.floor(h); }
+  function code(x, y){ var L = 'ABCDEFGH'; return L[((x % 8) + 8) % 8] + '-' + ('0' + (((y % 24) + 24) % 24)).slice(-2); }
+
+  var tgt = { x: W * 0.5, y: H * 0.42 }, aim = { x: tgt.x, y: tgt.y }, pos = { x: tgt.x, y: tgt.y };
+  var vel = { x: 0, y: 0 }, tilt = 0, last = 0, trail = [], pings = [], idleAt = performance.now(), touched = false;
+  function point(e){ touched = true; idleAt = performance.now(); tgt.x = e.clientX; tgt.y = e.clientY; }
+  ov.addEventListener('pointermove', point, { passive: true });
+  ov.addEventListener('pointerdown', function(e){ point(e); pings.push({ x: e.clientX, y: e.clientY, t: 0 }); }, { passive: true });
+
+  function hide(){ if (done) return; done = true; cancelAnimationFrame(raf);
+    document.documentElement.classList.remove('booting'); ov.classList.add('off');
+    setTimeout(function(){ if (ov.parentNode) ov.parentNode.removeChild(ov); }, 700); }
+
+  function frame(now){
+    if (done) return;
+    // сколько кадров вступления уже пришло
+    var seq = window.__page && window.__page.intro, n = 0;
+    if (seq && seq.ok) for (var q = 0; q < seq.ok.length; q++) if (seq.ok[q]) n++;
+    var k = Math.min(1, n / NEED), age = now - t0;
+    bar.style.width = (k * 100).toFixed(0) + '%'; txt.textContent = 'Загрузка · ' + Math.round(k * 100) + '%';
+    if ((k >= 1 && document.readyState === 'complete') || age > MAX){ hide(); return; }
+
+    var dt = Math.min(2.2, Math.max(0.3, (now - (last || now)) / 16.667)); last = now;
+    if (!reduce && now - idleAt > 2600){ var a = now * 0.00042;
+      tgt.x = W * (0.5 + 0.26 * Math.cos(a)); tgt.y = H * (0.44 + 0.2 * Math.sin(a * 1.37)); }
+    aim.x += (tgt.x - aim.x) * Math.min(1, 0.11 * dt); aim.y += (tgt.y - aim.y) * Math.min(1, 0.11 * dt);
+    vel.x += (aim.x - pos.x) * 0.035 * dt; vel.y += (aim.y - pos.y) * 0.035 * dt;
+    var damp = Math.pow(0.86, dt); vel.x *= damp; vel.y *= damp;
+    if (reduce){ pos.x = aim.x; pos.y = aim.y; } else { pos.x += vel.x * dt; pos.y += vel.y * dt; }
+    trail.push({ x: pos.x, y: pos.y }); if (trail.length > 22) trail.shift();
+
+    ctx.clearRect(0, 0, W, H);
+    var g = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, Math.max(W, H) * 0.7);
+    g.addColorStop(0, '#0a141b'); g.addColorStop(1, '#04070a');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+
+    var R = Math.min(300, Math.max(190, Math.min(W, H) * 0.34));
+    ctx.lineWidth = 1;
+    for (var ix = 0; ix <= Math.ceil(W / CELL); ix++){
+      for (var iy = 0; iy <= Math.ceil(H / CELL); iy++){
+        var x = ix * CELL, y = iy * CELL, mx = x + CELL / 2, my = y + CELL / 2;
+        var d2 = Math.hypot(mx - pos.x, my - pos.y), near = Math.max(0, 1 - d2 / R), busy = hash(ix, iy) > 0.93;
+        var base = 0.05 + near * near * 0.5;
+        ctx.strokeStyle = busy ? 'rgba(224,179,79,' + (base + near * 0.25).toFixed(3) + ')' : 'rgba(120,200,224,' + base.toFixed(3) + ')';
+        ctx.strokeRect(x + 0.5, y + 0.5, CELL, CELL);
+        if (near > 0.18){ ctx.fillStyle = busy ? 'rgba(224,179,79,' + (near * 0.16).toFixed(3) + ')' : 'rgba(75,200,224,' + (near * 0.12).toFixed(3) + ')';
+          ctx.fillRect(x + 1, y + 1, CELL - 2, CELL - 2); }
+        if (near > 0.72){ ctx.font = '500 8.5px "IBM Plex Mono", monospace';
+          ctx.fillStyle = busy ? 'rgba(235,200,130,' + near.toFixed(3) + ')' : 'rgba(170,225,240,' + near.toFixed(3) + ')';
+          ctx.fillText(code(ix, iy), x + 6, y + 15); }
+        for (var p = 0; p < pings.length; p++){
+          var pr = pings[p].t * 0.6, dd = Math.abs(Math.hypot(mx - pings[p].x, my - pings[p].y) - pr);
+          if (dd < 26){ var a2 = (1 - dd / 26) * Math.max(0, 1 - pings[p].t / 900);
+            ctx.strokeStyle = 'rgba(92,214,240,' + (a2 * 0.9).toFixed(3) + ')'; ctx.strokeRect(x + 0.5, y + 0.5, CELL, CELL); }
+        }
+      }
+    }
+    for (var p2 = pings.length - 1; p2 >= 0; p2--){ pings[p2].t += 16; if (pings[p2].t > 950) pings.splice(p2, 1); }
+
+    if (!reduce && trail.length > 2){
+      for (var i = 1; i < trail.length; i++){ var a3 = i / trail.length * 0.5;
+        ctx.strokeStyle = 'rgba(75,200,224,' + a3.toFixed(3) + ')'; ctx.lineWidth = a3 * 2.4;
+        ctx.beginPath(); ctx.moveTo(trail[i - 1].x, trail[i - 1].y); ctx.lineTo(trail[i].x, trail[i].y); ctx.stroke(); }
+    }
+
+    var want = Math.max(-0.26, Math.min(0.26, vel.x * 0.02));
+    tilt += (want - tilt) * Math.min(1, 0.12 * dt);
+    ctx.save(); ctx.translate(pos.x, pos.y); ctx.rotate(tilt);
+    ctx.lineWidth = 1.6; var arm = 15;
+    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function(c){
+      ctx.strokeStyle = 'rgba(200,232,243,.9)';
+      ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(c[0] * arm, c[1] * arm * 0.72); ctx.stroke();
+      ctx.strokeStyle = 'rgba(75,200,224,.55)';
+      ctx.beginPath(); ctx.arc(c[0] * arm, c[1] * arm * 0.72, 8.5, 0, 6.2832); ctx.stroke();
+      ctx.fillStyle = 'rgba(75,200,224,.10)'; ctx.fill();
+    });
+    ctx.fillStyle = '#dff1f7'; ctx.fillRect(-5, -3.5, 10, 7);
+    ctx.restore();
+    var gl = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, 70);
+    gl.addColorStop(0, 'rgba(75,200,224,.22)'); gl.addColorStop(1, 'rgba(75,200,224,0)');
+    ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(pos.x, pos.y, 70, 0, 6.2832); ctx.fill();
+
+    if (touched && !reduce){
+      ctx.strokeStyle = 'rgba(92,214,240,.45)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(tgt.x, tgt.y, 13, 0, 6.2832); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(tgt.x - 20, tgt.y); ctx.lineTo(tgt.x - 6, tgt.y);
+      ctx.moveTo(tgt.x + 6, tgt.y); ctx.lineTo(tgt.x + 20, tgt.y);
+      ctx.moveTo(tgt.x, tgt.y - 20); ctx.lineTo(tgt.x, tgt.y - 6);
+      ctx.moveTo(tgt.x, tgt.y + 6); ctx.lineTo(tgt.x, tgt.y + 20); ctx.stroke();
+    }
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
